@@ -40,13 +40,16 @@ const analytics = getAnalytics(app);
 
 function App() {
   const [ currentFrequency, setCurrentFrequency ] = useState(null);
-  let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let audioContext = null;
   let micStream = null;
-  let analyzer = audioCtx.createAnalyser();
-  let audioData = new Float32Array(analyserNode.fftSize);
+  let analyzer = null;
+  let audioData = null;
 
   function startPitchDetection()
   {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyzer = audioContext.createAnalyser();
+      audioData = new Float32Array(analyzer.fftSize);
       //connect to user media device and access audio
       navigator.mediaDevices.getUserMedia ({audio: true})
           .then((stream) =>
