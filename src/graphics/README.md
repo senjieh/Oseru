@@ -16,6 +16,8 @@ scene.js - The node class, describes nodes that every actor is tied to
 light.js - The light class, extends the node class
 cam.js - the camera class, extends the node class
 controls.js - describes camera controls, depends on cam.js
-diamond_squares.js - a function that generates random terain meshes based on the diamond-square algorithm
 tex - texture directory, texture files go here
 objs - objects directory, mesh files go here
+
+## Credits
+Portions of this code was borrowed from Dr. Grant Williams
