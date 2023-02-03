@@ -192,8 +192,8 @@
                 }
             `;
             // NOTE: debuging vars
-            DRAW_ASTROIDS = true;
-            DRAW_SKYBOX = true;
+            //DRAW_ASTROIDS = true;
+            DRAW_SKYBOX = false;
             DRAW_SUN = true;
 
             let lit_program = 
@@ -217,10 +217,10 @@
             const DESIRED_TICK_RATE = 60;
             const DESIRED_MSPT = 1000.0 / DESIRED_TICK_RATE;
 
-            const ROTATION_SPEED = 0.2; // eighth turn per second
+            const ROTATION_SPEED = 0.1; // eighth turn per second
             const ROTATION_SPEED_PER_FRAME = ROTATION_SPEED / DESIRED_TICK_RATE;
 
-            const FLY_SPEED = 200;    // units per second
+            const FLY_SPEED = 10;    // units per second
             const FLY_SPEED_PER_FRAME = FLY_SPEED / DESIRED_TICK_RATE;
 
             let keys = Keys.start_listening();
@@ -230,9 +230,11 @@
             /*
             let metal = 
                 new LitMaterial( gl, 'tex/metal.png', gl.LINEAR, 0.25, 1, 2, 5 ); */
+            let debug_tex = 
+                new LitMaterial(gl, null, gl.LINEAR, 0.25, 1, 2, 5);
             
             
-            let light1 = new Light( -20, -20, 0, 1.0, 0.2, 0.9, 1 ); // yellow 
+            let light1 = new Light( -20, -20, 0, 1.0, 0.2, 0.9, 1 );
             let light2 = new Light(20,20,0, 0,1,0, 2);
 
 
@@ -255,8 +257,8 @@
             let cam = root.create_node(
                 0,0,0, 0,0,0, 1,1,1);
             root.set_camera_node(cam);
-            cam.translate( 0, 0, -50);
-            root.set_camera_node(cam);
+            //cam.translate( 0, 0, -50);
+            //root.set_camera_node(cam);
 
             /*let skybox = root.create_node(
                 0,0,0, 0,0,0, 1,1,1);
@@ -276,6 +278,13 @@
             let background_water = background.create_child_node(0,0,0, 0,0,0, 1,1,1);
             background_water.data = NormalMesh.platform(gl, current_program,
                 16, 16, 0, 1, water_tex);*/
+
+
+
+            let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
+            box.data = NormalMesh.box(gl, current_program, 
+                    4, 4, 4,
+                    debug_tex);
 
             
             // Track time
@@ -343,18 +352,18 @@
 
             // define controls
             const KEYMAP = {
-                //'Space': function() { cam.move_in_direction( 0, 0, FLY_SPEED_PER_FRAME ); },
-                //'KeyC': function() { cam.move_in_direction( 0, 0, -FLY_SPEED_PER_FRAME ); },
+                'Space': function() { cam.move_in_direction( 0, 0, FLY_SPEED_PER_FRAME ); },
+                'KeyC': function() { cam.move_in_direction( 0, 0, -FLY_SPEED_PER_FRAME ); },
                 'KeyA': function() { cam.move_in_direction( -FLY_SPEED_PER_FRAME, 0, 0 ); },
                 'KeyD': function() { cam.move_in_direction( FLY_SPEED_PER_FRAME, 0, 0 ); },
                 'KeyW': function() { cam.translate( 0, FLY_SPEED_PER_FRAME, 0 ); },
                 'KeyS': function() { cam.translate( 0, -FLY_SPEED_PER_FRAME, 0 ); },
-                /*'KeyQ': function() { cam.add_roll( -ROTATION_SPEED_PER_FRAME ); },
-                'KeyE': function() { cam.add_roll( ROTATION_SPEED_PER_FRAME ); },*/
+                'KeyQ': function() { cam.add_roll( -ROTATION_SPEED_PER_FRAME ); },
+                'KeyE': function() { cam.add_roll( ROTATION_SPEED_PER_FRAME ); },
                 'ArrowLeft': function() { cam.add_yaw( -ROTATION_SPEED_PER_FRAME ); },
                 'ArrowRight': function() { cam.add_yaw( ROTATION_SPEED_PER_FRAME ); },
-                /*'ArrowUp': function() { cam.add_pitch( -ROTATION_SPEED_PER_FRAME ); },
-                'ArrowDown': function() { cam.add_pitch( ROTATION_SPEED_PER_FRAME ); },*/
+                'ArrowUp': function() { cam.add_pitch( -ROTATION_SPEED_PER_FRAME ); },
+                'ArrowDown': function() { cam.add_pitch( ROTATION_SPEED_PER_FRAME ); },
             };
 
             // main loop
@@ -380,9 +389,9 @@
 
                 
                 // spin earth
-                earth.add_roll(ROTATION_SPEED_PER_FRAME*3);
+                //earth.add_roll(ROTATION_SPEED_PER_FRAME*3);
 
-                tmp_anch.add_roll(ROTATION_SPEED_PER_FRAME*32);
+                //tmp_anch.add_roll(ROTATION_SPEED_PER_FRAME*32);
                 // spin baybe spin!
 
                 // hardcoded lights

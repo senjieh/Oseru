@@ -11,6 +11,9 @@
 # production
 /build
 
+# texture assets
+/src/graphics/tex
+
 # misc
 .DS_Store
 .env.local
