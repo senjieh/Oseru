@@ -1,0 +1,49 @@
+
+:root {
+    --bg: #EEEEEE;
+    --buttonbg: #000000;
+    --fontcolor: #FFFFFF;
+    --border: #000000;
+    --selected: #3cac1a;
+    --hover: #333333;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+}
+
+main {
+    margin: 5rem auto;
+}
+
+.menu {
+    margin: 0 auto;
+    display: flex;
+    flex-flow: column wrap;
+    width: 10rem;
+    background: var(--buttonbg);
+}
+
+.button{
+    position: relative;
+    cursor: pointer;
+    background: var(--buttonbg);
+    border: none;
+    padding: 2rem;
+    color: var(--fontcolor);
+    transition: background 1s;
+}
+
+.button:hover {
+    background: var(--hover);
+}
+
+.selected {
+    background: var(--selected);
+}
