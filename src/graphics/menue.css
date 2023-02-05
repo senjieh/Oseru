@@ -1,0 +1,59 @@
+
+/* CSS styling for Modal boxes (are you sure/confirmation/etc)
+	TODO: make sure consistent with other menus
+	ref: https://www.youtube.com/watch?v=kJPkCGtv3vY
+	*/
+.modal {
+	background-color: rgba(0,0,0,0.9);
+	position: fized;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	opacity: 0;
+	transition: opacity 0.4s;
+}
+
+.modal.open {
+	opacity: 1;
+}
+
+.modal .content {
+	font-family: sans-serif;
+	background-color: white;
+	border-radius: 6px;
+	text-align: center;
+	padding: 4rem;
+	box-shadow: 0 0 64px 12px rgba(255, 255, 255, 0.2);
+}
+
+.modal .titleText{
+	font-weight: 900;
+	font-size: : 2rem;
+
+}
+
+.modal .messageText {
+	margin: 2rem 0;
+}
+
+.modal .content button{
+	width: 40%;
+	padding: : 0.75rem;
+	margin: : 0 5;
+	color: white;
+	border: 0;
+	border-radius: 6;
+}
+
+.modal .content button.cancelButtonText {
+	background-color: red;
+
+}
+
+.modal .content button.confirmButtonText {
+	background-color: green;
+}

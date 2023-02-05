@@ -5,8 +5,10 @@
             body { 
             }
             canvas {
-                width: 800;
-                height: 600;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
             }
             #render-button {
                 width: 180px;
@@ -17,6 +19,9 @@
             #user-matrix input { width: 64px; font-size: 24px; }
         </style>
     </head>
+
+
+    
 
     <body>
         <canvas id = "the-canvas" width = "800" height = "600"></canvas>
@@ -389,7 +394,9 @@
 
                 
                 // spin earth
-                //earth.add_roll(ROTATION_SPEED_PER_FRAME*3);
+                box.add_roll(ROTATION_SPEED_PER_FRAME*0.5);
+                box.add_pitch(ROTATION_SPEED_PER_FRAME*0.4);
+                box.add_yaw(ROTATION_SPEED_PER_FRAME*0.6)
 
                 //tmp_anch.add_roll(ROTATION_SPEED_PER_FRAME*32);
                 // spin baybe spin!
