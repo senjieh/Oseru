@@ -1,4 +1,17 @@
 
+.menue {
+
+}
+.menue .close {
+	position: relative;
+	width: 23px;
+	height: 23px;
+	border: 2px solid black;
+	background-color: red;
+	border-radius: 50%;
+}
+
+
 /* CSS styling for Modal boxes (are you sure/confirmation/etc)
 	TODO: make sure consistent with other menus
 	ref: https://www.youtube.com/watch?v=kJPkCGtv3vY

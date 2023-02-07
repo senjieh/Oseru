@@ -25,7 +25,34 @@ class Menue{
 		}
 
 		document.body.appendChild(this.elem);
-	}  
+	} 
+
+	static create_base(name='menu', content='menu_content') {
+		let modalElem = document.createElement('div');
+		modalElem.classList.add(name);
+		setTimeout(() => {
+			this.modalElem.classList.add('open');
+		}, 400);  // wait 400ms to ensure fades it
+
+		// content of modal box
+		const modal_content_elem = document.createElement('div');
+		modal_content_elem.classList.add(content);
+
+		modalElem.appendChild(modal_content_elem);
+
+		const close_button = document.createElement('button');
+		close_button.classList.add('close');
+		close_button.textContent = this.confirm_text;
+
+		confirm_text_elem.addEventListener('click' () => {
+			on_confirm('closed');
+			this.#close();
+		});
+
+		document.body.appendChild(confirm_text_elem);
+	}
+
+
 
 	add_text(text) {
 		const elem_text = document.createTextNode(text);
@@ -80,7 +107,7 @@ class Menue{
 
 /** Creates a modal text box popup (are you sure/confirmation/etc)
  * 
- * 
+ * ref: https://www.youtube.com/watch?v=kJPkCGtv3vY
  * 
  */
 class Modal {
@@ -103,11 +130,11 @@ class Modal {
 		this.modalElem.classList.add('modal');
 		setTimeout(() => {
 			this.modalElem.classList.add('open');
-		}, 400);  // wait 400ms to ensure fade it
+		}, 400);  // wait 400ms to ensure fades it
 
 		// content of modal box
 		const modal_content_elem = document.createElement('div');
-		modal_content_elem.classList.add('content');
+		modal_content_elem.classList.add('modal_content');
 
 		this.modalElem.appendChild(modal_content_elem);
 
