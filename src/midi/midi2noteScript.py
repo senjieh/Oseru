@@ -3,7 +3,7 @@
 # NO LONGER NEED! - the midi to frequency dictionary has been copied to midi_noteMapping.py and can be accessed from there
 # including this file for the sole purpose of proof of work/code
 
-import midi_noteMapping as md
+import midiMapping as md
 
 MIDI_to_frequency = dict()
 
