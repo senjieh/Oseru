@@ -6,20 +6,15 @@
     --border: #000000;
     --selected: #3cac1a;
     --hover: #333333;
+    --font: "Heebo", sans-serif; 
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-body {
+    font-family: var(--font);
     background: var(--bg);
-}
-
-main {
-    margin: 5rem auto;
 }
 
 .menu {
@@ -30,6 +25,7 @@ main {
     background: var(--buttonbg);
 }
 
+/* Bad buttons */
 .button{
     position: relative;
     cursor: pointer;
@@ -46,4 +42,37 @@ main {
 
 .selected {
     background: var(--selected);
+}
+
+/* Good buttons */
+.cooler-menu {
+    margin: 0 auto;
+    width: 10rem;
+    display: flex;
+    flex-flow: column wrap;
+    padding-top: 20px;
+}
+
+.select {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 3px;
+}
+
+.select-item {
+    padding: 30px;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 5px;
+    color: var(--fontcolor);
+    background: var(--buttonbg);
+    transition: background 1s;
+}
+.select-item:hover {
+    background: var(--hover);
+}
+
+.select-item--selected {
+    background: var(--selected);
+    color: #ffffff;
 }
