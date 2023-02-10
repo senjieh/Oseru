@@ -30,10 +30,34 @@ class Menu{
 		this.content_elem.classList.add(content_name);
 		this.elem.appendChild(this.content_elem);
 
-		/*this.elem_arr = [];
-		this.elem_arr.append(this.elem);
-		this.elem_arr.append(this.content_elem);*/
-		
+	}
+
+	/**
+	 * update position based on vec
+	 * 
+	 * IMPORTANT: dependant on matrix.js
+	 * ref: https://webgl2fundamentals.org/webgl/lessons/webgl-text-html.html
+	 * @param {Mat4}
+	 * @param {Vec4} point
+	 * @param {WebGLContext} gl
+	 */
+	update_position_vec(mat, vec, gl) {
+		// get coords of point to place window at
+		// convert to clip space
+		var point = mat.transform_vec(point);
+		point.x /= point.w;
+		point.y /= point.w
+		// menu is in 2d so no z
+
+		var pix_x = (point.x * 0.5 + 0.5) * gl.canvas.width;
+		var pix_y = (point.y * 0.5 + 0.5) * gl.canvas.height;
+
+		// position div
+		this.elem.style.left = Math.floor(pix_x) + "px";
+		this.elem.style.top = Math.floor(pix_y) + "px";
+
+		// not sure about this
+		this.content_elem.nodeValue = now.toFixed(2);
 	}
 
 	/**
@@ -89,6 +113,7 @@ class Menu{
 		return button_elem;
 	}
 
+
 	/** check box style menu option
 	 * 
 	 * @param {String} name
@@ -97,7 +122,39 @@ class Menu{
 	add_checkbox(name='checkBox', text=null) {
 		const input_elem = document.createElement('input');
 		input_elem.type = 'checkbox';
-		const lable_elem = document.createElement('name');
+		const lable_elem = document.createElement(name);
+		const lable_text = createTextNode(text);
+		lable_elem.appendChild(lable_text);
+		lable_elem.appendChild(input_elem);
+
+		this.content_elem.appendChild(input_elem);
+		return input_elem;
+	}
+
+	/**
+	 * input range menu option
+	 * 
+	 */
+	add_slider(name, text) {
+		const input_elem = document.createElement('input');
+		input_elem.type = 'range';
+		const lable_elem = document.createElement(name);
+		const lable_text = createTextNode(text);
+		lable_elem.appendChild(lable_text);
+		lable_elem.appendChild(input_elem);
+
+		this.content_elem.appendChild(input_elem);
+		return input_elem;
+	}
+
+	/**
+	 * textbox menu option
+	 * 
+	 */
+	add_slider(name, text) {
+		const input_elem = document.createElement('input');
+		input_elem.type = 'text';
+		const lable_elem = document.createElement(name);
 		const lable_text = createTextNode(text);
 		lable_elem.appendChild(lable_text);
 		lable_elem.appendChild(input_elem);
