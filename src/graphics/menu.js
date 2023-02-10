@@ -4,10 +4,8 @@ class Menu{
 	 * 
 	 * TODO: add method to set menu position via coords in webgl space
 	 * 		https://webglfundamentals.org/webgl/lessons/webgl-text-html.html
-	 * TODO: Check mark buttons
-	 * TODO: sliders
-	 * TODO: text field
 	 * TODO: extra dvs (maybe)
+	 * TODO: position elements and menu
 	 * 
 	 * TODO: test page to showcase/test different methods
 	 * 
@@ -123,8 +121,6 @@ class Menu{
 		const input_elem = document.createElement('input');
 		input_elem.type = 'checkbox';
 		const lable_elem = document.createElement(name);
-		const lable_text = createTextNode(text);
-		lable_elem.appendChild(lable_text);
 		lable_elem.appendChild(input_elem);
 
 		this.content_elem.appendChild(input_elem);
@@ -139,8 +135,6 @@ class Menu{
 		const input_elem = document.createElement('input');
 		input_elem.type = 'range';
 		const lable_elem = document.createElement(name);
-		const lable_text = createTextNode(text);
-		lable_elem.appendChild(lable_text);
 		lable_elem.appendChild(input_elem);
 
 		this.content_elem.appendChild(input_elem);
@@ -151,12 +145,10 @@ class Menu{
 	 * textbox menu option
 	 * 
 	 */
-	add_slider(name, text) {
+	add_textbox(name, text) {
 		const input_elem = document.createElement('input');
 		input_elem.type = 'text';
 		const lable_elem = document.createElement(name);
-		const lable_text = createTextNode(text);
-		lable_elem.appendChild(lable_text);
 		lable_elem.appendChild(input_elem);
 
 		this.content_elem.appendChild(input_elem);
