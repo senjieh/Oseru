@@ -57,7 +57,9 @@ class Menu{
 			});
 		}
 
-		document.body.appendChild(button_elem);
+		//document.body.appendChild(button_elem);
+		this.content_elem.appendChild(button_elem);
+		return button_elem;
 	}
 
 	/** check box style menu option
@@ -73,7 +75,7 @@ class Menu{
 		lable_elem.appendChild(lable_text);
 		lable_elem.appendChild(input_elem);
 
-		this.elem.appendChild(input_elem);
+		this.content_elem.appendChild(input_elem);
 	}
 
 	/**
@@ -84,7 +86,7 @@ class Menu{
 		text_elem.classList.add(content);
 		text_elem.textContent = content;
 
-		document.body.appendChild(text_elem);
+		this.content_elem.appendChild(text_elem);
 	}
 
 
@@ -98,15 +100,15 @@ class Menu{
 	/** closes modal
 	 */
 	close() {
-		this.modalElem.classList.remove('open');
-		setTimout(() => {
+		this.elem.classList.remove('open');
+		setTimeout(() => {
 			document.body.removeChild(this.elem)
 		}, 400);  // let things fade out before removing them
 	}
 
-	open_modal(title, text, confirm, reject) {
+	open_modal(title, text, confirm_text, reject_text) {
 		return new Promise ((resolve, reject) => {
-			this.create_open_modal(resolve, reject, title, text, confirm, reject)
+			this.create_open_modal(resolve, reject, title, text, confirm_text, reject_text)
 		});
 	}	
 
@@ -116,11 +118,15 @@ class Menu{
 			modal.elem.classList.add('open');
 		}, 400); */  // wait 400ms to ensure fades it
 
+		// TODO: funcs to add element should specify what element to return it to, or return element to add
+
 		this.add_text('titleText', title_text);
 		this.add_text('messageText', content_text);
-		this.add_button('confirmText', confirm_text, on_confirm, 'Confirmed');
+		let elem = this.add_close_button('confirmText', confirm_text, on_confirm, 'Confirmed');
+		this.content_elem.appendChild(elem);
 		if (reject_text) {
-			this.add_close_button('cancelText', reject_text, on_cancle, 'Cancelled');
+			let elem = this.add_close_button('cancelText', reject_text, on_cancle, 'Cancelled');
+			this.content_elem.appendChild(elem);
 		}
 
 		this.draw();
