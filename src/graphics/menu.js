@@ -2,6 +2,8 @@ class Menu{
 	/** Menu class
 	 *  this is a constructor for menus
 	 * 
+	 * call methods in order elements will be displayed top to bottom
+	 * 
 	 * TODO: add method to set menu position via coords in webgl space
 	 * 		https://webglfundamentals.org/webgl/lessons/webgl-text-html.html
 	 * TODO: extra dvs (maybe)
@@ -58,6 +60,15 @@ class Menu{
 		this.content_elem.nodeValue = now.toFixed(2);
 	}
 
+
+	/**
+	 * use to add line break between elements
+	 * 
+	 */
+	add_line_break() {
+
+	}
+
 	/**
 	 * add a button to the menu
 	 * @param {String} name
@@ -77,12 +88,19 @@ class Menu{
 		});
 
 		this.content_elem.appendChild(button_elem);
+
+		// add line break after element
+		const ln_break = document.createElement('br');
+		button_elem.parentNode.insertBefore(ln_break, button_elem.nextSibling);
+
 		return button_elem;
 	}
 
 	/**
 	 * special exit menu button
 	 * defaults to x button in top corner, but can be specified elsewhere as well
+	 * 
+	 * IMPORTANT: name should be 'close' to get default styling
 	 * 
 	 * @param {String} name
 	 * @param {String} text
@@ -107,6 +125,8 @@ class Menu{
 			});
 		}
 
+		// no line break because position should be specified by css
+
 		this.content_elem.appendChild(button_elem);
 		return button_elem;
 	}
@@ -124,12 +144,19 @@ class Menu{
 		lable_elem.appendChild(input_elem);
 
 		this.content_elem.appendChild(input_elem);
+
+		// add line break after element
+		const ln_break = document.createElement('br');
+		input_elem.parentNode.insertBefore(ln_break, input_elem.nextSibling);
+
 		return input_elem;
 	}
 
 	/**
 	 * input range menu option
 	 * 
+	 * @param {String} name
+	 * @param {String} text
 	 */
 	add_slider(name, text) {
 		const input_elem = document.createElement('input');
@@ -137,13 +164,18 @@ class Menu{
 		const lable_elem = document.createElement(name);
 		lable_elem.appendChild(input_elem);
 
-		this.content_elem.appendChild(input_elem);
+		// add line break after element
+		const ln_break = document.createElement('br');
+		input_elem.parentNode.insertBefore(ln_break, input_elem.nextSibling);
+
 		return input_elem;
 	}
 
 	/**
 	 * textbox menu option
 	 * 
+	 * @param {String} name
+	 * @param {String} text
 	 */
 	add_textbox(name, text) {
 		const input_elem = document.createElement('input');
@@ -152,11 +184,17 @@ class Menu{
 		lable_elem.appendChild(input_elem);
 
 		this.content_elem.appendChild(input_elem);
+
+		// add line break after element
+		const ln_break = document.createElement('br');
+		input_elem.parentNode.insertBefore(ln_break, input_elem.nextSibling);
+
 		return input_elem;
 	}
 
 	/**
 	 * add a text block to the menu
+	 * 
 	 * @param {String} name of block for css
 	 * @param {String} content of text block
 	 */
@@ -166,6 +204,11 @@ class Menu{
 		text_elem.textContent = content;
 
 		this.content_elem.appendChild(text_elem);
+
+		// add line break after element
+		//const ln_break = document.createElement('br');
+		//text_elem.parentNode.insertBefore(ln_break, text_elem.nextSibling);
+
 		return text_elem;
 	}
 
