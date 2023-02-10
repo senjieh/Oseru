@@ -2,7 +2,7 @@
 .menue {
 
 }
-.menue .close {
+.menu .close {
 	position: relative;
 	width: 23px;
 	height: 23px;
@@ -34,7 +34,7 @@
 	opacity: 1;
 }
 
-.modal .content {
+.modal .modal_content {
 	font-family: sans-serif;
 	background-color: white;
 	border-radius: 6px;
