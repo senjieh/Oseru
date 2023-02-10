@@ -157,8 +157,11 @@ class Menu{
 	 * 
 	 * @param {String} name
 	 * @param {String} text
+	 * @param {int} starting value
+	 * @param {int} min value
+	 * @param {int} max value
 	 */
-	add_slider(name, text) {
+	add_slider(name, text, start, min, max) {
 		const input_elem = document.createElement('input');
 		input_elem.type = 'range';
 		const lable_elem = document.createElement(name);
@@ -202,7 +205,7 @@ class Menu{
 	 */
 	add_text(name, content) {
 		const text_elem = document.createElement('p');
-		text_elem.classList.add(content);
+		text_elem.classList.add(name);
 		text_elem.textContent = content;
 
 		this.content_elem.appendChild(text_elem);
@@ -212,6 +215,24 @@ class Menu{
 		//text_elem.parentNode.insertBefore(ln_break, text_elem.nextSibling);
 
 		return text_elem;
+	}
+
+	/**
+	 * add label to element
+	 * 
+	 * @param {String} name of block for css
+	 * @param {String} content of block
+	 * @param {String} name of element to add text to
+	 * 
+	 * FIXME
+	 */
+	add_text_element(name, content, target) {
+		const target_elem = document.getElementById(target);
+		const text_elem = document.createElement('p');
+		text_elem.classList.add(name);
+		text_elem.textContent = content;
+
+		target_elem.parentNode.insertBefore(text_elem, target_elem);
 	}
 
 
@@ -241,7 +262,7 @@ class Menu{
 			console.log("menu already open");
 		} else {
 			setTimeout(() => {
-				this.elem.classList.add('open');
+				this.draw();
 			}, 400);  // wait 400ms to ensure fades it
 
 			this.is_open = true;
