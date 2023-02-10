@@ -164,6 +164,8 @@ class Menu{
 		const lable_elem = document.createElement(name);
 		lable_elem.appendChild(input_elem);
 
+		this.content_elem.appendChild(input_elem);
+
 		// add line break after element
 		const ln_break = document.createElement('br');
 		input_elem.parentNode.insertBefore(ln_break, input_elem.nextSibling);
@@ -177,7 +179,7 @@ class Menu{
 	 * @param {String} name
 	 * @param {String} text
 	 */
-	add_textbox(name, text) {
+	add_input_textbox(name, text) {
 		const input_elem = document.createElement('input');
 		input_elem.type = 'text';
 		const lable_elem = document.createElement(name);
