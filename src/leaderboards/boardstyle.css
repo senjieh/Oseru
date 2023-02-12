@@ -1,0 +1,26 @@
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+}
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+th {
+  background-color: #db7516;
+  color: rgb(0, 0, 0);
+}
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.name-label {
+  margin-right: 10px;
+}
+.score-form-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
