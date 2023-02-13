@@ -88,8 +88,9 @@ class Score {
             0,0,0, 0,0,0, 1,1,1);
         this.root.set_camera_node(cam);
 
-		let note_root = this.root.create_node(
-			0,0,0, 0,0,0, 0,0,0);
+        // notes child of camera so they stay static on screen if camera moves
+		let note_root = cam.create_node(
+			0,0,2, 0,0,0, 0,0,0);
 		Object.entries(this.note_data)
 			.filter()//TODO // is note event
 			.map(note => this.#make_note(note)) // create note
