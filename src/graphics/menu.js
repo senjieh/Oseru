@@ -9,8 +9,6 @@ class Menu{
 	 * TODO: extra dvs (maybe)
 	 * TODO: position elements and menu
 	 * 
-	 * TODO: test page to showcase/test different methods
-	 * 
 	 * @param {String} element name
 	 * @param {String} content div name
 	 * 

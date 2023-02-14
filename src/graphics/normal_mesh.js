@@ -110,6 +110,27 @@ class NormalMesh {
     }
 
     /**
+     * like a box, but 2d without needing to draw 0 length depth
+     */
+    static rectangle(gl, program, width, height, material) {
+        let hwidth = width / 2.0;
+        let hheight = height / 2.0;
+
+        let verts = [
+            hwidth, -hheight, 0,  1.0, 1.0, 1.0, 1.0,     1.0, 1.0,   0.0, 0.0, -1.0,
+            -hwidth, -hheight, 0, 1.0, 1.0, 1.0, 1.0,     0.0, 1.0,   0.0, 0.0, -1.0,
+            -hwidth, hheight, 0,  1.0, 1.0, 1.0, 1.0,     0.0, 0.0,   0.0, 0.0, -1.0,
+            hwidth, hheight, 0,   1.0, 1.0, 1.0, 1.0,     1.0, 0.0,   0.0, 0.0, -1.0
+        ];
+
+        let indis = [
+            0, 3, 2, 2, 1, 0
+        ];
+
+        return new NormalMesh(gl, program, verts, indis, material, false);
+    }
+
+    /**
      * Create a flat platform in the xz plane.
      * @param {WebGLRenderingContext} gl 
      */
@@ -146,6 +167,7 @@ class NormalMesh {
         bind_texture_samplers( gl, this.program, "tex_0" );
 
         gl.activeTexture( gl.TEXTURE0 );
+        // don't always want a texture
         this.material.bind( gl, this.program );
 
         set_uniform_int( gl, this.program, 'use_color', this.use_color );
