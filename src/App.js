@@ -24,9 +24,7 @@ const firebaseConfig = {
   storageBucket: "oseru-44da8.appspot.com",
 
   messagingSenderId: "215273476431",
-
   appId: "1:215273476431:web:bb78ac27dafcf3d4e5353a",
-
   measurementId: "G-2FEXLBS386"
 
 };
@@ -45,10 +43,10 @@ function App() {
   let analyzer = null;
   let audioData = null;
 
-  function startPitchDetection()
-  {
+  function startPitchDetection(){
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       analyzer = audioContext.createAnalyser();
+      analyzer.fftSize = 16384;
       audioData = new Float32Array(analyzer.fftSize);
       //connect to user media device and access audio
       navigator.mediaDevices.getUserMedia ({audio: true})
@@ -67,10 +65,10 @@ function App() {
                   analyzer.getFloatFrequencyData(audioData);
                   
                   //calculate pitch
-                  let pitch = calcFrequency(audioData, audioContext.sampleRate);
+                  let pitches = calcFrequency(audioData, audioContext.sampleRate);
 
                   //update react component
-                  setCurrentFrequency(`${pitch}`);
+                  setCurrentFrequency(`${pitches}`);
               }, 100);
           })
           // catch any errors
@@ -81,8 +79,40 @@ function App() {
   }
 
   function calcFrequency(buffer, sampleRate) {
-    //calculate frequency
-    console.log(buffer);
+
+    const frequencyRange = (sampleRate/2)/(buffer.length/2);
+
+    var peakFrequencies = [];
+
+    for (let i = 0; i < buffer.length/2; i++) {
+      
+      if (parseFloat(buffer[i]) > parseFloat(buffer[i-1]) && parseFloat(buffer[i]) > parseFloat(buffer[i+1]) ){
+        peakFrequencies.push([buffer[i], i]);
+      }
+    }
+
+    var topPeakFrequencies = [];
+
+    peakFrequencies.sort(function(a, b){return a[0] - b[0]}).reverse()
+    
+    var topNotesCount = 5;
+
+    for (let i = 0; i < topNotesCount; i++){
+      var inRange = false;
+      for (let tp = 0; tp < topPeakFrequencies.length; tp++){
+        if (parseInt(topPeakFrequencies[tp][1] *0.8) < parseInt(peakFrequencies[i][1])  &&  parseInt(topPeakFrequencies[tp][1] *1.2) > parseInt(peakFrequencies[i][1])){
+          inRange = true;
+          topNotesCount ++;
+          break;
+        }
+      }
+      if (!inRange) {
+        topPeakFrequencies.push(peakFrequencies[i]);
+      }
+    }
+
+    
+    return topPeakFrequencies.map((pitch) => (pitch[1]*frequencyRange));
   }
 
   return (
