@@ -136,7 +136,12 @@ class Node {
             }
         }
         else if( this.data instanceof NormalMesh ) {
-            jobs.push( new RenderMesh( matrix, this.data ) )
+            jobs.push( new RenderMesh( matrix, this.data ) );
+        }
+        // NOTE: dependent on node_note.js
+        else if(this.data instanceof NodeNote) {
+            jobs.push(new RenderMesh(matrix, this.data.mesh));
+            //console.log(matrix);
         }
         else if( this.data == null ) {
             // do nothing

@@ -6,9 +6,9 @@ TimeingDict = {
 	0.125:'yellow',		// eight note
 	0.0625:'orange',	// sixteenth note
 	0.03125:'indigo',	// thirty-second note
-	(1/3):'purple'		// tripilate 
-
+	0.333333:'purple',		// triplet 
 }
+
 ColorDict = {
 	'red':[1,0,0],
 	'green':[0,1,0],
@@ -16,13 +16,13 @@ ColorDict = {
 	'yellow':[],
 	'orange':[],
 	'indigo':[],
-	'purple':[]
+	'purple':[],
 }
 // colored materials to look up to wrap notes in
 // TODO: material dict
-MaterialDic{
+//MaterialDic = {
 
-}
+//}
 
 class NodeNote {
 	/**
@@ -112,7 +112,7 @@ class Score {
 		this.great = great;
 		this.fine = fine;
 
-		let this.root = new Scene();
+		//let this.root = new Scene();
 
         // initalize camera
         let cam = this.root.create_node(
