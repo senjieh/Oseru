@@ -315,16 +315,17 @@
 
             // calc frustum edge
             let distance = 3;
-            let fov_rads = 2* Math.PI * FOV_ANGLE;
-            let edge_distance = Math.tan(fov_rads/2) * distance;
-
-            let num_notes = 50;
+            let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
+            // calc note width
+            let num_notes = 7;
             let padding_pre = 0.05;
             let div_width = (2*edge_distance)/num_notes;
             let padding = div_width * padding_pre;
             let width = div_width - padding;
+            // TODO still bugged
+
             let height = width/3;
-            let bottom = -edge_distance + width/3 + 0.2;
+            let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
             for (let i=0; i<num_notes; i++) {
                 let left = -edge_distance + (padding + width)/2 + i*(width+padding);
