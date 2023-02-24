@@ -8,6 +8,7 @@
 
 import mido
 import midiMapping as mm
+import instMapping as im
 from collections import namedtuple
 import heapq
 import json
@@ -84,6 +85,15 @@ class readMidi():
                     print(msg)
                     port.send(msg)
 
+    def midiTracks(self):
+        midiFile = "midifiles/" + str(self.songTitle) + ".mid"
+        mid = mido.MidiFile(midiFile)
+
+        for msg in mid:
+            if msg.type == 'program_change':
+                print(msg)
+                print(im.getInstClass(msg.program))
+
     def playArray(self):
         """ This method converts the notes in the array to MIDI messages and output them to a port,
         but does not save them in a MIDI file."""
@@ -103,12 +113,13 @@ if __name__ == "__main__":
     # mainChannel MUST be a list of the channels that play the primary instruments
 
     midiObj = readMidi(songTitle="SilentNight", mainChannel=[2])
-    midiObj.midiToArray()
-    print("midi to array done")
-    midiObj.toJSON()
-    print("midi to json done")
-    midiObj.playMidi()
-    print("play midi done")
+    midiObj.midiTracks()
+    #midiObj.midiToArray()
+    #print("midi to array done")
+    #midiObj.toJSON()
+    #print("midi to json done")
+    #midiObj.playMidi()
+    #print("play midi done")
 
 
 # additional crap i may need to remember
