@@ -237,7 +237,9 @@
             let keys = Keys.start_listening();
 
             // setup projection matrix
-            let projection = Mat4.perspective_fovx( 0.125, 4 / 3, 0.125, 1024 );
+            const FOV_ANGLE = 0.125;
+            const ASPECT_RATIO = 4/3;
+            let projection = Mat4.perspective_fovx( FOV_ANGLE, ASPECT_RATIO, 0.125, 1024 );
             let current_program = lit_program;
 
 //----------------------------------------------------------------------------------------------------
@@ -303,13 +305,39 @@
                     4, 4, 4,
                     debug_tex);*/
 
-            let note_root = root.create_node(-0.8,-0.92,3, 0,0,0, 0.5,0.5,0.5,);
+            /*let note_root = root.create_node(-0.8,-0.92,3, 0,0,0, 0.5,0.5,0.5,);
             let note = note_root.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
             note.data = new NodeNote(1,1,1,1,
                 NormalMesh.platform(gl, current_program, 
                     0.3, 0.1, 0, 1,
                     debug_tex),
-                false);
+                false);*/
+
+            // calc frustum edge
+            let distance = 3;
+            let fov_rads = 2* Math.PI * FOV_ANGLE;
+            let edge_distance = Math.tan(fov_rads/2) * distance;
+
+            let num_notes = 50;
+            let padding_pre = 0.05;
+            let div_width = (2*edge_distance)/num_notes;
+            let padding = div_width * padding_pre;
+            let width = div_width - padding;
+            let height = width/3;
+            let bottom = -edge_distance + width/3 + 0.2;
+
+            for (let i=0; i<num_notes; i++) {
+                let left = -edge_distance + (padding + width)/2 + i*(width+padding);
+
+                let note_root = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
+                let note = note_root.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
+                note.data = new NodeNote(1,1,1,1,
+                    NormalMesh.platform(gl, current_program, 
+                        width, height, 0, 1,
+                        debug_tex),
+                    false);
+            }
+
 
             
             // Track time
@@ -420,9 +448,9 @@
 
                 
                 // spin earth
-                box.add_roll(ROTATION_SPEED_PER_FRAME*0.5);
-                box.add_pitch(ROTATION_SPEED_PER_FRAME*0.4);
-                box.add_yaw(ROTATION_SPEED_PER_FRAME*0.6)
+                //box.add_roll(ROTATION_SPEED_PER_FRAME*0.5);
+                //box.add_pitch(ROTATION_SPEED_PER_FRAME*0.4);
+                //box.add_yaw(ROTATION_SPEED_PER_FRAME*0.6)
 
                 //tmp_anch.add_roll(ROTATION_SPEED_PER_FRAME*32);
                 // spin baybe spin!
