@@ -1,6 +1,5 @@
-
 class Node {
-    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data ) {
+    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, parent=null ) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -16,6 +15,7 @@ class Node {
         this.data = data;
 
         this.children = [];
+        this.parent = parent;
     }
 
     add_yaw( amount ) { 
@@ -114,7 +114,7 @@ class Node {
     }
 
     create_child_node( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data ) {
-        let child = new Node( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data );
+        let child = new Node( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, this );
         this.children.push( child );
 
         return child;
@@ -126,7 +126,7 @@ class Node {
         return matrix.get_transformed_coordinates();
     }
 
-    generate_render_batch( parent_matrix, jobs, lights ) {
+    generate_render_batch( parent_matrix, jobs, lights, notes,  time ) {
         let matrix = parent_matrix.mul( this.get_matrix() );
 
         if( this.data instanceof NodeLight ) {
@@ -138,10 +138,25 @@ class Node {
         else if( this.data instanceof NormalMesh ) {
             jobs.push( new RenderMesh( matrix, this.data ) );
         }
+        else if (this.data instanceof NoteSpawner) {
+            let note = this.data.generate_note(time);
+            if (note) {
+                this.create_child_node(0,0,0, 0,0,0, 1,1,1, null);
+            }
+        }
         // NOTE: dependent on node_note.js
         else if(this.data instanceof NodeNote) {
-            jobs.push(new RenderMesh(matrix, this.data.mesh));
+            // cal position in node based on time instead of updating based on frame
+            jobs.push(new RenderMesh(this.data.pos_mat(time), this.data.mesh));
             //console.log(matrix);
+            this.data.play(time);
+            if (this.data.past_top) {
+                // drop node if past top
+                this.parent.children = this.parent.children.filter(
+                    item => item.data instanceof NodeNote &&
+                    item.data.past_top
+                );
+            }
         }
         else if( this.data == null ) {
             // do nothing
