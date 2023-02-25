@@ -322,16 +322,15 @@
             let div_width = (2*edge_distance)/num_notes;
             let padding = div_width * padding_pre;
             let width = div_width - padding;
-            // TODO still bugged
-
+            // calc height
             let height = width/3;
             let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
             for (let i=0; i<num_notes; i++) {
                 let left = -edge_distance + (padding + width)/2 + i*(width+padding);
 
-                let note_root = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
-                let note = note_root.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
+                let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
+                let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
                 note.data = new NodeNote(1,1,1,1,
                     NormalMesh.platform(gl, current_program, 
                         width, height, 0, 1,

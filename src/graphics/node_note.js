@@ -84,6 +84,49 @@ class NodeNote {
 	}
 }
 
+class NoteSpawner{
+	/**
+	 * note spawner
+	 * @param {[dict]} note data
+	 */
+	constructor(data) {
+		this.data = data;
+	}
+
+	// TODO: song will need lead time for first notes to spawn and move
+	generate_note(time) {
+		for (int i=0; i<this.data.length; i++) {
+			// spawn notes close to being needed that haven't been spawned yet
+			if (this.data[i]['time'] >= time) {
+				if (this.data[i]['spawned']){
+					this.data[i]['spawned'] = true;
+					return new NodeNote(this.data[i]);
+				}
+			// drop notes that have already scrolled off screen.
+			} else if (this.data[i]['time'] > time+10){
+				this.data = this.data.slice(0,i);
+				return null;
+				// TODO: what about long held notes
+			}
+		}
+	}
+
+	/**
+	 * makes a node with spawner for data
+	 * @param {[Note]} sorted list of notes spawner will make
+	 * @param {float} normal node data etc.
+	 * 
+	 * @return {Node} spawner node
+	 */
+	static spawner_node(data, x, y, z=0, roll=0, pitch=0, yaw=0, scale_x=0, scale_y=scale_x, scale_z=scale_x) {
+		return new Node(x, y, z,
+			roll, pitch, yaw,
+			scale_x, scale_y, scale_z,
+			new NoteSpawner(data)
+		);
+	}
+}
+
 class Score {
 	/**
 	 * score class
@@ -122,7 +165,34 @@ class Score {
         // notes child of camera so they stay static on screen if camera moves
 		let note_root = cam.create_node(
 			0,0,2, 0,0,0, 0,0,0, null);
-		Object.entries(this.note_data)
+
+		// calc frustum edge
+            let distance = 3;
+            let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
+            // calc note width
+            let num_notes = 7;
+            let padding_pre = 0.05;
+            let div_width = (2*edge_distance)/num_notes;
+            let padding = div_width * padding_pre;
+            let width = div_width - padding;
+            // calc height
+            let height = width/3;
+            let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
+
+
+            for (let i=0; i<num_notes; i++) {
+                let left = -edge_distance + (padding + width)/2 + i*(width+padding);
+
+                let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
+                let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
+                note.data = new NodeNote(1,1,1,1,
+                    NormalMesh.platform(gl, current_program, 
+                        width, height, 0, 1,
+                        debug_tex),
+                    false);
+            }
+
+		/*Object.entries(this.note_data)
 			.filter()//TODO // is note event
 			.map(note => this.#make_note(note)) // create note
 			.map(note => note_root.create_child(0,0,0, 0,0,0, 0,0,0, note))
@@ -142,7 +212,7 @@ class Score {
 			let target = this.#make_target(range+i);
 			// targets are width 3 and one unit apart
 			target_root.create_node(i*4,0,0, 0,0,0, 0,0,0, target);
-		}
+		}*/
 
 		if (background) {
 			// add background to scene
