@@ -126,7 +126,7 @@ class Node {
         return matrix.get_transformed_coordinates();
     }
 
-    generate_render_batch( parent_matrix, jobs, lights, notes,  time ) {
+    generate_render_batch( parent_matrix, jobs, lights, time=0 ) {
         let matrix = parent_matrix.mul( this.get_matrix() );
 
         if( this.data instanceof NodeLight ) {
@@ -139,29 +139,34 @@ class Node {
             jobs.push( new RenderMesh( matrix, this.data ) );
         }
         else if (this.data instanceof NoteSpawner) {
-            let note = this.data.generate_note(time);
-            if (note) {
-                this.create_child_node(0,0,0, 0,0,0, 1,1,1, null);
-            }
+            //let note = this.data.generate_note(time);
+            //if (note) {
+                //this.create_child_node(0,0,0, 0,0,0, 1,1,1, null);
+            //}
         }
         // NOTE: dependent on node_note.js
         else if(this.data instanceof NodeNote) {
             // cal position in node based on time instead of updating based on frame
-            jobs.push(new RenderMesh(this.data.pos_mat(time), this.data.mesh));
-            //console.log(matrix);
-            this.data.play(time);
+            //jobs.push(new RenderMesh(this.data.get_pos(time), this.data.mesh));
+            jobs.push(new RenderMesh(matrix, this.data.mesh));
+            //console.log(this.data.mesh);
+            // TODO: this should be in game loop, not render loop
+            /*this.data.play(time);
             if (this.data.past_top) {
                 // drop node if past top
                 this.parent.children = this.parent.children.filter(
                     item => item.data instanceof NodeNote &&
                     item.data.past_top
                 );
-            }
         }
         else if( this.data == null ) {
             // do nothing
-        }
-        else {
+        }*/
+        } else if (this.data instanceof NoteSpawner) {
+            //
+        } else if (this.data == null) {
+            // do nothing
+        } else {
             console.log( this );
             throw new Error( 
                 'unrecognized node data: ' + 
@@ -170,7 +175,7 @@ class Node {
         }
 
         for( let child of this.children ) {
-            child.generate_render_batch( matrix, jobs, lights );
+            child.generate_render_batch( matrix, jobs, lights, time );
         }
     }
 

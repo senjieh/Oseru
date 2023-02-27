@@ -299,12 +299,6 @@
                 16, 16, 0, 1, water_tex);*/
 
 
-
-            /*let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
-            box.data = NormalMesh.box(gl, current_program, 
-                    4, 4, 4,
-                    debug_tex);*/
-
             /*let note_root = root.create_node(-0.8,-0.92,3, 0,0,0, 0.5,0.5,0.5,);
             let note = note_root.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
             note.data = new NodeNote(1,1,1,1,
@@ -326,18 +320,37 @@
             let height = width/3;
             let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
+            let spawners = [];
+
+            let note_node = new NodeNote(1,1,1,1,
+                NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1,
+                    debug_tex),
+                false);
+
             for (let i=0; i<num_notes; i++) {
                 let left = -edge_distance + (padding + width)/2 + i*(width+padding);
 
-                let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
+                let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1);
+                note_spawner.data = new NoteSpawner(null, note_spawner, note_node);
+                spawners.push(note_spawner);
                 let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
-                note.data = new NodeNote(1,1,1,1,
-                    NormalMesh.platform(gl, current_program, 
-                        width, height, 0, 1,
-                        debug_tex),
-                    false);
+                note.data = note_node;
             }
 
+            // make targets for notes
+            for (let i=0; i<spawners.length; i++) {
+                let tmp_node = spawners[i].create_child_node(0,0,0, 0,0.25,0, 1,1,1, NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1,
+                    debug_tex));
+                let top = spawners[i].data.get_target_height(padding, height);
+                tmp_node.warp(tmp_node.x, top, tmp_node.z);
+            }
+
+            /*let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
+            box.data = NormalMesh.box(gl, current_program, 
+                    4, 4, 4,
+                    debug_tex);*/
 
             
             // Track time
@@ -352,6 +365,7 @@
 //----------------------------------------------------------------------------------------------------
             function render( now ) {
                 last_update = now;
+                //console.log(now);
 
                 // get permission to draw frame from browser
                 requestAnimationFrame( render );
@@ -371,7 +385,7 @@
                 // generate list of meshes to draw
                 let mesh_list = [];
                 let light_list = []
-                root.generate_render_batch(mesh_list, light_list);
+                root.generate_render_batch(mesh_list, light_list, now);
 
                 // TODO: this is a stop gap as currently shader only accepts two hard-ocded dynamic lights
                 //light_list[0].bind(gl, current_program);

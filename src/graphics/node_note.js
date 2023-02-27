@@ -52,7 +52,7 @@ class NodeNote {
 
 		this.pos_mat = pos_mat;
 
-		this.data.past_top = false;
+		this.past_top = false;
 	}
 
 	/**
@@ -117,7 +117,7 @@ class NoteSpawner{
 	constructor(data, node, note_mesh) {
 		this.data = data;
 		this.note_mesh = note_mesh;
-		this.node = note;
+		this.node = node;
 	}
 
 	/**
@@ -127,31 +127,29 @@ class NoteSpawner{
 	 * @param {float} height of note
 	 * @param {float} fov angle, defaults to 0.125, FOV_ANGLE in main
 	 * @param {float} aspect ratio, defaults to 4/3, ASPECT_RATIO on main
-	 * @param {LitMaterial}, testure for target, defaults to note texture
+	 * 
+	 * @return {float} y position of target
 	 */
-	make_target(padding, height, fov_angle=0.125, aspect_ratio=4/3, target_tex=the.note_mesh.material) {
-		// can define unique target texture if desired
-		let target_mesh = this.note_mesh;
-		target_mesh.material = target_tex; 
-
+	get_target_height(padding, height, fov_angle=0.125, aspect_ratio=4/3) {
 		// calc top edge of screen
 		const distance = this.node.z;
 		const edge_distance = Math.tan(Math.PI * fov_angle) * distance;
 		// calc node position
-		const top = edge_distance * (1/aspect_ratio) - height/2 + padding;
+		let top = edge_distance * (1/aspect_ratio) - height/2 - padding;
+		// idk why I need this but I do
+		top *= 2;
 
 		// create mesh and move it to top of screen
-		let target = this.node.create_child_node(0,0,0, 0,0,0, 1,1,1, target_mesh);
+		//target.data = target_mesh;
 		// easier to warp then to try and calc distance from spawner to correct target position
-		target.warp(target.x, top ,target.z);
-
+		return top;
 	}
 
 
 
 	// TODO: song will need lead time for first notes to spawn and move
 	generate_note(time) {
-		for (int i=0; i<this.data.length; i++) {
+		for (let i=0; i<this.data.length; i++) {
 			// spawn notes close to being needed that haven't been spawned yet
 			if (this.data[i]['time'] >= time) {
 				if (this.data[i]['spawned']){
@@ -235,17 +233,25 @@ class Score {
         let height = width/3;
         let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
+        this.spawners = [];
 
         for (let i=0; i<num_notes; i++) {
             let left = -edge_distance + (padding + width)/2 + i*(width+padding);
 
             let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
+            this.spawners.push[note_spawner];
+            // debug to create static notes
             let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
             note.data = new NodeNote(1,1,1,1,
                 NormalMesh.platform(gl, current_program, 
                     width, height, 0, 1,
                     debug_tex),
                 false);
+        }
+
+        // Spawn targets
+        for (let i=0; i<this.spawners.length; i++) {
+        	this.spawners[i].make_target(padding, height);
         }
 
 		/*Object.entries(this.note_data)
