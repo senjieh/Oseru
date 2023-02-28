@@ -1,0 +1,78 @@
+
+:root {
+    --bg: #EEEEEE;
+    --buttonbg: #000000;
+    --fontcolor: #FFFFFF;
+    --border: #000000;
+    --selected: #3cac1a;
+    --hover: #333333;
+    --font: "Heebo", sans-serif; 
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font);
+    background: var(--bg);
+}
+
+.menu {
+    margin: 0 auto;
+    display: flex;
+    flex-flow: column wrap;
+    width: 10rem;
+    background: var(--buttonbg);
+}
+
+/* Bad buttons */
+.button{
+    position: relative;
+    cursor: pointer;
+    background: var(--buttonbg);
+    border: none;
+    padding: 2rem;
+    color: var(--fontcolor);
+    transition: background 1s;
+}
+
+.button:hover {
+    background: var(--hover);
+}
+
+.selected {
+    background: var(--selected);
+}
+
+/* Good buttons */
+.cooler-menu {
+    margin: 0 auto;
+    width: 10rem;
+    display: flex;
+    flex-flow: column wrap;
+    padding-top: 20px;
+}
+
+.select {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 3px;
+}
+
+.select-item {
+    padding: 30px;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 5px;
+    color: var(--fontcolor);
+    background: var(--buttonbg);
+    transition: background 1s;
+}
+.select-item:hover {
+    background: var(--hover);
+}
+
+.select-item--selected {
+    background: var(--selected);
+    color: #ffffff;
+}
