@@ -18,7 +18,7 @@ data = namedtuple('data',['time_played', 'note', 'note_held','velocity','channel
 
 class readMidi():
 
-    def __init__(self, songTitle, mainChannel):
+    def __init__(self, songTitle):
         """ A songTitle and mainChannel must be passed in to properly initialize this class where
         songTitle is the name of the MIDI file without the MIDI extension and mainChannel is a list
         of channels that play the primary instruments.
@@ -27,11 +27,42 @@ class readMidi():
         self.songTitle = songTitle
         self.musicArray = []
         self.musicMatch = []
-        self.mainInstChannel = mainChannel #eventually should be self.determineMainChannel()
+        self.mainInstChannel = []
+        self.supportInstChannel =  []
+        self.determineMainChannel()
 
     def determineMainChannel(self):
-        """ Returns an array that contains the main channel(s) on which the primary instrument will be played."""
-        pass
+        """ Returns an array that contains the main channel(s) on which the primary instrument will be played and
+        assigns all other channels to be supporting instrument channels."""
+        midiFile = "midifiles/" + str(self.songTitle) + ".mid"
+        mid = mido.MidiFile(midiFile)
+        noteCount = {}
+        for msg in mid:
+            if msg.type == 'note_on' or msg.type == 'note_off':
+                if msg.channel not in noteCount:
+                    noteCount[msg.channel] = 1
+                else:
+                    prevCount = noteCount[msg.channel]
+                    noteCount[msg.channel] = prevCount + 1
+        for msg in mid:
+                if msg.type == 'program_change':
+                    print(msg, noteCount[msg.channel])
+                    inst = im.getInstClass(msg.program)
+                    print(inst)
+                    if ((inst == "Piano") or (inst == "Guitar") or (inst == "Strings") or (inst == "Synth Lead")):
+                        self.mainInstChannel.append(msg.channel)
+                    else:
+                        self.supportInstChannel.append(msg.channel)
+       # print(self.mainInstChannel)
+       # print(self.supportInstChannel) 
+       # primaryInst = for i in self.mainInstChannel
+       # print(primary_channel)
+       # for val in self.mainInstChannel:
+       #     if val != primary_channel:
+       #         self.supportInstChannel.append(val)
+        #        self.mainInstChannel.remove(val)
+       # print(self.mainInstChannel)
+       # print(self.supportInstChannel) 
 
     def midiToArray(self):
         """ Creates an array for the notes of the main instrument with the format of the data namedTuple above.
@@ -43,10 +74,10 @@ class readMidi():
         midiFile = "midifiles/" + str(self.songTitle) + ".mid"
 
         for msg in mido.MidiFile(midiFile):
-            print(msg)
-            if msg.is_meta:
-                #print(msg)
-                print(msg.hex())
+            #print(msg)
+            #if msg.is_meta:
+            #   print(msg)
+            #    print(msg.hex())
             total_time += msg.time
             if msg.type == 'note_on' and msg.velocity > 0 and msg.channel in self.mainInstChannel:
                 self.musicMatch.append((total_time, msg.note, msg.time, msg.velocity, msg.channel))
@@ -81,18 +112,17 @@ class readMidi():
                 channelList.remove(y)
         with mido.open_output('IAC Driver Bus 1') as port:
             for msg in mid.play():
-                if (msg.type == 'note_on' or msg.type == 'note_off') and (msg.channel in channelList):
+                if (msg.type == 'note_on' or msg.type == 'note_off') and (msg.channel == 2):
                     print(msg)
                     port.send(msg)
 
-    def midiTracks(self):
+    def updateMidiFile(self):
+        """Updates the Midi file to be played alongside user. All primary instruments are removed from Midi Track"""
         midiFile = "midifiles/" + str(self.songTitle) + ".mid"
         mid = mido.MidiFile(midiFile)
-
-        for msg in mid:
-            if msg.type == 'program_change':
-                print(msg)
-                print(im.getInstClass(msg.program))
+        for i, msg in enumerate(mid.tracks):
+            if msg.channel not in self.supportInstChannel:
+                mid.tracks[i].pop(msg)
 
     def playArray(self):
         """ This method converts the notes in the array to MIDI messages and output them to a port,
@@ -110,17 +140,16 @@ class readMidi():
 if __name__ == "__main__":
 
     # songTitle MUST be the name of the midi file without the midi extension
-    # mainChannel MUST be a list of the channels that play the primary instruments
+    # noteThreshold is the number of notes that must be played on a specific channel for that channel to be considered
+    # a main channel. Note there are other constraints on main channel, such as instType.
 
-    midiObj = readMidi(songTitle="SilentNight", mainChannel=[2])
-    midiObj.midiTracks()
-    #midiObj.midiToArray()
-    #print("midi to array done")
-    #midiObj.toJSON()
-    #print("midi to json done")
-    #midiObj.playMidi()
-    #print("play midi done")
-
+    midiObj = readMidi(songTitle="MichaelJackson-BillieJean")
+    midiObj.updateMidiFile()
+    #midiObj.playMidi(mainInst=True,supportInst=False)
+    
+# silent night = most important on channel 2
+# channel 6 has annoying stuff 
+# channel 1 and 3 has some stuff???
 
 # additional crap i may need to remember
 
