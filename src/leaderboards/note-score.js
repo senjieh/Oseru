@@ -1,9 +1,8 @@
-//Scoring will be divided into three parts: note accuracy and timing and streak multiplier
-
+//Scoring will be divided into three parts: note accuracy and timing
 //Create score variables
 var note_score = 0;
 var timing_score = 0;
-var final_score = 0;
+var final_note_score = 0;
 var streak_mul = 1;
 //Part 1: Note Accuracy
 //create note-to-frequency dictionary
@@ -101,7 +100,7 @@ const note_dict = [
 
 //get frequency the user plays
 //!!!!!!!!NEEDS TO BE PROVIDED!!!!!!!!!!!!!!
-user_input_freq = 27.6 //get_played_val_from_note_class();
+user_input_freq = 27.55 //get_played_val_from_note_class();
 
 // SUPER LOW or SUPER HIGH edgecases
 if(user_input_freq < 27.5 || user_input_freq > 4186.01){
@@ -149,13 +148,17 @@ else{
     }
 }
 
-//Part 2: Timing 
+//Part 2: Timing
 //get the type of note to be played
-played_time =  5
+//!!!!!!NEEDS TO BE PROVIDED!!!!!
+note_type = "quarter note";
 //get the tempo from midi file
+//!!!!NEEDS TO BE PROVIDED!!!!!!!!
 BPM = 60; 
+//get the amount of time the note was played by player
+played_time =  1;
 //calculate the note duration based on tempo and type of note
-note_type = null;
+
 note_duration = 0;
 if(note_type === "half note"){
     note_duration = 120 / BPM;
@@ -175,14 +178,26 @@ else if(note_type === "sixteenth note"){
 else if(note_type === "thirty second note"){
     note_duration = 7.5 / BPM;
 }
-tolerance = .2 * note_duration;
-
+//calculate the tolerance for time playing a note
+tolerance = .4 * note_duration;
 left_tol = note_duration - tolerance;
-right_tol = note_duration + tolerance;
+right_tol = note_duration + tolerance
+
 if(played_time === note_duration){
     timing_score = 50;
 }
-if(played_time >= left_tol && played_time <= right_tol){
-    
+else{
+    if(played_time >= left_tol && played_time <= right_tol){
+        perc_diff = (Math.abs(note_duration - played_time) / ((note_duration + played_time) / 2)) * 50
+        timing_score = 50 - perc_diff
+    }
+    else{
+        timing_score = 0;
+    }
 }
-//Part 3: Streak multiplier
+if(note_score === 0 || timing_score === 0){
+    final_note_score = 0;
+}
+else{
+    final_note_score = note_score + timing_score;
+}
