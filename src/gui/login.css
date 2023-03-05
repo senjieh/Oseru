@@ -1,14 +1,14 @@
+* {
+	box-sizing: border-box;
+}
+
 :root {
     --bg: #FFFFFF;
 	--input: #EEEEEE;
-    --buttonbg: #3CAC1A;
-    --overlaybg: #333333;
-    --font: "Heebo", sans-serif; 
+	--buttonbg: #3CAC1A;
+	--overlaybg: #333333;
+	--font: "Heebo", sans-serif; 
 	--bodybg:#F6F5F7;
-}
-
-* {
-	box-sizing: border-box;
 }
 
 body {
@@ -87,8 +87,7 @@ form {
 .box {
 	background-color: var(--bg);
 	border-radius: 10px;
-	box-shadow: 0 10px 20px rgba(0,0,0,0.25), 
-				0 10px 10px rgba(0,0,0,0.22);
+	box-shadow: 0 10px 20px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 	position: relative;
 	overflow: hidden;
 	width: 768px;
