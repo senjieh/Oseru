@@ -148,7 +148,41 @@ else{
         
     }
 }
-console.log(note_score);
-//Part 2: Timing 
 
+//Part 2: Timing 
+//get the type of note to be played
+played_time =  5
+//get the tempo from midi file
+BPM = 60; 
+//calculate the note duration based on tempo and type of note
+note_type = null;
+note_duration = 0;
+if(note_type === "half note"){
+    note_duration = 120 / BPM;
+}
+else if(note_type === "quarter note"){
+    note_duration = 60 / BPM;
+}
+else if(note_type === "whole note"){
+    note_duration = 240 / BPM;
+}
+else if(note_type === "eighth note"){
+    note_duration = 30 / BPM;
+}
+else if(note_type === "sixteenth note"){
+    note_duration = 15 / BPM;
+}
+else if(note_type === "thirty second note"){
+    note_duration = 7.5 / BPM;
+}
+tolerance = .2 * note_duration;
+
+left_tol = note_duration - tolerance;
+right_tol = note_duration + tolerance;
+if(played_time === note_duration){
+    timing_score = 50;
+}
+if(played_time >= left_tol && played_time <= right_tol){
+    
+}
 //Part 3: Streak multiplier
