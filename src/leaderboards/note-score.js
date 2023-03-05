@@ -179,7 +179,7 @@ else if(note_type === "thirty second note"){
     note_duration = 7.5 / BPM;
 }
 //calculate the tolerance for time playing a note
-tolerance = .4 * note_duration;
+tolerance = .2 * note_duration;
 left_tol = note_duration - tolerance;
 right_tol = note_duration + tolerance
 
