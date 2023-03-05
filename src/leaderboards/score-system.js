@@ -122,7 +122,7 @@ else{
     //Then use formula for scoring:
     //(|Freq(1) - Freq(2)|) / 50 = 2_per_val  [This is the value that will determine each point given]
     //(|Freq(1) - Freq(user)|) /  2_per_val = perc_diff
-    //100 - perc_diff = note_score [between 0 to 50]
+    //100 - perc_diff = note_score [between 25 to 50]
         if(user_input_freq < expected_input_freq){
             freq2 = note_dict[expected_note + 1];
             if(user_input_freq < freq2){
