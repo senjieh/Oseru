@@ -43,7 +43,7 @@
             /** @type {WebGLRenderingContext} */
             let gl = canvas.getContext( 'webgl2' );
 
-            const GOURAUD_VERTEX_SHADER = 
+            let GOURAUD_VERTEX_SHADER = null;
             `   #version 300 es
                 precision mediump float;
 
@@ -177,7 +177,7 @@
                 }
             `;
 
-            const GOURAUD_FRAGMENT_SHADER = 
+            let GOURAUD_FRAGMENT_SHADER = 
             `   #version 300 es
                 precision mediump float;
 
@@ -195,6 +195,34 @@
                     f_color = vec4(vec3(gl_FragCoord.z), 1.0); */
                 }
             `;
+            let vert_shader_loaded = false;
+            let vert_req = load_txt_file('vertex.vs', function() {
+                console.log('loaded vertex.vs');
+                GOURAUD_VERTEX_SHADER = vert_req.responseTest;
+                vert_shader_loaded = true;
+                //TODO: should block render loop until loaded
+            });
+
+            let frag_shader_loaded = false;
+            let frag_req = load_txt_file('fragment.fs', function() {
+                console.log('loaded fragment.fs');
+                GOURAUD_FRAGMENT_SHADER = vert_req.responseTest;
+                frag_shader_loaded = true;
+            });
+
+            // TODO: block needs to happen before getting to page
+            // block until shaders are loaded
+            //const sleep = ms => new Promise(r => setTimeout(r, ms));
+            /*while(!frag_shader_loaded && !vert_shader_loaded) {
+                // wait 10mn before each check
+                //sleep(10);
+                if (frag_shader_loaded) {
+                    if (vert_shader_loaded) {
+                        break;
+                    }
+                }
+            }*/
+
 //----------------------------------------------------------------------------------------------------
 //           DEBUG VARIABLES
 //----------------------------------------------------------------------------------------------------
@@ -384,7 +412,6 @@
             let start = last_update;
             let prev_time = 0;
             
-
 //----------------------------------------------------------------------------------------------------
 //           RENDER LOOP
 //----------------------------------------------------------------------------------------------------
