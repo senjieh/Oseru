@@ -322,20 +322,22 @@
 
             let spawners = [];
 
-            let note_node = new NodeNote(1,1,1,1,
-                NormalMesh.platform(gl, current_program, 
-                    width, height, 0, 1,
-                    debug_tex),
-                false);
+            // TODO: check if adding same NodeNote to each object or if is working as intended
+            let note_mesh = NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1, debug_tex);
+            let note_node = new NodeNote(1,1,1,1, note_mesh, false);
 
+            // create note spawners
             for (let i=0; i<num_notes; i++) {
                 let left = -edge_distance + (padding + width)/2 + i*(width+padding);
 
                 let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1);
-                note_spawner.data = new NoteSpawner(null, note_spawner, note_node);
+                note_spawner.data = new NoteSpawner(null, note_mesh, bottom, note_spawner);
+                //note_spawner.node = note_spawner;
                 spawners.push(note_spawner);
-                let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
-                note.data = note_node;
+                // place static notes on spawners to make them visible
+                let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1,note_mesh);
+                //note.data = note_node;
             }
 
             // make targets for notes
@@ -346,6 +348,29 @@
                 let top = spawners[i].data.get_target_height(padding, height);
                 tmp_node.warp(tmp_node.x, top, tmp_node.z);
             }
+
+            // make test note data
+            // 2d array, each inner array containing the time of each note in ascending order
+            const num_notes_to_play = 100;
+            let note_data = [];
+            for (let i=0; i<num_notes; i++) {
+                let lst = [];
+                for (let j=0; j<num_notes_to_play; j++) {
+                    if ((j)%(i+2) == 0) {
+                        lst.push(j*1000);
+                    }
+                }
+                note_data.push(lst);
+                console.log(lst);
+            }
+
+            // add note data to each spawner
+            // NOTE: normally add data in construction, don't do this elsewhere
+            for (let i=0; i< spawners.length; i++) {
+                //note_data[i].reverse();
+                spawners[i].data.data = note_data[i].reverse();
+            }
+
 
             /*let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
             box.data = NormalMesh.box(gl, current_program, 
@@ -385,7 +410,9 @@
                 // generate list of meshes to draw
                 let mesh_list = [];
                 let light_list = []
-                root.generate_render_batch(mesh_list, light_list, now);
+                //console.log(last_update)
+                root.generate_render_batch(mesh_list, light_list, last_update);
+                //console.log(Math.floor(last_update/100));
 
                 // TODO: this is a stop gap as currently shader only accepts two hard-ocded dynamic lights
                 //light_list[0].bind(gl, current_program);

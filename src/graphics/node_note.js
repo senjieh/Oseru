@@ -40,13 +40,16 @@ class NodeNote {
 	 * @param {Mesh} mesh of note
 	 * @param {bool} is mine
 	 */
-	constructor(note, freq, play_at, duration, mesh, pos_mat, is_mine=false) {
+	constructor(note, freq, play_at, duration, mesh, pos_mat, start_height, target_height, is_mine=false) {
 		this.note = note;
 		this.freq = freq;
 		this.play_at = play_at;
 		this.duration = duration;
 		this.mesh = mesh;
 		this.is_mine = is_mine;
+
+		this.target_height = target_height;
+		this.start_height = start_height;
 
 		this.delay; // TODO: this
 
@@ -114,9 +117,10 @@ class NoteSpawner{
 	 * @param {Node} pointer to node spawner lives in
 	 * @param {NormalMesh} note shape
 	 */
-	constructor(data, node, note_mesh) {
+	constructor(data, note_mesh, start_height, node) {
 		this.data = data;
 		this.note_mesh = note_mesh;
+		this.start_height = start_height;
 		this.node = node;
 	}
 
@@ -138,6 +142,8 @@ class NoteSpawner{
 		let top = edge_distance * (1/aspect_ratio) - height/2 - padding;
 		// idk why I need this but I do
 		top *= 2;
+
+		this.target_height = top;
 
 		// create mesh and move it to top of screen
 		//target.data = target_mesh;
@@ -165,6 +171,32 @@ class NoteSpawner{
 		}
 	}
 
+	// given time, spawns note if needed
+	// called as part of render batch
+	// return nodeNote
+	check_spawn_note(time) {
+		//console.log(this.data)
+		//console.log(time)
+		//console.log('\n')
+		if (time >= this.data[this.data.length -1]) {
+			const next = this.data.pop();
+			//console.log(next)
+			//console.log(time)
+
+			//if (next == time) {
+				// TODO: replace filler values
+				// time+3 means play 3 sec from now
+				//console.log('make note')
+				return new NodeNote(
+					'data', 'freq', time+10, 0,
+					this.note_mesh, this.node.get_matrix(),
+					false, this.start_height, this.target_height);
+			//}
+		}
+		// no note to spawn
+		return null;
+	}
+
 	/**
 	 * makes a node with spawner for data
 	 * @param {[Note]} sorted list of notes spawner will make
@@ -172,11 +204,11 @@ class NoteSpawner{
 	 * 
 	 * @return {Node} spawner node
 	 */
-	static spawner_node(data, x, y, z=0, roll=0, pitch=0, yaw=0, scale_x=0, scale_y=scale_x, scale_z=scale_x) {
-		return new Node(x, y, z,
+	static spawner_node(parent_node, data, x, y, z=0, roll=0, pitch=0, yaw=0, scale_x=0, scale_y=scale_x, scale_z=scale_x) {
+		this.node = parent_node.create_child_node(x, y, z,
 			roll, pitch, yaw,
 			scale_x, scale_y, scale_z,
-			new NoteSpawner(data)
+			new NoteSpawner(data, null, y)
 		);
 	}
 }
@@ -234,6 +266,9 @@ class Score {
         let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
         this.spawners = [];
+
+        // TODO: asserts
+        //console.assert(num_notes > 0);
 
         for (let i=0; i<num_notes; i++) {
             let left = -edge_distance + (padding + width)/2 + i*(width+padding);

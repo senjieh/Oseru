@@ -138,32 +138,37 @@ class Node {
         else if( this.data instanceof NormalMesh ) {
             jobs.push( new RenderMesh( matrix, this.data ) );
         }
-        else if (this.data instanceof NoteSpawner) {
-            //let note = this.data.generate_note(time);
-            //if (note) {
-                //this.create_child_node(0,0,0, 0,0,0, 1,1,1, null);
-            //}
-        }
-        // NOTE: dependent on node_note.js
         else if(this.data instanceof NodeNote) {
-            // cal position in node based on time instead of updating based on frame
-            //jobs.push(new RenderMesh(this.data.get_pos(time), this.data.mesh));
-            jobs.push(new RenderMesh(matrix, this.data.mesh));
-            //console.log(this.data.mesh);
-            // TODO: this should be in game loop, not render loop
-            /*this.data.play(time);
-            if (this.data.past_top) {
-                // drop node if past top
-                this.parent.children = this.parent.children.filter(
-                    item => item.data instanceof NodeNote &&
-                    item.data.past_top
-                );
-        }
-        else if( this.data == null ) {
-            // do nothing
-        }*/
+            // if note 1s past target, don't bother drawing
+            //console.log(this.data.play_at);
+            if (this.data.play_at < time+1) {
+                // cal position in node based on time instead of updating based on frame
+                const distance = this.data.target_height - this.data.start_height;
+                const prec = ((time - this.data.play_at + 300) / 3000)*-1;
+                const loc = distance * prec;
+                // move note to correct height
+                // position is one frame behind but cuts out extra matrix multiplication
+                this.warp(this.x, loc, this.z);
+                //this.add_roll(0.25);
+                //matrix = parent_matrix.mul(this.get_matrix());
+                //console.log(this.x, this.y, this.z)
+                jobs.push(new RenderMesh(matrix, this.data.mesh));
+            }
         } else if (this.data instanceof NoteSpawner) {
-            //
+            // check to spawn note
+            let note = this.data.check_spawn_note(time);
+            //console.log(note);
+            if (note) {
+                let child = this.create_child_node(
+                    0, 0, -0.01,       // spawn note slightly in font of target
+                    this.roll, this.pitch+0.25, this.yaw,
+                    this.scale_x, this.scale_y, this.scale_z, 
+                    note);
+                console.log(child.x, child.y, child.z)
+                console.log(this.x, this.y, this.z)
+                console.log('------')
+            }
+            //jobs.push(new RenderMesh(matrix, this.data.note_mesh));
         } else if (this.data == null) {
             // do nothing
         } else {
@@ -263,8 +268,8 @@ class Scene {
         set_uniform_vec3( gl, program, 'sun_color', sun.data.r, sun.data.g, sun.data.b );
     }
 
-    generate_render_batch( jobs, lights ) {
-        this.root.generate_render_batch( Mat4.identity(), jobs, lights );
+    generate_render_batch( jobs, lights, time=0 ) {
+        this.root.generate_render_batch( Mat4.identity(), jobs, lights, time );
     }
 
     get_camera_view() {
