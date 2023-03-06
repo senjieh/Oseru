@@ -139,19 +139,14 @@ class Node {
             jobs.push( new RenderMesh( matrix, this.data ) );
         }
         else if(this.data instanceof NodeNote) {
-            // if note 1s past target, don't bother drawing
-            //console.log(this.data.play_at);
-            if (this.data.play_at < time+1) {
-                // cal position in node based on time instead of updating based on frame
-                const distance = this.data.target_height - this.data.start_height;
-                const prec = ((time - this.data.play_at + 300) / 3000)*-1;
-                const loc = distance * prec;
+            // cal position in node based on time instead of updating based on frame
+            // position is one frame behind but cuts out extra matrix multiplication
+            const loc = this.data.get_height(time);
+            // only push render job if note is on screen
+            if (loc) {
                 // move note to correct height
-                // position is one frame behind but cuts out extra matrix multiplication
+                // this warp effects next render pass, not current one
                 this.warp(this.x, loc, this.z);
-                //this.add_roll(0.25);
-                //matrix = parent_matrix.mul(this.get_matrix());
-                //console.log(this.x, this.y, this.z)
                 jobs.push(new RenderMesh(matrix, this.data.mesh));
             }
         } else if (this.data instanceof NoteSpawner) {
@@ -164,9 +159,9 @@ class Node {
                     this.roll, this.pitch+0.25, this.yaw,
                     this.scale_x, this.scale_y, this.scale_z, 
                     note);
-                console.log(child.x, child.y, child.z)
+                /*console.log(child.x, child.y, child.z)
                 console.log(this.x, this.y, this.z)
-                console.log('------')
+                console.log('------')*/
             }
             //jobs.push(new RenderMesh(matrix, this.data.note_mesh));
         } else if (this.data == null) {

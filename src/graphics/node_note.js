@@ -82,12 +82,26 @@ class NodeNote {
 			return -2;
 		}
 	}
-
-	get_pos(time) {
-		if ((this.play_at - time) < this.delay) {
-			return this.pos_mat;
+	/** 
+	 * get height of note given time in song
+	 * 
+	 * @param {int} time in song
+	 * 
+	 * @return {int} height of note
+	 */
+	get_height(time) {
+		if (this.play_at < time+1) {
+            // cal position in node based on time instead of updating based on frame
+            const distance = this.target_height - this.start_height;
+            // TODO: get rid of hard coded delay
+            // percentage distance traveled from spawn to target
+            const prec = ((time - this.play_at + 300) / 3000)*-1;
+            const loc = distance * prec;
+            return loc;
 		} else {
 			// when time == play_at, position should be = to target
+			// note is no longer on screen so don't need height
+			return null;
 		}
 	}
 
@@ -146,52 +160,24 @@ class NoteSpawner{
 		this.target_height = top;
 
 		// create mesh and move it to top of screen
-		//target.data = target_mesh;
 		// easier to warp then to try and calc distance from spawner to correct target position
 		return top;
-	}
-
-
-
-	// TODO: song will need lead time for first notes to spawn and move
-	generate_note(time) {
-		for (let i=0; i<this.data.length; i++) {
-			// spawn notes close to being needed that haven't been spawned yet
-			if (this.data[i]['time'] >= time) {
-				if (this.data[i]['spawned']){
-					this.data[i]['spawned'] = true;
-					return new NodeNote(this.data[i]);
-				}
-			// drop notes that have already scrolled off screen.
-			} else if (this.data[i]['time'] > time+10){
-				this.data = this.data.slice(0,i);
-				return null;
-				// TODO: what about long held notes
-			}
-		}
 	}
 
 	// given time, spawns note if needed
 	// called as part of render batch
 	// return nodeNote
 	check_spawn_note(time) {
-		//console.log(this.data)
-		//console.log(time)
-		//console.log('\n')
 		if (time >= this.data[this.data.length -1]) {
 			const next = this.data.pop();
-			//console.log(next)
-			//console.log(time)
 
-			//if (next == time) {
-				// TODO: replace filler values
-				// time+3 means play 3 sec from now
-				//console.log('make note')
-				return new NodeNote(
-					'data', 'freq', time+10, 0,
-					this.note_mesh, this.node.get_matrix(),
-					false, this.start_height, this.target_height);
-			//}
+			// TODO: replace filler values
+			// time+3 means play 3 sec from now
+			//console.log('make note')
+			return new NodeNote(
+				'data', 'freq', time+10, 0,
+				this.note_mesh, this.node.get_matrix(),
+				false, this.start_height, this.target_height);
 		}
 		// no note to spawn
 		return null;
