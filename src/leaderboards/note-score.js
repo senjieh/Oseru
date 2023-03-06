@@ -2,7 +2,7 @@
     async function GetSongData(){
         //Get json data
         json_data = await (await fetch('http://127.0.0.1:5500/src/midi/jsonMidi/DrDre-StillDre.json')).json();
-          
+
         return(json_data);
     }
     //Scoring will be divided into three parts: note accuracy and timing
@@ -212,4 +212,4 @@
         }
         return(final_note_score);
     }
-GetSongData();
+//GetSongData();
