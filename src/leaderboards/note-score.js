@@ -1,17 +1,16 @@
-
-    async function GetSongData(){
-        //Get json data
-        json_data = await (await fetch('http://127.0.0.1:5500/src/midi/jsonMidi/DrDre-StillDre.json')).json();
-
-        return(json_data);
+class NoteScore{
+    constructor(song_data){
+        this.song_data = song_data; 
+        this.expected_input_freq = song_data[2]; // get the expected note frequency from json array
+        this.note_duration = song_data[3];  // get the expected note duration from json array
     }
+
     //Scoring will be divided into three parts: note accuracy and timing
     //Create score variables
-    function ScoreEachNote(){
+    ScoreEachNote(){
         var note_score = 0;
         var timing_score = 0;
         var final_note_score = 0;
-        var streak_mul = 1; 
         
         //Part 1: Note Accuracy
         //create note-to-frequency dictionary
@@ -105,11 +104,20 @@
             30.87,
             29.14,
             27.5
-        ]
+        ];
 
         //get frequency the user plays
         //!!!!!!!!NEEDS TO BE PROVIDED!!!!!!!!!!!!!!
-        user_input_freq = 27.55 //get_played_val_from_note_class();
+        var user_input_freq = 415; //get_played_val_from_note_class();
+
+        //needed variables 
+        var two_per_val = 0;
+        var tolerance = 0;
+        var left_tol = 0;
+        var right_tol = 0;
+        var freq2 = 0;
+        var perc = 0;
+        var perc_diff = 0;
 
         // SUPER LOW or SUPER HIGH edgecases
         if(user_input_freq < 27.5 || user_input_freq > 4186.01){
@@ -118,11 +126,10 @@
         else{
             //get the expected frequency from song
             //!!!!!!!!!!NEEDS TO BE PROVIDED!!!!!!!!!!!!
-            expected_input_freq = 27.5 //get_expected_val_from_song();
             //find the index of the expected note
-            expected_note = note_dict.indexOf(expected_input_freq);
+            var expected_note = note_dict.indexOf(this.expected_input_freq);
             //Check if note is exact
-            if(user_input_freq === expected_input_freq){
+            if(user_input_freq === this.expected_input_freq){
                 note_score = 50;
             }
             else{
@@ -131,14 +138,14 @@
             //(|Freq(1) - Freq(2)|) / 50 = 2_per_val  [This is the value that will determine each point given]
             //(|Freq(1) - Freq(user)|) /  2_per_val = perc_diff
             //100 - perc_diff = note_score [between 25 to 50]
-                if(user_input_freq < expected_input_freq){
+                if(user_input_freq < this.expected_input_freq){
                     freq2 = note_dict[expected_note + 1];
                     if(user_input_freq < freq2){
                         note_score = 0;
                     }
                     else{
-                    two_per_val = (Math.abs(expected_input_freq - freq2) / 50)
-                    perc = (Math.abs(expected_input_freq - user_input_freq) / two_per_val)
+                    two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
+                    perc = (Math.abs(this.expected_input_freq - user_input_freq) / two_per_val)
                     note_score = ((100 - perc)/100) * 50;
                     }
                 }
@@ -148,8 +155,8 @@
                         note_score = 0;
                     }
                     else{
-                    two_per_val = (Math.abs(expected_input_freq - freq2) / 50)
-                    perc = (Math.abs(expected_input_freq - user_input_freq) / two_per_val)
+                    two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
+                    perc = (Math.abs(this.expected_input_freq - user_input_freq) / two_per_val)
                     note_score = ((100 - perc)/100) * 50;
                     }
                 }
@@ -158,46 +165,19 @@
         }
 
         //Part 2: Timing
-        //get the type of note to be played
-        //!!!!!!NEEDS TO BE PROVIDED!!!!!
-        note_type = "quarter note";
-        //get the tempo from midi file
-        //!!!!NEEDS TO BE PROVIDED!!!!!!!!
-        BPM = 60; 
         //get the amount of time the note was played by player
-        played_time =  1;
-        //calculate the note duration based on tempo and type of note
-
-        note_duration = 0;
-        if(note_type === "half note"){
-            note_duration = 120 / BPM;
-        }
-        else if(note_type === "quarter note"){
-            note_duration = 60 / BPM;
-        }
-        else if(note_type === "whole note"){
-            note_duration = 240 / BPM;
-        }
-        else if(note_type === "eighth note"){
-            note_duration = 30 / BPM;
-        }
-        else if(note_type === "sixteenth note"){
-            note_duration = 15 / BPM;
-        }
-        else if(note_type === "thirty second note"){
-            note_duration = 7.5 / BPM;
-        }
+        var played_time =  1.1;
         //calculate the tolerance for time playing a note
-        tolerance = .2 * note_duration;
-        left_tol = note_duration - tolerance;
-        right_tol = note_duration + tolerance
+        tolerance = .2 * this.note_duration;
+        left_tol = this.note_duration - tolerance;
+        right_tol = this.note_duration + tolerance
 
-        if(played_time === note_duration){
+        if(played_time === this.note_duration){
             timing_score = 50;
         }
         else{
             if(played_time >= left_tol && played_time <= right_tol){
-                perc_diff = (Math.abs(note_duration - played_time) / ((note_duration + played_time) / 2)) * 50
+                perc_diff = (Math.abs(this.note_duration - played_time) / ((this.note_duration + played_time) / 2)) * 50
                 timing_score = 50 - perc_diff
             }
             else{
@@ -212,4 +192,5 @@
         }
         return(final_note_score);
     }
-//GetSongData();
+}
+module.exports = NoteScore;
