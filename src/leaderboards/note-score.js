@@ -108,7 +108,7 @@ class NoteScore{
 
         //get frequency the user plays
         //!!!!!!!!NEEDS TO BE PROVIDED!!!!!!!!!!!!!!
-        var user_input_freq = 415; //get_played_val_from_note_class();
+        var user_input_freq = 392; //get_played_val_from_note_class();
 
         //needed variables 
         var two_per_val = 0;
@@ -190,6 +190,7 @@ class NoteScore{
         else{
             final_note_score = note_score + timing_score;
         }
+        final_note_score = Math.round(final_note_score);
         return(final_note_score);
     }
 }
