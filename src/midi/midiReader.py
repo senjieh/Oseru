@@ -117,8 +117,8 @@ class midi2Array():
         mid = mido.MidiFile(midiFile)
         noteCount = {}
 
-        tier1inst = ["Piano", "Guitar", "Strings", "Synth Lead"]
-        tier2inst = ["Chromatic Percussion"]
+        tier1inst = ["Piano", "Guitar", "Strings"]
+        tier2inst = ["Chromatic Percussion", "Synth Lead"]
         for msg in mid:
             if msg.type == 'note_on' or msg.type == 'note_off':
                 if msg.channel not in noteCount:
