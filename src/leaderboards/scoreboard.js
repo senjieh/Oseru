@@ -10,7 +10,7 @@ document.getElementById("score-form").addEventListener("submit", function(event)
   event.preventDefault(); // Prevent the form from submitting
 
   // Get the name and score and date
-  let nameInput = document.getElementById("name-input");
+  let name_input = document.getElementById("name-input");
   let score = Math.floor(Math.random() * 901) + 100; // Generate a random score between 100 and 1000
   let today = new Date();
   let dd = String(today.getDate()).padStart(2, '0');
@@ -18,14 +18,14 @@ document.getElementById("score-form").addEventListener("submit", function(event)
   let yyyy = today.getFullYear();
   currentDate = String(mm+ '/' + dd + '/' + yyyy);
   // Create a new score object with the name and score
-  let newScore = {
-    name: nameInput.value,
+  let new_score = {
+    name: name_input.value,
     score: score,
     date: currentDate
   };
 
   // Add the new score to the scores array
-  scores.push(newScore);
+  scores.push(new_score);
 
   // Sort the scores by descending order of score
   scores.sort((a, b) => b.score - a.score);
