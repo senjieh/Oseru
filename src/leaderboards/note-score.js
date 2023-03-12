@@ -1,8 +1,10 @@
 class NoteScore{
-    constructor(song_data){
+    constructor(song_data, elapsed_time){
         this.song_data = song_data; 
         this.expected_input_freq = song_data[2]; // get the expected note frequency from json array
         this.note_duration = song_data[3];  // get the expected note duration from json array
+        this.expected_time = song_data[0]; // get the expected timing for when a note is played
+        this.elapsed_time = elapsed_time; //get the timing the function was initially called (when a player played a note)
     }
 
     //Scoring will be divided into three parts: note accuracy and timing
@@ -124,8 +126,6 @@ class NoteScore{
             note_score = 0;
         }
         else{
-            //get the expected frequency from song
-            //!!!!!!!!!!NEEDS TO BE PROVIDED!!!!!!!!!!!!
             //find the index of the expected note
             var expected_note = note_dict.indexOf(this.expected_input_freq);
             //Check if note is exact
@@ -166,31 +166,37 @@ class NoteScore{
 
         //Part 2: Timing
         //get the amount of time the note was played by player
-        var played_time =  1.1;
+        var played_duration =  1.1;
         //calculate the tolerance for time playing a note
         tolerance = .2 * this.note_duration;
         left_tol = this.note_duration - tolerance;
         right_tol = this.note_duration + tolerance
-
-        if(played_time === this.note_duration){
-            timing_score = 50;
+        //calculate tolerance on exact time played
+        if(this.elapsed_time > this.expected_time + .1 || this.elapsed_time < this.expected_time - .1){
+            timing_score = 0;
+            return(final_note_score = 0);
         }
         else{
-            if(played_time >= left_tol && played_time <= right_tol){
-                perc_diff = (Math.abs(this.note_duration - played_time) / ((this.note_duration + played_time) / 2)) * 50
-                timing_score = 50 - perc_diff
+            if(played_duration === this.note_duration){
+                timing_score = 50;
             }
             else{
-                timing_score = 0;
+                if(played_duration >= left_tol && played_duration <= right_tol){
+                    perc_diff = (Math.abs(this.note_duration - played_duration) / ((this.note_duration + played_duration) / 2)) * 50
+                    timing_score = 50 - perc_diff
+                }
+                else{
+                    timing_score = 0;
+                }
             }
+            if(note_score === 0 || timing_score === 0){
+                final_note_score = 0;
+            }
+            else{
+                final_note_score = note_score + timing_score;
+            }
+            final_note_score = Math.round(final_note_score);
         }
-        if(note_score === 0 || timing_score === 0){
-            final_note_score = 0;
-        }
-        else{
-            final_note_score = note_score + timing_score;
-        }
-        final_note_score = Math.round(final_note_score);
         return(final_note_score);
     }
 }

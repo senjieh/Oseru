@@ -1,6 +1,10 @@
 // Load scores from local storage
-let scores = JSON.parse(localStorage.getItem("scores")) || [];
+let level_name = "SilentNight";
+let level_key = level_name + "-scores";
+let scores = JSON.parse(localStorage.getItem(level_key)) || [];
 
+let level_title = level_name + " Scoreboard";
+document.querySelector("h1").textContent = level_title;
 // Add a listener for the form submission
 document.getElementById("score-form").addEventListener("submit", function(event) {
   event.preventDefault(); // Prevent the form from submitting
@@ -32,7 +36,7 @@ document.getElementById("score-form").addEventListener("submit", function(event)
   }
 
   // Save the scores to local storage
-  localStorage.setItem("scores", JSON.stringify(scores));
+  localStorage.setItem(level_key, JSON.stringify(scores));
 
   // Clear the name input field
   document.getElementById("score-form").remove();
@@ -42,7 +46,7 @@ document.getElementById("score-form").addEventListener("submit", function(event)
 });
 function clearBoard(){
     scores = [];
-    localStorage.setItem("scores", JSON.stringify(scores));
+    localStorage.setItem(level_key, JSON.stringify(scores));
     refreshScoreboard();
 }
 // Function to refresh the scoreboard table
