@@ -143,7 +143,7 @@ class Node {
             // position is one frame behind but cuts out extra matrix multiplication
             const loc = this.data.get_height(time);
             // only push render job if note is on screen
-            if (loc) {
+            if (loc != null) {
                 // move note to correct height
                 // this warp effects next render pass, not current one
                 this.warp(this.x, loc, this.z);
@@ -152,7 +152,6 @@ class Node {
         } else if (this.data instanceof NoteSpawner) {
             // check to spawn note
             let note = this.data.check_spawn_note(time);
-            //console.log(note);
             if (note) {
                 let child = this.create_child_node(
                     0, 0, -0.01,       // spawn note slightly in font of target
@@ -163,7 +162,6 @@ class Node {
                 console.log(this.x, this.y, this.z)
                 console.log('------')*/
             }
-            //jobs.push(new RenderMesh(matrix, this.data.note_mesh));
         } else if (this.data == null) {
             // do nothing
         } else {
