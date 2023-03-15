@@ -319,3 +319,32 @@ function bind_light(gl, program, loc, color, light_no) {
         this.r, this.g, this.b 
     );
 }
+
+/** 
+ * load a local file as a string
+ * @param {String} source of file to load
+ * @param {function} function to call on file load
+ * 
+ * @return {String} file loaded as string
+ */
+function load_txt_file(src, func, progress_func=null) {
+    const req = new XMLHttpRequest();
+    req.addEventListener("load", func);
+
+    // error handling
+    req.addEventListener("error", function() {
+        console.log('failed to load ', src);
+    });
+    req.addEventListener("abort", function() {
+        console.log('aborted load of ', src);
+    });
+
+    // add func to track progress
+    if (progress_func) {
+        req.addEventListener("progress", progress_func);
+    }
+
+    req.open("GET", src);
+    req.send();
+    return req;
+}
