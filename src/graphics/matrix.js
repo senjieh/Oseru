@@ -369,3 +369,11 @@ class Mat4 {
         return new Mat4( c );
     }
 }
+
+function sum(a,b) {
+    return a+b;
+}
+
+// export for tests
+module.exports = Mat4;
+
