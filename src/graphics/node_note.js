@@ -24,6 +24,8 @@ ColorDict = {
 
 //}
 
+const Mat4 = require('./matrix.js');
+
 // TODO: just do graphics for now, leave control logic for later
 class NodeNote {
 	/**
@@ -150,7 +152,7 @@ class NoteSpawner{
 	 */
 	get_target_height(padding, height, fov_angle=0.125, aspect_ratio=4/3) {
 		// calc top edge of screen
-		const distance = this.node.z;
+		const distance = this.node.z; // TODO: may be a bug
 		const edge_distance = Math.tan(Math.PI * fov_angle) * distance;
 		// calc node position
 		let top = edge_distance * (1/aspect_ratio) - height/2 - padding;
@@ -217,15 +219,15 @@ class Score {
 	 * 
 	 * @return {Scene}
 	 */
-	constructor(gl, program, note_data, tempo, perfect, excelent, great, fine, background=null) {
+	constructor(gl, program, note_data, tempo, background=null) {
 		this.gl = gl;
 		this.program = program
 		this.note_data = note_data;
 		this.tempo = tempo;
-		this.perfect = perfect;
-		this.excelent = excelent;
-		this.great = great;
-		this.fine = fine;
+		//this.perfect = perfect;
+		//this.excelent = excelent;
+		//this.great = great;
+		//this.fine = fine;
 
 		//let this.root = new Scene();
 
@@ -396,3 +398,9 @@ class Score {
 
 	}
 }
+
+module.exports = {
+	Score,
+	NodeNote, 
+	NoteSpawner
+};

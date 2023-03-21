@@ -280,3 +280,10 @@ class Scene {
     }
 
 }
+
+module.exports = {
+    Node,
+    Scene,
+    RenderMesh,
+    RenderLight
+}
