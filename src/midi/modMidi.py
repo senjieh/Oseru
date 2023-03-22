@@ -10,6 +10,8 @@ class modMidi():
 
     def modMidFile(self):
         """ To modify the midi file we need (1) the name of the MIDI file and (2) information about the main channels we want to mute."""
+        #step 1 copy midi file from unmod midi file folder to midiFiles
+        
         midiFile = "midifiles/" + str(self.songTitle) + ".mid"
         noteOnRange = [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]
         print(noteOnRange)

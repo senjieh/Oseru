@@ -12,6 +12,7 @@ import instMapping as im
 from collections import namedtuple
 import heapq
 import json
+import os.path
 
 data = namedtuple('data',['time_played', 'midi_note', 'frequency', 'note_held','velocity','channel'])
 # format that data is output to JSON file in.
@@ -32,6 +33,10 @@ class midi2Array():
         """
 
         self.songTitle = songTitle
+        midiFile = "midifiles/" + str(self.songTitle) + ".mid"
+        if not os.path.isfile(midiFile):
+            print("Error: File Not Found")
+            return -1
         self.musicArray = []
         self.musicMatch = []
         self.mainInstChannel = []
@@ -159,7 +164,7 @@ class midi2Array():
         print(self.mainInstChannel)
         print(self.supportInstChannel)
 
-    def midiToArray(self):
+    def midiToArray(self, mainInstChannel):
         """ Creates an array for the notes of the main instrument with the format of the data namedTuple above.
         each array value = ['time_played', 'note', 'note_held','velocity','channel'] and will be heapified based
         on the time_played in order to get the notes in the proper order."""
@@ -167,10 +172,9 @@ class midi2Array():
         heapq.heapify(self.musicArray)
         total_time = 0
         midiFile = "midifiles/" + str(self.songTitle) + ".mid"
-        print("Main inst: ", self.mainInstChannel)
         for msg in mido.MidiFile(midiFile):
             total_time += msg.time
-            if msg.type == 'note_on' and msg.velocity > 0 and msg.channel in self.mainInstChannel:
+            if msg.type == 'note_on' and msg.velocity > 0 and msg.channel in mainInstChannel:
                 freq = mm.MIDI_to_frequency[msg.note]
                 self.musicMatch.append((total_time, msg.note, freq, msg.time, msg.velocity, msg.channel))
             if msg.type == 'note_off':
