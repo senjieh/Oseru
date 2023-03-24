@@ -17,11 +17,6 @@ function filter_neg_zero(num) {
         return num;
 }
 
-// truncate floats to 1e-5 decimal places
-function round_floats(num) {
-        return Math.round(num * 10**5) / 10**5;
-}
-
 // I plan to add quaturnians at some point so I should probably test this extensively
 // TODO: floating point precision errors should be handled in class itself, not externally
 test("Rotation XY", () => {
@@ -36,7 +31,7 @@ test("Rotation XY", () => {
 
         // 1 turn equivalent to no rotation
         data = Mat4.rotation_xy(1).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 1,0,0,0,
                 0,1,0,0,
@@ -45,7 +40,7 @@ test("Rotation XY", () => {
 
         // half turn faces other way
         data = Mat4.rotation_xy(0.5).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 -1,0,0,0,
                 0,-1,0,0,
@@ -54,7 +49,7 @@ test("Rotation XY", () => {
 
         // quarter turn, and backwards
         data = Mat4.rotation_xy(-0.25).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 0,-1,0,0,
                 1,0,0,0,
@@ -74,7 +69,7 @@ test("Rotation XZ", () => {
 
         // 1 turn equivalent to no rotation
         data = Mat4.rotation_xz(1).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 1,0,0,0,
                 0,1,0,0,
@@ -83,7 +78,7 @@ test("Rotation XZ", () => {
 
         // half turn faces other way
         data = Mat4.rotation_xz(0.5).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 -1,0,0,0,
                 0,1,0,0,
@@ -92,7 +87,7 @@ test("Rotation XZ", () => {
 
         // quarter turn, and backwards
         data = Mat4.rotation_xz(-0.25).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 0,0,-1,0,
                 0,1,0,0,
@@ -112,7 +107,7 @@ test("Rotation YZ", () => {
 
         // 1 turn equivalent to no rotation
         data = Mat4.rotation_yz(1).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 1,0,0,0,
                 0,1,0,0,
@@ -121,7 +116,7 @@ test("Rotation YZ", () => {
 
         // half turn faces other way
         data = Mat4.rotation_yz(0.5).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 1,0,0,0,
                 0,-1,0,0,
@@ -130,7 +125,7 @@ test("Rotation YZ", () => {
 
         // quarter turn, and backwards
         data = Mat4.rotation_yz(-0.25).data;
-        data = data.map(round_floats).map(filter_neg_zero);
+        data = data.map(filter_neg_zero);
         expect(data).toStrictEqual([
                 1,0,0,0,
                 0,0,-1,0,

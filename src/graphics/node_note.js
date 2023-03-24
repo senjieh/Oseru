@@ -241,11 +241,12 @@ class Score {
 			0,0,2, 0,0,0, 0,0,0, null);
 
 		// calc frustum edge
+		// NOTE: only works if camera is facing along z axis
         let distance = 3;
         let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
         // calc note width
         let num_notes = 7;
-        let padding_pre = 0.05;
+        let padding_pre = 0.05;		// precentage of note width to add as space around note
         let div_width = (2*edge_distance)/num_notes;
         let padding = div_width * padding_pre;
         let width = div_width - padding;
