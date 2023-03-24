@@ -1,5 +1,8 @@
 import unittest
 import midiReader as mr
+import modMidi as mod
+import onUpload as up
+import mido
 
 testingPool = ["DrDre-StillDre", "He'sAPirate", "MichaelJackson-BillieJean", "SilentNight", "UnderTheSea-LittleMermaid", "BackStreetBoys-IWantItThatWay", "Beethoven-MoonlightSonata", "GunsnRoses-SweetChildOMine", "RedHotChiliPeppers-Californication"]
 
@@ -38,16 +41,68 @@ class MidiTests(unittest.TestCase):
         # open json file, check that all messages are from channel 2, 4, or 13
 
     def testModMidi_simpleMidi(self):
-        pass
+        midiFile = "midifiles/" + str(simpleMidi) + ".mid"
+        for msg in mido.MidiFile(midiFile):
+            if msg.type == 'note_on' and msg.channel == 2:
+                return False
+        return True
 
     def testModMidi_complexMidi(self):
-        pass
+        midiFile = "midifiles/" + str(complexMidi) + ".mid"
+        for msg in mido.MidiFile(midiFile):
+            if msg.type == 'note_on' and msg.channel in [2,4,13]:
+                return False
+                #assert that velocity equal 0
+            # might rewrite to just create a new file without that note?
 
-    def testMainChannelthenMod_simpleMidi(self):
+    def testOnUpload_simpleMidi(self):
         pass
+        # this function integrates the test main channel function with the modMidi function.
+
+        #midiObj = mr.midi2Array(songTitle=simpleMidi)
+        #mainChannel = midiObj.determineMainChannel()
+        #mod.modMidFile(mainChannel)
+        #midiFile = "midifiles/" + str(simpleMidi) + ".mid"
+        #for msg in mido.MidiFile(midiFile):
+        #    if msg.type == 'note_on' and msg.channel == 2:
+        #        return False
+        #return True
 
     def testMainChannelthenMod_complexMidi(self):
         pass
+
+    def testInChannelList(self):
+        # white box test
+        # testing - inChannelList(self, channelList, channel, inst)
+        # channelList format is an array of channelInfo objects where the values are (channel, inst, noteCount)
+        # for this test noteCount is irrelevant
+        channelList = []
+        channelList.append(mr.channelInfo(1, 5, 6))
+        channelList.append(mr.channelInfo(8, 5, 17))
+        channelList.append(mr.channelInfo(10, 27, 6))
+        channelList.append(mr.channelInfo(3, 2, 1))
+        channelList.append(mr.channelInfo(3, 48, 1))
+        self.assertTrue(mr.inChannelList(channelList, 3, 48))
+        self.assertFalse(mr.inChannelList(channelList, 3, 40))
+        self.assertFalse(mr.inChannelList(channelList, 2, 5))
+        self.assertFalse(mr.inChannelList(channelList, 7, 7))
+
+    def testGetChannelListLoc(self):
+        # white box test
+        # testing - getChannelListLoc(self, channelList, channel, inst)
+        # channelList format is an array of channelInfo objects where the values are (channel, inst, noteCount)
+        # for this test noteCount is irrelevant
+        channelList = []
+        channelList.append(mr.channelInfo(1, 5, 6))
+        channelList.append(mr.channelInfo(8, 5, 17))
+        channelList.append(mr.channelInfo(10, 27, 6))
+        channelList.append(mr.channelInfo(3, 2, 1))
+        channelList.append(mr.channelInfo(3, 48, 1))
+        self.assertEquals(4, mr.getChannelListLoc(channelList, 3, 48))
+        self.assertEquals(0, mr.getChannelListLoc(channelList, 1, 5))
+        self.assertEquals(-1, mr.getChannelListLoc(channelList, 5, 48))
+        self.assertEquals(-1, mr.getChannelListLoc(channelList, 1, 27))
+        self.assertEquals(-1, mr.getChannelListLoc(channelList, 13, 30))
 
 # BLACK-BOX TESTS
 # test 1 - test instlist on simple MIDI File
