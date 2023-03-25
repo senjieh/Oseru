@@ -1,18 +1,19 @@
-
+import os
 # open midi file in Hex
 # parse through all the  messages in hex. 
 # for messages that are not in self.supportInstChannel -> change message velocity to 0   
 
 class modMidi():
 
-    def __init__(self, songTitle):
+    def __init__(self, songTitle, directory):
         self.songTitle = songTitle
+        self.directory = directory
 
-    def modMidFile(self):
+    def modMidFile(self, mainInstChannels):
         """ To modify the midi file we need (1) the name of the MIDI file and (2) information about the main channels we want to mute."""
         #step 1 copy midi file from unmod midi file folder to midiFiles
         
-        midiFile = "midifiles/" + str(self.songTitle) + ".mid"
+        midiFile = self.directory + str(self.songTitle) + ".mid"
         noteOnRange = [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]
         print(noteOnRange)
         numBytes = 0
@@ -34,8 +35,13 @@ class modMidi():
                         break
         f.close()
 
+    def newMidiFile(self, mainInstChannel):
+        readFile = "midifiles/" + str(self.songTitle) + ".mid"
+        noteOnRange = [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]
+        outFile = "modMidiFiles/" + str(self.songTitle) + "_mod.mid"
 
 if __name__ == "__main__":
-    obj = modMidi("SilentNight")
-    obj.modMidFile()
+    pass
+    #obj = modMidi("SilentNight")
+    #obj.modMidFile()
 

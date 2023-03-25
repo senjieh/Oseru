@@ -110,6 +110,7 @@ def onUpload(self):
     # call determine main channel
     # call to musicArray
     # call modMidi
+    # re-index whoosh
     pass
 
 def onSelect(self):
