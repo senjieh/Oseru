@@ -1,4 +1,3 @@
-
 /**
  * Matrix with row-major layout:
  *  0       1       2       3

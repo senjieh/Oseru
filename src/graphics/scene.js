@@ -154,7 +154,7 @@ class Node {
             let note = this.data.check_spawn_note(time);
             if (note) {
                 let child = this.create_child_node(
-                    0, 0, -0.01,       // spawn note slightly in font of target
+                    0, 0, -0.01,       // spawn note slightly above target
                     this.roll, this.pitch+0.25, this.yaw,
                     this.scale_x, this.scale_y, this.scale_z, 
                     note);

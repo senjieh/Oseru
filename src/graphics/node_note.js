@@ -218,18 +218,19 @@ class Score {
 	 * @param {Scene} background scene to play behind notes
 	 * 
 	 * @return {Scene}
-	 */
+	 */w
 	constructor(gl, program, note_data, tempo, background=null) {
 		this.gl = gl;
 		this.program = program
 		this.note_data = note_data;
 		this.tempo = tempo;
+		this.targets = [];
 		//this.perfect = perfect;
 		//this.excelent = excelent;
 		//this.great = great;
 		//this.fine = fine;
 
-		//let this.root = new Scene();
+		this.root = new Scene();
 
         // initalize camera
         let cam = this.root.create_node(
