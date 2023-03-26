@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Frequency from './functions/Frequency'
+const { Frequency } = require('./functions/Frequency.js');
 
 export default function Game() {
 

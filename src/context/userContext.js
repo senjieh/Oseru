@@ -24,7 +24,7 @@ export const UserContextProvider = ({ children }) => {
         return createUserWithEmailAndPassword(auth, email, password);
     };
 
-  //sign in of an existing user
+    //sign in of an existing user
     const signIn = (email, password) =>  {
         return signInWithEmailAndPassword(auth, email, password)
     }
