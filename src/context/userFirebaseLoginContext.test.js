@@ -1,4 +1,6 @@
-import { UserAuth } from './UserContext';
+const {
+  UserAuth
+} = require('./UserContext');
 
 // All of these are white-box tests for the UserAuth() functiion
 describe('createUser', () => {
