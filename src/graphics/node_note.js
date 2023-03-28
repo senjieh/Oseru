@@ -24,7 +24,7 @@ ColorDict = {
 
 //}
 
-const Mat4 = require('./matrix.js');
+//const Mat4 = require('./matrix.js');
 
 // TODO: just do graphics for now, leave control logic for later
 class NodeNote {
@@ -401,8 +401,8 @@ class Score {
 	}
 }
 
-module.exports = {
+/*module.exports = {
 	Score,
 	NodeNote, 
 	NoteSpawner
-};
+};*/

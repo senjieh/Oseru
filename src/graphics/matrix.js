@@ -5,6 +5,7 @@
  *  8       9       10      11
  *  12      13      14      15
  */
+
 // func to filter out floating point errors
 function round_float(num) {
     num *= 10;
@@ -133,8 +134,8 @@ class Mat4 {
                 }
             }
         }
-        //
-        res.data = res.data.map(round_float);
+        // slows things down far too much
+        //res.data = res.data.map(round_float);
         return res;
     }
 
@@ -204,7 +205,7 @@ class Mat4 {
             0,          0,          c2, -c1,
             0,          0,          1, 0, 
         ] );
-        furs.data = frus.data.map(round_float);
+        frus.data = frus.data.map(round_float);
         return frus;
     }
 
@@ -407,5 +408,5 @@ function sum(a,b) {
 }
 
 // export for tests
-module.exports = Mat4;
+//module.exports = Mat4;
 

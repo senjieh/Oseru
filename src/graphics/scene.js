@@ -281,9 +281,9 @@ class Scene {
 
 }
 
-module.exports = {
+/*module.exports = {
     Node,
     Scene,
     RenderMesh,
     RenderLight
-}
+}*/
