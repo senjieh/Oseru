@@ -9,7 +9,8 @@ document.querySelector("h1").textContent = level_title;
 // Add a listener for the form submission
 document.getElementById("score-form").addEventListener("submit", function(event) {
   event.preventDefault(); // Prevent the form from submitting
-
+// Add an event listener to the clear button
+document.getElementById("clear-button").addEventListener("click", clearBoard);
   // Get the name and score and date
   let name_input = document.getElementById("name-input");
  
