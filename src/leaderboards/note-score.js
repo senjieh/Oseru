@@ -110,8 +110,8 @@ class NoteScore{
 
         //get frequency the user plays
         //!!!!!!!!NEEDS TO BE PROVIDED!!!!!!!!!!!!!!
-        var user_input_freq = 392; //get_played_val_from_note_class();
-
+        var user_input_freq = this.song_data[2]; //get_played_val_from_note_class();
+        user_input_freq = user_input_freq + ((Math.floor(Math.random()) * 2 - 1) * 5); //somewhat random generation of player_notes
         //needed variables 
         var two_per_val = 0;
         var tolerance = 0;
@@ -166,7 +166,8 @@ class NoteScore{
 
         //Part 2: Timing
         //get the amount of time the note was played by player
-        var played_duration =  1.1;
+        var played_duration = this.song_data[3];
+        played_duration = played_duration + (Math.floor(Math.random() * 2 - 1)); //semi-randomized duration time
         //calculate the tolerance for time playing a note
         tolerance = .2 * this.note_duration;
         left_tol = this.note_duration - tolerance;
@@ -200,4 +201,4 @@ class NoteScore{
         return(final_note_score);
     }
 }
-module.exports = NoteScore;
+//module.exports = NoteScore;
