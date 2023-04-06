@@ -5,8 +5,56 @@
 :root {
 	--bg: #FFFFFF;
 	--input: #EEEEEE;
-	--buttonbg: #3CAC1A;
+	--buttonbg: #333333;
 	--overlaybg: #333333;
 	--font: "Heebo", sans-serif; 
 	--bodybg:#F6F5F7;
+}
+
+body {
+    font-family: var(--font);
+}
+
+h2 {
+    padding-top: 200px;
+    padding-bottom: 20px;
+	font-size: 50px;
+	text-align: center;
+}
+.box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.button-frame {
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2.5vh;
+}
+
+/* Remove the list decoration */
+.button-frame > li {
+    display: inline-flex;
+    position: relative;
+}
+
+.button-frame button {
+    background-color: var(--buttonbg);
+    color: var(--bg);
+    font-size: min(5vmin, 3rem);
+    padding-block: .75ch;
+    padding-inline: 2ch;
+    border-color: var(--buttonbg);
+    border-radius: 10px
+}
+
+.button:hover {
+    color: var(--bg);
+    box-shadow: 0 5px 50px rgba(60, 172, 26);
 }
