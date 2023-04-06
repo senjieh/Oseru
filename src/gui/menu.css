@@ -1,0 +1,12 @@
+* {
+	box-sizing: border-box;
+}
+
+:root {
+	--bg: #FFFFFF;
+	--input: #EEEEEE;
+	--buttonbg: #3CAC1A;
+	--overlaybg: #333333;
+	--font: "Heebo", sans-serif; 
+	--bodybg:#F6F5F7;
+}
