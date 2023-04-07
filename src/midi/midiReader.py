@@ -34,12 +34,14 @@ class channelEncoder(JSONEncoder):
     def default(self, o):
         return o.__dict__
     
-def inChannelList(channelList, channel, inst):
+def inChannelDict(channelList, channel, inst):
         """Simple method that checks whether channel+inst exists in channellist."""
-        for i in channelList:
-            if (channel == i.channel) and (inst == i.inst):
-                return True
-        return False
+        instruments = channelList[channel]
+        print(instruments)
+       # for i in channelList:
+       #     if (channel == i.channel) and (inst == i.inst):
+       #         return True
+       # return False
     
 def getChannelListLoc(channelList, channel, inst):
     """Simple method that returns the index of a channel+inst in list."""
@@ -50,76 +52,113 @@ def getChannelListLoc(channelList, channel, inst):
 
 class midi2Array():
 
-    def __init__(self, songTitle):
+    def __init__(self, songTitle, filePath):
         """ A songTitle and mainChannel must be passed in to properly initialize this class where
         songTitle is the name of the MIDI file without the MIDI extension and mainChannel is a list
         of channels that play the primary instruments.
         """
 
         self.songTitle = songTitle
-        midiFile = "midifiles/" + str(self.songTitle) + ".mid"
+        self.filePath = filePath
+        midiFile = filePath + str(self.songTitle) + ".mid"
         if not os.path.isfile(midiFile):
             print("Error: File Not Found")
             return -1
         self.musicArray = []
         self.musicMatch = []
-        self.mainInstChannel = []
-        self.supportInstChannel =  []
+
+    def determineMethod(self):
+        mainInstChannel, supportInstChannel = self.determineMainChannel()
+        instList = self.instList()
+
+        if (len(mainInstChannel) + len(supportInstChannel)) == 0:
+            print("No Channels Found")
+            return -1
+        
+        print(len(instList))
+        print(len(mainInstChannel))
+        print(len(supportInstChannel))
+        # this is the case for when instList has no channel switches
+        if (len(mainInstChannel) + len(supportInstChannel)) == len(instList):
+            self.midiToArray(mainInstChannel)
+            return 0
+        
+        elif (len(mainInstChannel) + len(supportInstChannel)) != len(instList):
+            print("there are channel switches!!!")
+
+        #need to re-work these cases
+        #elif (len(mainInstChannel) + len(supportInstChannel)) == len(instList) and instList has channel switches:
+        #   implement new method here!
+        #elif (len(mainInstChannel) + len(supportInstChannel)) == len(instList) and instList has NO channel switches:
+        #   self.midi2Array(mainInstChannel)
 
     def instList(self):
         """Outputs a JSON file that tracks when channels switch instruments and the corresponding
             note counts for each instrument."""
         midiFile = "midifiles/" + str(self.songTitle) + ".mid"
         mid = mido.MidiFile(midiFile)
-        channelList = []
+        channelList = {}
         channelStatus = {}
         msgcount = 0
         ttlNotes = 0
 
+    # channel data structure =
+    # dictionary where the key is the channel and the values are a list of  dictionaries for each instrument that contains a list with
+    # the total note count for that instrument on that channel and then a tuple for each time the channel switched on and off of that inst.
+
         for msg in mid:
             msgcount += 1
             if msg.type == 'program_change':
-                if inChannelList(channelList, msg.channel, msg.program):
-                    channelStatus[msg.channel] = msg.program
-                    #obj = getChannelListLoc(channelList, msg.channel, msg.program)
-                    #msgTimes = channelList[obj].msgTimes
-                    #msgTimes.append(ttlNotes)
-                    #channelList[obj].msgTimes = msgTimes
-                else:
-                    channelList.append(channelInfo(msg.channel, msg.program, 0))
-                    channelStatus[msg.channel] = msg.program
-                    #obj = getChannelListLoc(channelList, msg.channel, msg.program)
-                    #channelList[obj].msgTimes.append(ttlNotes)
+                print(msg)
+                #does channel exist in channelDict -> if not add it
+                #elif inChannelDict(channelDict, msg.channel, msg.program):
+                #    continue
+                #else:
+                #   append message to the dictionary value in channelDict
+
+
+                #if inChannelList(channelList, msg.channel, msg.program):
+                #    channelStatus[msg.channel] = msg.program
+                #    obj = getChannelListLoc(channelList, msg.channel, msg.program)
+                #    msgTimes = channelList[obj].msgTimes
+                #    msgTimes.append(ttlNotes)
+                #    channelList[obj].msgTimes = msgTimes
+                #else:
+                #    channelList.append(channelInfo(msg.channel, msg.program, ttlNotes))
+                #    channelStatus[msg.channel] = msg.program
+                   # obj = getChannelListLoc(channelList, msg.channel, msg.program)
+                   # channelList[obj].msgTimes.append(ttlNotes)
             
-            if msg.type == 'note_on':
-                ttlNotes += 1
-                currentInst = channelStatus[msg.channel]
-                for i in channelList:
-                    if (msg.channel == i.channel) and (currentInst == i.inst):
-                        notes = i.noteCount
-                        i.noteCount = notes + 1
+            #if msg.type == 'note_on':
+            #    ttlNotes += 1
+            #    currentInst = channelStatus[msg.channel]
+            #    for i in channelList:
+            #        if (msg.channel == i.channel) and (currentInst == i.inst):
+            #            notes = i.noteCount
+            #            i.noteCount = notes + 1
+       # print("REsULTS")
+       # print(channelStatus)
+       # for i in channelList:
+       #     print(i.channel, i.inst, i.noteCount, sep=" ")   
 
-        #print(channelStatus)
-        #for i in channelList:
-        #    print(i.channel, i.inst, i.noteCount, sep=" ")   
-        self.totalNotes = ttlNotes
-
-        jsonFile = "channelList/" + str(self.songTitle) + "_channels" + ".json"
-        with open(jsonFile, "w") as out:
-            json.dump(channelList, out, indent=4, cls=channelEncoder)
+        return channelList
+       # jsonFile = "channelList/" + str(self.songTitle) + "_channels" + ".json"
+       # with open(jsonFile, "w") as out:
+       #     json.dump(channelList, out, indent=4, cls=channelEncoder)
         
 
     def determineMainChannel(self):
         """ Returns an array that contains the main channel(s) on which the primary instrument will be played and
         assigns all other channels to be supporting instrument channels."""
-        midiFile = "midifiles/" + str(self.songTitle) + ".mid"
+        midiFile = self.filePath + str(self.songTitle) + ".mid"
         mid = mido.MidiFile(midiFile)
         noteCount = {}
-
+        mainInstChannel = []
+        supportInstChannel = []
         backupChannel = []
 
         tier1inst = ["Piano", "Guitar", "Strings"]
-        tier2inst = ["Chromatic Percussion", "Synth Lead"]
+        tier2inst = ["Chromatic Percussion", "Synth Lead","Organ"]
         for msg in mid:
             if msg.type == 'note_on' or msg.type == 'note_off':
                 if msg.channel not in noteCount:
@@ -129,66 +168,53 @@ class midi2Array():
                     noteCount[msg.channel] = prevCount + 1
         for msg in mid:
             if msg.type == 'program_change':
-                #print(msg, noteCount[msg.channel])
                 inst = im.getInstClass(msg.program)
-                #print(inst)
                 if inst in tier1inst:
-                    if msg.channel not in self.mainInstChannel:
-                        self.mainInstChannel.append(msg.channel)
+                    if msg.channel not in mainInstChannel:
+                        mainInstChannel.append(msg.channel)
                 elif inst in tier2inst:
                     if msg.channel not in backupChannel:
                         backupChannel.append(msg.channel)
-                #need another course of action?
                 else:
-                    if msg.channel not in self.supportInstChannel:
-                        self.supportInstChannel.append(msg.channel)
-       #print(noteCount)
-        #print("Main instl, ", self.mainInstChannel)
-        #print("backup channel: ", backupChannel)
-        if len(self.mainInstChannel) > 1:
+                    if msg.channel not in supportInstChannel:
+                        supportInstChannel.append(msg.channel)
+
+        if len(mainInstChannel) == 0 and len(backupChannel) != 0:
+            for i in backupChannel:
+                mainInstChannel.append(i)
+        else:
+            for i in backupChannel:
+                if i not in supportInstChannel:
+                    supportInstChannel.append(i)
+
+        noteCountList = list(noteCount.keys())
+        toBeDel = []
+        for i in mainInstChannel:
+            if i not in noteCountList:
+                toBeDel.append(i)
+        for j in toBeDel:
+            mainInstChannel.remove(j)   
+    
+        toBeMoved = []
+        if len(mainInstChannel) > 1:
             mostNotes = 0
             leadChannel = 0
-            for i in self.mainInstChannel:
-                #print("i: ", i)
-                #print("lead channel: ", leadChannel)
+            for i in mainInstChannel:
                 if noteCount[i] > mostNotes:
                     mostNotes = noteCount[i]
                     leadChannel = i
-           # print("lead channel final: ", leadChannel)
-          #  print("maininst: ", self.mainInstChannel)
-            for j in self.mainInstChannel:
-               # print("j ", j)
-                if j == leadChannel:
-                    if j in self.supportInstChannel:
-                        self.supportInstChannel.remove(j)
-                    continue
-                elif j != leadChannel:
-                   # print("not equals", j)
-                   # print(self.mainInstChannel)
-                    self.mainInstChannel.remove(j)
-                   # print(self.mainInstChannel)
-                #if j != leadChannel:
-                #    if j not in self.supportInstChannel:
-                #        self.supportInstChannel.append(j)
-                #    self.mainInstChannel.remove(j)
-                #    print("removing from main", j)
-                #elif j == leadChannel:
-                #    self.supportInstChannel.remove(j)
-                #    continue
-        #elif len(self.mainInstChannel) == 0:
-        #    mostNotes = 0
-        #    leadChannel = 0
-        #    for i in backupChannel:
-        #        if noteCount[i] > mostNotes:
-        #            mostNotes = noteCount[i]
-        #            leadChannel = i
-        #    for j in backupChannel:
-        #        if j != leadChannel:
-        #           self.supportInstChannel.append(j)
-        #        elif j == leadChannel:
-        #            self.mainInstChannel.append(j)
+            for j in mainInstChannel:
+                if j != leadChannel:
+                    toBeMoved.append(j)
 
-        return self.mainInstChannel
+        if len(toBeMoved) > 0:
+            for k in toBeMoved:
+                if k in mainInstChannel:
+                    mainInstChannel.remove(k)
+                if k not in supportInstChannel:
+                    supportInstChannel.append(k)
+
+        return mainInstChannel, supportInstChannel
 
     def midiToArray(self, mainInstChannel):
         """ Creates an array for the notes of the main instrument with the format of the data namedTuple above.
@@ -197,7 +223,7 @@ class midi2Array():
 
         heapq.heapify(self.musicArray)
         total_time = 0
-        midiFile = "midifiles/" + str(self.songTitle) + ".mid"
+        midiFile = self.filePath + str(self.songTitle) + ".mid"
         for msg in mido.MidiFile(midiFile):
             total_time += msg.time
             if msg.type == 'note_on' and msg.velocity > 0 and msg.channel in mainInstChannel:
@@ -216,12 +242,12 @@ class midi2Array():
                         self.musicMatch.remove(note)
                         heapq.heappush(self.musicArray, message)
                         continue
-
+        print(self.musicArray)
         jsonFile = "jsonMidi/" + str(self.songTitle) + ".json"
         with open(jsonFile, "w") as out:
             json.dump(self.musicArray, out)
 
-    def playMidi(self, mainChannel, mainInst=True,supportInst=True):
+    def playMidi(self, mainChannel, supportChannel, mainInst=True,supportInst=True):
         """ This function plays the Midi File. mainInst determines if the channels that have been identified
         as primary instrument channels will be played aloud. supportInst determines if all other channels
         will be played aloud. Default values for both are True. """
@@ -233,12 +259,11 @@ class midi2Array():
             for x in mainChannel:
                 channelList.append(x)
         if supportInst:
-            for y in self.supportInstChannel:
+            for y in supportChannel:
                 channelList.append(y)
         with mido.open_output('IAC Driver Bus 1') as port:
             for msg in mid.play():
                 if (msg.type == 'note_on' or msg.type == 'note_off') and (msg.channel in channelList):
-                    #print(msg)
                     port.send(msg)
 
 if __name__ == "__main__":
@@ -255,57 +280,32 @@ if __name__ == "__main__":
     #midiObj.playMidi([8], mainInst=True, supportInst=False)
     #midiObj.midiToArray()
     #midiObj.toJSON()
-    silent = midi2Array(songTitle="SilentNight")
-    silent.determineMainChannel()
-    print(silent.mainInstChannel)
+   # silent = midi2Array(songTitle="MichaelJackson-BillieJean",filePath="midifiles/")
+    #silent.determineMethod()
+
+    rhcp = midi2Array(songTitle="RedHotChiliPeppers-Californication",filePath="midifiles/")
+    rhcp.playMidi([0],[2,3,9,6,0],supportInst=False)
+    # we want 0 to be the main channel but determineMainChannel is returning 1 as the mainChannel
+    # finish implementing instList() and see what that recommends
+
+    #minst, sinst = rhcp.determineMainChannel()
+    #print(minst)
+    #print(sinst)
+    #silent.playMidi([9], supportInst=False)
+    #minst, sinst = silent.determineMainChannel()
+    #print("MAIN")
+   # print(minst)
+    #print("SUPPORT")
+    #print(sinst)
     #silent.instList()
     #silent.midiToArray()
     #silent.playMidi(mainInst=True, supportInst=False)
     #silent.toJSON()
     #midiObj.playMidi(mainInst=True,supportInst=False)
     
-# silent night main channel should be 2
-# channel 6 has annoying stuff 
-# channel 1 and 3 has some stuff???
+# SILENT NIGHT - JSON DONE, NO MOD TO BE DONE - NO SUPPORTING TRACKS TO BE PLAYED
+# main channel = 0, no supporting inst channels
 
 # under the sea main channels = 2, 13, 4, not 12....
 
-# additional crap i may need to remember
 
-# find ports with mido.get_output_names(), mido.get_input_names()
-# input/output port on my mac is 'IAC Driver Bus 1'
-
-#for i, track in enumerate(mid.tracks):
-#               print('Track {}: {}'.format(i, track.name))
-
-# if MIDI channel prefix message precedes a MIDI instrument name message then that instrument is tied to that channel
-
-
-# TO DETERMINE MAIN CHANNEL
-
-# step 1 - find which channels are tied to which instruments and track whether
-# the channels change instruments
-
-# step 2 - assign each channel the instrument that it switches to most often
-# or plays the most notes in that instrument?
-
-# step 3 - determine which types of instruments will be potential "primary" instruments
-# will need different tiers - if no primary instruments found in tier 1 - move on to tier 2 etc..
-
-# step 4 - determine the note counts of each main instrument
-
-# step 5 - determine which instruments to keep in main instrument
-# for some midi files, it will work to just select the main inst with the highest notes
-# for other midi files, may need multiple main instruments....
-
-# if a midi file is simple i.e. every channel only assigned one inst -> just pick channel with highest note count
-
-# will need to add steps in midiToArray to ensure that only notes on that channel
-# played with the "assigned" instrument are added to the array
-
-# parse through ALL messages in MIDI
-# if msg == program change -> add channelInfo to channelList
-    # if channel not in channelList then add channel,inst to channelStatus
-    # if channel already in channelList then update channelStatus to new Inst
-# if msg == note_on ->
-    # check channelStatus -> find appropriate channel+inst in channelList and increment count
