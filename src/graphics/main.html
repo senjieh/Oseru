@@ -270,6 +270,10 @@
             let projection = Mat4.perspective_fovx( FOV_ANGLE, ASPECT_RATIO, 0.125, 1024 );
             let current_program = lit_program;
 
+            // global pause variables
+            let PAUSE_TIME = 0;
+            let IS_PAUSED = false;
+
 //----------------------------------------------------------------------------------------------------
 //          LOAD RESOURCES
 //----------------------------------------------------------------------------------------------------
@@ -416,7 +420,21 @@
 //           RENDER LOOP
 //----------------------------------------------------------------------------------------------------
             function render( now ) {
-                last_update = now;
+                // window not visible
+                //console.log(document.hidden)
+                // TODO: tabbing away causes no animation update until tabbed back, then everything happens all at once, should pause until user tabs back
+                if (document.hidden) {
+                    // current doesn't work
+                    PAUSE_TIME += now - last_update;
+                    return;
+                }
+                if (IS_PAUSED) {
+                    // TODO: don't update timer when paused
+                    return;
+                }
+
+                console.log(now - last_update)
+                last_update = now - PAUSE_TIME;
                 //console.log(now);
 
                 // get permission to draw frame from browser
@@ -495,6 +513,10 @@
 //----------------------------------------------------------------------------------------------------
             function update() {
                 let keys_down = keys.keys_down_list();
+
+                if (IS_PAUSED) {
+                    return;
+                }
 
                 for( const key of keys_down ) {
                    let bound_function = KEYMAP[ key ];
