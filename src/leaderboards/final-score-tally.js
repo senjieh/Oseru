@@ -1,6 +1,5 @@
 //const NoteScore = require('./note-score.js');
 class FinalScore {
-  
   static GetSongInfo() {
     const my_request = new Request('http://127.0.0.1:8080/midi/jsonMidi/SilentNight.json');
     return fetch(my_request)
@@ -16,8 +15,9 @@ class FinalScore {
   }
 
   static GetNoteScore(note_data) {
+    var freq_array = [392, 391, 398, 400, 55, 65, 1500]; //fake freq info to test
     const elapsed_time = note_data[0];
-    const check_note = new NoteScore(note_data, elapsed_time);
+    const check_note = new NoteScore(note_data, elapsed_time, freq_array);
     const score = check_note.ScoreEachNote();
     return score;
   }
@@ -34,4 +34,4 @@ class FinalScore {
     });
   }
 }
-  //module.exports = FinalScore;cd ..
+  //module.exports = FinalScore;
