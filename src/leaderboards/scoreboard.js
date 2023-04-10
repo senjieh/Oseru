@@ -2,7 +2,6 @@
 let level_name = "SilentNight";
 let level_key = level_name + "-scores";
 let scores = JSON.parse(localStorage.getItem(level_key)) || [];
-let 
 let level_title = level_name + " Scoreboard";
 document.querySelector("h1").textContent = level_title;
 
