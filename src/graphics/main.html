@@ -393,7 +393,7 @@
                     }
                 }
                 note_data.push(lst);
-                console.log(lst);
+                //console.log(lst);
             }
 
             // add note data to each spawner
@@ -415,6 +415,45 @@
             // game updates should still occur based on now - prev because we aren't Bertha
             let start = last_update;
             let prev_time = 0;
+
+            // testing json loader
+            let json_text = null;
+            let file = "jsonMidi/test_midi.json"
+
+            let note_data_dict = {
+                "time_played":[],
+                "midi_note":[],
+                "frequency":[],
+                "note_held":[],
+                "velocity":[],
+                "channel":[]
+            };
+
+            let MIDI_JSON_LOADED = false;
+            // get file and parse it as json object string
+            let return_code = get_json_file(file, function(text) {
+                json_text = JSON.parse(text);
+                MIDI_JSON_LOADED = true;
+                json_text.map(function(ent)  {
+                    Object.entries(ent).forEach(([key, value]) => {
+                        note_data_dict[key].push(value)
+                    });
+                    /*console.log(ent.keys());
+                    for (let key in ent.keys()) {
+                        note_data_dict[key].push(ent[key]);
+                        console.log(ent[key]);
+                    }
+                    return ent;*/
+                });
+            });
+
+
+            /*json_text.map(function(ent) {
+                for (let key in ent.keys()) {
+                    note_data_dict[key].push(ent[key]);
+                }
+            });*/
+
             
 //----------------------------------------------------------------------------------------------------
 //           RENDER LOOP
@@ -433,7 +472,7 @@
                     return;
                 }
 
-                console.log(now - last_update)
+                //console.log(now - last_update)
                 last_update = now - PAUSE_TIME;
                 //console.log(now);
 
@@ -557,7 +596,14 @@
                 // Game State Logic
                 //--------------------------------------------------------------------------
 
-                
+                //--------------------------------------------------------------------------
+                // Debug stuff
+                //--------------------------------------------------------------------------
+                if (MIDI_JSON_LOADED) {
+                    console.log(json_text);
+                    console.log(note_data_dict);
+                }
+
                 
                 return;
             }

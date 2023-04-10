@@ -7,6 +7,7 @@
  */
 
 // func to filter out floating point errors
+// TODO: adds lag, optimize of delete
 function round_float(num) {
     num *= 10;
     num = Math.floor(num);
@@ -205,7 +206,8 @@ class Mat4 {
             0,          0,          c2, -c1,
             0,          0,          1, 0, 
         ] );
-        frus.data = frus.data.map(round_float);
+        // also too slow
+        //frus.data = frus.data.map(round_float);
         return frus;
     }
 

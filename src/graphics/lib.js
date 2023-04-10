@@ -348,3 +348,30 @@ function load_txt_file(src, func, progress_func=null) {
     req.send();
     return req;
 }
+
+/**
+ * load a json file given it's path
+ * ref: https://qawithexperts.com/article/javascript/read-json-file-with-javascript/380
+ * 
+ * @param {String} file path
+ * @param {function} callback function to run once file is loaded
+ * 
+ * @return {}
+ */
+function get_json_file(file, callback) {
+    let rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", file, true);
+
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+            callback(rawFile.responseText);
+        }
+        // TODO: add error handling code here
+        if (rawFile.readyState === 4 && rawFile.status == "404") {
+            console.log("error, file not found");
+        }
+        return rawFile.status;
+    }
+    rawFile.send(null);
+}

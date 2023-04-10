@@ -218,13 +218,36 @@ class Score {
 	 * @param {Scene} background scene to play behind notes
 	 * 
 	 * @return {Scene}
-	 */w
-	constructor(gl, program, note_data, tempo, background=null) {
+	 */
+	constructor(gl, program, note_data_json, tempo, background=null) {
+		// song data in form:
+		// [['time_played', 'note', 'note_duration (s)','velocity','channel']]
+
 		this.gl = gl;
-		this.program = program
-		this.note_data = note_data;
+		this.program = program;
 		this.tempo = tempo;
 		this.targets = [];
+
+		this.song_data = this.read_json_file(note_data_json);
+
+		// cal number of notes in song, as well as find highest and lowest note
+		let low_note = this.song_data[0][1];
+		let high_note = this.song_data[0][1];
+		for (let i=0; i<this.song_data.length; i++) {
+			if (this.song_data[i][1] > high_note) {
+				high_note = this.song_data[i][1];
+			} else if (this.song_data[i][1] < low_note) {
+				low_note = this.song_data[i][1];
+			}
+			// convert duration and time values from seconds to ms
+			this.song_data[i][0] *= 1000;
+			//this.song_data[i][0] = Math.floor(this.song_data[i][0] / 60);
+			this.song_data[i][2] *= 1000;
+		}
+		note_range = high_note - low_note;
+
+		let last_note = this.song_data[this.song_data.length -1];
+		let song_end = last_note[0] + last_note[2];
 		//this.perfect = perfect;
 		//this.excelent = excelent;
 		//this.great = great;
@@ -359,6 +382,56 @@ class Score {
 		const note = new NodeNote();
 
 		return note;
+	}
+
+	/**
+	 * given a path to a json file, load it and return data
+	 * @param {String} file path
+	 * 
+	 * @return {[[noteData]]} 2d array of note data
+	 */
+	#read_json_file(file) {
+		let json_content = null;
+		// get file and parse it as json object string
+		let err = get_json_file(file, function(text) {
+			json_content = JSON.parse(text);
+		});
+		// dosn't block until json loaded, so make sure to pause until loaded
+		// TODO: add error handling here
+
+		// if failed to load don't bother trying to parse data
+		if (err != "200") {
+			return err;
+		}
+		// json loaded fine, so parse into useful note data
+		// invert so instead list of dicts, becomes dict of lists
+		// expect to be list of json objects ex:
+		// [{"a":1, "b":2},
+		//  {"a":2, "b":3}]
+		let note_data_dict = {
+            "time_played":[],
+            "midi_note":[],
+            "frequency":[],
+            "note_held":[],
+            "velocity":[],
+            "channel":[]
+        };
+
+		let return_code = get_json_file(file, function(text) {
+            json_text = JSON.parse(text);
+            MIDI_JSON_LOADED = true;
+            json_text.map(function(ent)  {
+                Object.entries(ent).forEach(([key, value]) => {
+                    note_data_dict[key].push(value)
+                });
+            });
+        });
+		/*for (let note of json_content) {
+			// only need freq or midi, adding both to maybe make things easier later
+			note_data_dict.time_played.push(note.time_played)
+			note_data_dict.midi_note.push(note.midi_note);
+		}*/
+
 	}
 
 	/**

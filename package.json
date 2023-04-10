@@ -7,19 +7,18 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "firebase": "^9.15.0",
+    "pg": "^8.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "selenium-webdriver": "^4.8.1",
     "web-vitals": "^2.1.4"
   },
   "hosting": {
     "public": "build"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "jest --verbose ./test-dir --env=jsdom"
   },
   "eslintConfig": {
     "extends": [
@@ -38,5 +37,25 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "devDependencies": {
+    "jest": "^27.5.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/senjieh/Oseru.git"
+  },
+  "bugs": {
+    "url": "https://github.com/senjieh/Oseru/issues"
+  },
+  "homepage": "https://github.com/senjieh/Oseru#readme",
+  "jest": {
+    "verbose": true,
+    "setupFilesAfterEnv":["<rootDir>/test-dir/graphicsTestSetup.js"]
   }
 }
