@@ -124,8 +124,8 @@ def playMidi(file, filepath):
                 print(msg)
                 port.send(msg)
 
-#if __name__ == "__main__":
-   # playMidi("SilentNight.mid","")
+if __name__ == "__main__":
+    playMidi("SilentNight.mid","modmidi/")
     #pass
     #obj = modMidi("SilentNight","midifiles/")
 

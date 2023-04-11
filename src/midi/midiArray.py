@@ -88,7 +88,7 @@ def playMidi(file, inPath, mainChannel, supportChannel, mainInst=True,supportIns
 
 
 if __name__ == "__main__":
-    playMidi("SilentNight.mid","midifiles/",[9],[2], supportInst=False)
+    playMidi("SilentNight.mid","midifiles/",[0,2],[4,1,3,6,2,5,9], supportInst=False)
    
     #midiObj = midi2Array(songTitle="UnderTheSea-LittleMermaid")
     #midiObj.instList()
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     #print(midiObj.mainInstChannel)
     #midiObj.playMidi([8], mainInst=True, supportInst=False)
     #midiObj.midiToArray()
-    #midiObj.toJSON()
+    #midiObj.toJSON()s
    # silent = midi2Array(songTitle="MichaelJackson-BillieJean",filePath="midifiles/")
     #silent.determineMethod()
 

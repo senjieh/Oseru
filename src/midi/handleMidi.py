@@ -2,7 +2,7 @@ import mido
 import os
 import midiMapping as mm
 import instMapping as im
-import midiReader as mr
+import midiArray as mr
 import modMidi as mod
 
 class channelInst():
