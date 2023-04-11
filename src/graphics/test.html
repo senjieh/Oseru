@@ -5,9 +5,15 @@
 		<title>Menu Test</title>
 		<link rel="stylesheet" href="menu.css" />
 		<script src="menu.js"></script>
+	
 		<script src="test.js" defer></script>
+		<script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.4.0"></script>
+		<midi-player src="http://localhost:8000/ref/SilentNight.mid" sound-font visualizer="#myVisualizer"></midi-player>
 	</head>
 	<body>
+	</br>
+		<input id="midi-file" type="file" onchange="UploadFile(this)" >
+	</br>
 		<button id="openModal">Open Modal</button>
 	</body>
 </html>
