@@ -39,11 +39,11 @@
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
 
-            let canvas = document.getElementById( 'the-canvas' );
+            const canvas = document.getElementById( 'the-canvas' );
             /** @type {WebGLRenderingContext} */
-            let gl = canvas.getContext( 'webgl2' );
+            const gl = canvas.getContext( 'webgl2' );
 
-            let GOURAUD_VERTEX_SHADER = 
+            const GOURAUD_VERTEX_SHADER = 
             `   #version 300 es
                 precision mediump float;
 
@@ -177,7 +177,7 @@
                 }
             `;
 
-            let GOURAUD_FRAGMENT_SHADER = 
+            const GOURAUD_FRAGMENT_SHADER = 
             `   #version 300 es
                 precision mediump float;
 
@@ -228,8 +228,8 @@
 //----------------------------------------------------------------------------------------------------
             // NOTE: debuging vars
             //DRAW_ASTROIDS = true;
-            DRAW_SKYBOX = false;
-            DRAW_SUN = true;
+            const DRAW_SKYBOX = false;
+            const DRAW_SUN = true;
 
 
 //----------------------------------------------------------------------------------------------------
@@ -270,9 +270,18 @@
             let projection = Mat4.perspective_fovx( FOV_ANGLE, ASPECT_RATIO, 0.125, 1024 );
             let current_program = lit_program;
 
-            // global pause variables
-            let PAUSE_TIME = 0;
-            let IS_PAUSED = false;
+            // global pause variable
+            var PAUSE_TIME = 0;
+
+            // dict that tracks aspects of game state
+            var gamestate = {
+                "is_paused":0,
+                "main_menu":0,
+                "json_midi_loaded":0,
+                "texture_loaded":,0,
+                "meshs_loaded":0,
+                "background_loaded":0
+            }
 
 //----------------------------------------------------------------------------------------------------
 //          LOAD RESOURCES
@@ -282,8 +291,14 @@
             /*
             let metal = 
                 new LitMaterial( gl, 'tex/metal.png', gl.LINEAR, 0.25, 1, 2, 5 ); */
-            let debug_tex = 
+            const debug_tex = 
                 new LitMaterial(gl, null, gl.LINEAR, 0.25, 1, 2, 5);
+
+            // skybox mesh to pass to score
+            if (DRAW_SKYBOX){
+                let skybox = NormalMesh.box(gl, current_program, 1023,1023,1023, sky_tex);
+            }
+            let skybox = null;
             
 //----------------------------------------------------------------------------------------------------
 //           SETUP LIGNTS
@@ -302,44 +317,25 @@
 //----------------------------------------------------------------------------------------------------
 //           GENERATE SCENE
 //----------------------------------------------------------------------------------------------------
-            let root = new Scene();
+
+            const score = new Score("jsonMidi/SilentNight.json", 100, 
+                NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1, debug_tex),
+                skybox);
+
+            const root = score.root;
 
             // initalize camera
             let cam = root.create_node(
                 0,0,0, 0,0,0, 1,1,1);
             root.set_camera_node(cam);
-            //cam.translate( 0, 0, -50);
-            //root.set_camera_node(cam);
-
-            /*let skybox = root.create_node(
-                0,0,0, 0,0,0, 1,1,1);
-            skybox.data = NormalMesh.box(gl, current_program, 1023,1023,1023, sky_tex);*/
 
             // initalize sun
-            root.set_sun_color(1.0, 0.95, 0.85, 0);
+            //root.set_sun_color(1.0, 0.95, 0.85, 0);
+            root.set_sun_color(1.0, 1.0, 1.0, 0);
             root.set_sun_direction(1.0,0.0,0.0);
 
-            // initalize background
-            /*let background = root.create_node(0,0,65, 0,0,0, 4,4,4);
-            background.data = NormalMesh.from_heightmap(gl, current_program,
-                NormalMesh.fractal_map_test(1,4),
-                0, 1, scale);
-            background.add_pitch(0.24)
-            // fill in water
-            let background_water = background.create_child_node(0,0,0, 0,0,0, 1,1,1);
-            background_water.data = NormalMesh.platform(gl, current_program,
-                16, 16, 0, 1, water_tex);*/
-
-
-            /*let note_root = root.create_node(-0.8,-0.92,3, 0,0,0, 0.5,0.5,0.5,);
-            let note = note_root.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
-            note.data = new NodeNote(1,1,1,1,
-                NormalMesh.platform(gl, current_program, 
-                    0.3, 0.1, 0, 1,
-                    debug_tex),
-                false);*/
-
-            // calc frustum edge
+            /*// calc frustum edge
             let distance = 3;
             let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
             // calc note width
@@ -401,7 +397,7 @@
             for (let i=0; i< spawners.length; i++) {
                 //note_data[i].reverse();
                 spawners[i].data.data = note_data[i].reverse();
-            }
+            }*/
 
 
             /*let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
@@ -561,15 +557,6 @@
                     skybox.y = cam.y;
                     skybox.z = cam.z;
                 }
-
-                
-                // spin earth
-                //box.add_roll(ROTATION_SPEED_PER_FRAME*0.5);
-                //box.add_pitch(ROTATION_SPEED_PER_FRAME*0.4);
-                //box.add_yaw(ROTATION_SPEED_PER_FRAME*0.6)
-
-                //tmp_anch.add_roll(ROTATION_SPEED_PER_FRAME*32);
-                // spin baybe spin!
 
                 // hardcoded lights
                 // TODO: light as child node

@@ -219,7 +219,7 @@ class Score {
 	 * 
 	 * @return {Scene}
 	 */
-	constructor(note_data_json, tempo, note_mesh, skybox_mesh, background=null) {
+	constructor(note_data_json, tempo, note_mesh, skybox_mesh, gamestate, background=null) {
 		// song data in form:
 		// [['time_played', 'note', 'note_duration (s)','velocity','channel']]
 
@@ -234,7 +234,7 @@ class Score {
 		this.background_loaded = false;
 
 		// call this then do as much as possible before entering pausing until loaded
-		this.song_data = this.read_json_file(note_data_json);
+		this.song_data = this.read_json_file(note_data_json, gamestate);
 
 		this.root = new Scene();
 
@@ -247,18 +247,19 @@ class Score {
 		let note_root = cam.create_node(
 			0,0,2, 0,0,0, 0,0,0, null);
 
-		this.skybox = this.root.create_node(
+		this.skybox = this.cam.create_node(
 			0,0,0, 0,0,0, 1,1,1);
 		this.skybox.data = skybox_mesh;
 		
 		// rest depends on midi, so wait until loaded
-		while(this.midi_loaded != true) {
+		while(gamestate.json_midi_loaded == 0) {
 			// sleep for 10ms
+			console.log("waiting on note load");
 			await new Promise(r => setTimeout(r, 10));
 		}
 
 		// cal number of notes in song, as well as find highest and lowest note
-		let notes = song_data["midi_note"];
+		const notes = song_data["midi_note"];
 		let low_note = this.notes[0];
 		let high_note = this.notes[0];
 		for (let i=0; i<this.notes.length; i++) {
@@ -269,42 +270,42 @@ class Score {
 			}
 		}
 		note_range = high_note - low_note;
+		console.log("low note: ",low_note);
+		console.log("high note: ",high_note);
+		console.log("note range:",note_range);
 
-		let last_note = this.song_data[this.song_data.length -1];
-		let song_end = last_note[0] + last_note[2];
+		//TODO: fix this, should describe end of song
+		//const last_note = this.song_data[this.song_data.length -1];
+		//const song_end = last_note[0] + last_note[2];
 
 		// convert from sec to ms
-		song_data["tine_played"].map(x => x * 1000);
-		song_data["note_held"].map(x => x * 1000);
+		this.song_data["tine_played"].map(x => x * 1000);
+		this.song_data["note_held"].map(x => x * 1000);
 
-		//this.perfect = perfect;
-		//this.excelent = excelent;
-		//this.great = great;
-		//this.fine = fine;
-
-		
+		console.log(song_data);
 
 		// calc frustum edge
 		// NOTE: math only works if camera is facing along z axis, always do before moving camera
-        let distance = 3;
-        let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
+        const distance = 3;
+        const edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
         // calc note width
-        let num_notes = note_range;
-        let padding_pre = 0.05;		// percentage of note width to add as space around note
-        let div_width = (2*edge_distance)/num_notes;
-        let padding = div_width * padding_pre;
-        let width = div_width - padding;
+        const num_notes = note_range;
+        const padding_pre = 0.05;		// percentage of note width to add as space around note
+        const div_width = (2*edge_distance)/num_notes;
+        const padding = div_width * padding_pre;
+        const width = div_width - padding;
         // calc height
-        let height = width/3;
-        let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
+        const height = width/3;
+        const bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
-        this.spawners = [];
+        spawners = [];
 
         for (let i=0; i<num_notes; i++) {
-            let left = -edge_distance + (padding + width)/2 + i*(width+padding);
+            const left = -edge_distance + (padding + width)/2 + i*(width+padding);
 
-            let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
-            this.spawners.push[note_spawner];
+            // note spawners children of camera to lock them in correct position
+            let note_spawner = cam.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
+            spawners.push[note_spawner];
             // debug to create static notes
             let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
             note.data = new NodeNote(1,1,1,1,
@@ -316,7 +317,31 @@ class Score {
 
         // Spawn targets
         for (let i=0; i<this.spawners.length; i++) {
-        	this.spawners[i].make_target(padding, height);
+        	spawners[i].make_target(padding, height);
+        }
+
+        // add note data
+        let song_arr = [];
+        for (let i = low_note; i<high_note; i++) {
+        	let note_arr = [];
+        	for (let j=0; j<this.song_data["midi_note"].length; j++) {
+        		if (song_data["midi_note"][j] == i) {
+        			note_arr.push(sond_data["time_played"]);
+        		}
+        	}
+        	// make sure notes are played in assenting order, may not be necessary
+        	note_arr.sort();
+        	note_arr.reverse();
+        	song_arr.push(note_arr);
+        }
+        console.log(song_arr);
+
+        if (song_arr.length != spawners.length) {
+        	console.log("note/spawner mismatch. Notes: ",song_arr.length," Spawners: ",spawners.length;
+        }
+
+        for (let i = 0; i<spawners.length; i++) {
+        	spanwers[i].data.data = note_data[i];
         }
 
 		/*Object.entries(this.note_data)
@@ -407,7 +432,7 @@ class Score {
 	 * 
 	 * @return {Dict} dictionary of note data
 	 */
-	#read_json_file(file) {
+	#read_json_file(file, gamestate) {
 		// invert so instead list of dicts, becomes dict of lists
 		// expect to be list of json objects ex:
 		// [{"a":1, "b":2},
@@ -423,6 +448,7 @@ class Score {
 
         // TODO: make sure data is sorted before adding it to list
         // get largest element of list with .reduce
+        // TODO: drop elements where velocity is 0
 		let midi_json = get_json_file(file, function(text) {
             json_text = JSON.parse(text);
             MIDI_JSON_LOADED = true;
@@ -431,7 +457,7 @@ class Score {
                     note_data_dict[key].push(value)
                 });
             });
-            this.midi_loaded = true;
+            gamestate.json_midi_loaded = 1;
         });
         return midi_json;
 	}
