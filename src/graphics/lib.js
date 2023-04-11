@@ -356,7 +356,7 @@ function load_txt_file(src, func, progress_func=null) {
  * @param {String} file path
  * @param {function} callback function to run once file is loaded
  * 
- * @return {}
+ * @return {String} server response
  */
 function get_json_file(file, callback) {
     let rawFile = new XMLHttpRequest();

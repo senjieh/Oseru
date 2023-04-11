@@ -219,39 +219,22 @@ class Score {
 	 * 
 	 * @return {Scene}
 	 */
-	constructor(gl, program, note_data_json, tempo, background=null) {
+	constructor(note_data_json, tempo, note_mesh, skybox_mesh, background=null) {
 		// song data in form:
 		// [['time_played', 'note', 'note_duration (s)','velocity','channel']]
 
-		this.gl = gl;
-		this.program = program;
+		//this.gl = gl;
+		//this.program = program;
 		this.tempo = tempo;
-		this.targets = [];
+		this.note_mesh = note_mesh;
+		//this.targets = [];
 
+		this.midi_loaded = false;
+		this.meshs_loaded = false;
+		this.background_loaded = false;
+
+		// call this then do as much as possible before entering pausing until loaded
 		this.song_data = this.read_json_file(note_data_json);
-
-		// cal number of notes in song, as well as find highest and lowest note
-		let low_note = this.song_data[0][1];
-		let high_note = this.song_data[0][1];
-		for (let i=0; i<this.song_data.length; i++) {
-			if (this.song_data[i][1] > high_note) {
-				high_note = this.song_data[i][1];
-			} else if (this.song_data[i][1] < low_note) {
-				low_note = this.song_data[i][1];
-			}
-			// convert duration and time values from seconds to ms
-			this.song_data[i][0] *= 1000;
-			//this.song_data[i][0] = Math.floor(this.song_data[i][0] / 60);
-			this.song_data[i][2] *= 1000;
-		}
-		note_range = high_note - low_note;
-
-		let last_note = this.song_data[this.song_data.length -1];
-		let song_end = last_note[0] + last_note[2];
-		//this.perfect = perfect;
-		//this.excelent = excelent;
-		//this.great = great;
-		//this.fine = fine;
 
 		this.root = new Scene();
 
@@ -264,13 +247,50 @@ class Score {
 		let note_root = cam.create_node(
 			0,0,2, 0,0,0, 0,0,0, null);
 
+		this.skybox = this.root.create_node(
+			0,0,0, 0,0,0, 1,1,1);
+		this.skybox.data = skybox_mesh;
+		
+		// rest depends on midi, so wait until loaded
+		while(this.midi_loaded != true) {
+			// sleep for 10ms
+			await new Promise(r => setTimeout(r, 10));
+		}
+
+		// cal number of notes in song, as well as find highest and lowest note
+		let notes = song_data["midi_note"];
+		let low_note = this.notes[0];
+		let high_note = this.notes[0];
+		for (let i=0; i<this.notes.length; i++) {
+			if (this.notes[i] > high_note) {
+				high_note = this.notes[i];
+			} else if (this.notes[i] < low_note) {
+				low_note = this.notes[i];
+			}
+		}
+		note_range = high_note - low_note;
+
+		let last_note = this.song_data[this.song_data.length -1];
+		let song_end = last_note[0] + last_note[2];
+
+		// convert from sec to ms
+		song_data["tine_played"].map(x => x * 1000);
+		song_data["note_held"].map(x => x * 1000);
+
+		//this.perfect = perfect;
+		//this.excelent = excelent;
+		//this.great = great;
+		//this.fine = fine;
+
+		
+
 		// calc frustum edge
-		// NOTE: only works if camera is facing along z axis
+		// NOTE: math only works if camera is facing along z axis, always do before moving camera
         let distance = 3;
         let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
         // calc note width
-        let num_notes = 7;
-        let padding_pre = 0.05;		// precentage of note width to add as space around note
+        let num_notes = note_range;
+        let padding_pre = 0.05;		// percentage of note width to add as space around note
         let div_width = (2*edge_distance)/num_notes;
         let padding = div_width * padding_pre;
         let width = div_width - padding;
@@ -279,9 +299,6 @@ class Score {
         let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
         this.spawners = [];
-
-        // TODO: asserts
-        //console.assert(num_notes > 0);
 
         for (let i=0; i<num_notes; i++) {
             let left = -edge_distance + (padding + width)/2 + i*(width+padding);
@@ -293,7 +310,7 @@ class Score {
             note.data = new NodeNote(1,1,1,1,
                 NormalMesh.platform(gl, current_program, 
                     width, height, 0, 1,
-                    debug_tex),
+                    note_mesh),
                 false);
         }
 
@@ -388,22 +405,9 @@ class Score {
 	 * given a path to a json file, load it and return data
 	 * @param {String} file path
 	 * 
-	 * @return {[[noteData]]} 2d array of note data
+	 * @return {Dict} dictionary of note data
 	 */
 	#read_json_file(file) {
-		let json_content = null;
-		// get file and parse it as json object string
-		let err = get_json_file(file, function(text) {
-			json_content = JSON.parse(text);
-		});
-		// dosn't block until json loaded, so make sure to pause until loaded
-		// TODO: add error handling here
-
-		// if failed to load don't bother trying to parse data
-		if (err != "200") {
-			return err;
-		}
-		// json loaded fine, so parse into useful note data
 		// invert so instead list of dicts, becomes dict of lists
 		// expect to be list of json objects ex:
 		// [{"a":1, "b":2},
@@ -417,7 +421,9 @@ class Score {
             "channel":[]
         };
 
-		let return_code = get_json_file(file, function(text) {
+        // TODO: make sure data is sorted before adding it to list
+        // get largest element of list with .reduce
+		let midi_json = get_json_file(file, function(text) {
             json_text = JSON.parse(text);
             MIDI_JSON_LOADED = true;
             json_text.map(function(ent)  {
@@ -425,13 +431,9 @@ class Score {
                     note_data_dict[key].push(value)
                 });
             });
+            this.midi_loaded = true;
         });
-		/*for (let note of json_content) {
-			// only need freq or midi, adding both to maybe make things easier later
-			note_data_dict.time_played.push(note.time_played)
-			note_data_dict.midi_note.push(note.midi_note);
-		}*/
-
+        return midi_json;
 	}
 
 	/**

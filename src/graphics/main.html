@@ -438,21 +438,8 @@
                     Object.entries(ent).forEach(([key, value]) => {
                         note_data_dict[key].push(value)
                     });
-                    /*console.log(ent.keys());
-                    for (let key in ent.keys()) {
-                        note_data_dict[key].push(ent[key]);
-                        console.log(ent[key]);
-                    }
-                    return ent;*/
                 });
             });
-
-
-            /*json_text.map(function(ent) {
-                for (let key in ent.keys()) {
-                    note_data_dict[key].push(ent[key]);
-                }
-            });*/
 
             
 //----------------------------------------------------------------------------------------------------
@@ -599,10 +586,6 @@
                 //--------------------------------------------------------------------------
                 // Debug stuff
                 //--------------------------------------------------------------------------
-                if (MIDI_JSON_LOADED) {
-                    console.log(json_text);
-                    console.log(note_data_dict);
-                }
 
                 
                 return;
