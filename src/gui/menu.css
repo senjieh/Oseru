@@ -30,7 +30,6 @@ h2 {
 
 .button-frame {
     margin: 0;
-
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -51,7 +50,7 @@ h2 {
     padding-block: .75ch;
     padding-inline: 2ch;
     border-color: var(--buttonbg);
-    border-radius: 10px
+    border-radius: 10px;
 }
 
 .button:hover {
