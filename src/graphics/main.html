@@ -43,7 +43,7 @@
             /** @type {WebGLRenderingContext} */
             const gl = canvas.getContext( 'webgl2' );
 
-            const GOURAUD_VERTEX_SHADER = 
+            let GOURAUD_VERTEX_SHADER = 
             `   #version 300 es
                 precision mediump float;
 
@@ -177,7 +177,7 @@
                 }
             `;
 
-            const GOURAUD_FRAGMENT_SHADER = 
+            let GOURAUD_FRAGMENT_SHADER = 
             `   #version 300 es
                 precision mediump float;
 
@@ -274,11 +274,13 @@
             var PAUSE_TIME = 0;
 
             // dict that tracks aspects of game state
+            // 0 = not done, 1 = done, 2 = done, past first setup only code
             var gamestate = {
                 "is_paused":0,
                 "main_menu":0,
                 "json_midi_loaded":0,
-                "texture_loaded":,0,
+                "score_generated":0,
+                "texture_loaded":0,
                 "meshs_loaded":0,
                 "background_loaded":0
             }
@@ -318,12 +320,38 @@
 //           GENERATE SCENE
 //----------------------------------------------------------------------------------------------------
 
-            const score = new Score("jsonMidi/SilentNight.json", 100, 
+            // TODO: fetch meshs same way
+            var score;
+            let file = "jsonMidi/SilentNight.json"
+            fetch(file).then((resopnse) => {
+                // get note json
+                if (response.status === "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.json();
+                }
+                else {
+                    console.log("ERROR: ",resopnse.status);
+                }
+            }).then((resopnse) => {
+                // then make score
+                score = new Score(response, 100, 
+                NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1, debug_tex),
+                skybox);
+                console.log("new score made ",score);
+                gamestate.score_generated = 1;
+            }).catch((err) => {
+                console.log("something went wrong making score ",err);
+                // TODO: bounce back to stage select on error here
+            });
+
+            score = new Score("jsonMidi/SilentNight.json", 100, 
                 NormalMesh.platform(gl, current_program, 
                     width, height, 0, 1, debug_tex),
                 skybox);
 
-            const root = score.root;
+            let root = new Scene();
 
             // initalize camera
             let cam = root.create_node(
@@ -335,76 +363,7 @@
             root.set_sun_color(1.0, 1.0, 1.0, 0);
             root.set_sun_direction(1.0,0.0,0.0);
 
-            /*// calc frustum edge
-            let distance = 3;
-            let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
-            // calc note width
-            let num_notes = 7;
-            let padding_pre = 0.05;
-            let div_width = (2*edge_distance)/num_notes;
-            let padding = div_width * padding_pre;
-            let width = div_width - padding;
-            // calc height
-            let height = width/3;
-            let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
-
-            let spawners = [];
-
-            // TODO: check if adding same NodeNote to each object or if is working as intended
-            let note_mesh = NormalMesh.platform(gl, current_program, 
-                    width, height, 0, 1, debug_tex);
-            let note_node = new NodeNote(1,1,1,1, note_mesh, false);
-
-            // create note spawners
-            for (let i=0; i<num_notes; i++) {
-                let left = -edge_distance + (padding + width)/2 + i*(width+padding);
-
-                let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1);
-                note_spawner.data = new NoteSpawner(null, note_mesh, bottom, note_spawner);
-                //note_spawner.node = note_spawner;
-                spawners.push(note_spawner);
-                // place static notes on spawners to make them visible
-                let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1,note_mesh);
-                //note.data = note_node;
-            }
-
-            // make targets for notes
-            for (let i=0; i<spawners.length; i++) {
-                let tmp_node = spawners[i].create_child_node(0,0,0, 0,0.25,0, 1,1,1, NormalMesh.platform(gl, current_program, 
-                    width, height, 0, 1,
-                    debug_tex));
-                let top = spawners[i].data.get_target_height(padding, height);
-                tmp_node.warp(tmp_node.x, top, tmp_node.z);
-            }
-
-            // make test note data
-            // 2d array, each inner array containing the time of each note in ascending order
-            const num_notes_to_play = 100;
-            let note_data = [];
-            for (let i=0; i<num_notes; i++) {
-                let lst = [];
-                for (let j=0; j<num_notes_to_play; j++) {
-                    if ((j)%(i+2) == 0) {
-                        lst.push(j*1000);
-                    }
-                }
-                note_data.push(lst);
-                //console.log(lst);
-            }
-
-            // add note data to each spawner
-            // NOTE: normally add data in construction, don't do this elsewhere
-            for (let i=0; i< spawners.length; i++) {
-                //note_data[i].reverse();
-                spawners[i].data.data = note_data[i].reverse();
-            }*/
-
-
-            /*let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
-            box.data = NormalMesh.box(gl, current_program, 
-                    4, 4, 4,
-                    debug_tex);*/
-
+            // TODO: loading scene while waiting on load
             
             // Track time
             // tie update freq to fps so if game is chugging calcs happen less often
@@ -538,6 +497,17 @@
 
                 if (IS_PAUSED) {
                     return;
+                }
+
+                if (gamestate.score_generated == 1) {
+                    // score has loaded, change from loading screen to song in ready state
+                    gamestate.score_generated = 2;
+                    root = score.root;
+                    cam = score.cam;
+
+                    // TODO: make this part of score generation process
+                    root.set_sun_color(1.0, 1.0, 1.0, 0);
+                    root.set_sun_direction(1.0,0.0,0.0);
                 }
 
                 for( const key of keys_down ) {

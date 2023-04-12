@@ -219,7 +219,7 @@ class Score {
 	 * 
 	 * @return {Scene}
 	 */
-	constructor(note_data_json, tempo, note_mesh, skybox_mesh, gamestate, background=null) {
+	constructor(note_data, tempo, note_mesh, skybox_mesh, background=null) {
 		// song data in form:
 		// [['time_played', 'note', 'note_duration (s)','velocity','channel']]
 
@@ -234,29 +234,23 @@ class Score {
 		this.background_loaded = false;
 
 		// call this then do as much as possible before entering pausing until loaded
-		this.song_data = this.read_json_file(note_data_json, gamestate);
+		this.song_data = this.convert_json_file(note_data);
 
 		this.root = new Scene();
 
         // initalize camera
-        let cam = this.root.create_node(
+        this.cam = this.root.create_node(
             0,0,0, 0,0,0, 1,1,1, null);
-        this.root.set_camera_node(cam);
+        this.root.set_camera_node(this.cam);
 
         // notes child of camera so they stay static on screen if camera moves
-		let note_root = cam.create_node(
+		let note_root = this.cam.create_node(
 			0,0,2, 0,0,0, 0,0,0, null);
 
-		this.skybox = this.cam.create_node(
+		this.skybox = this.this.cam.create_node(
 			0,0,0, 0,0,0, 1,1,1);
 		this.skybox.data = skybox_mesh;
 		
-		// rest depends on midi, so wait until loaded
-		while(gamestate.json_midi_loaded == 0) {
-			// sleep for 10ms
-			console.log("waiting on note load");
-			await new Promise(r => setTimeout(r, 10));
-		}
 
 		// cal number of notes in song, as well as find highest and lowest note
 		const notes = song_data["midi_note"];
@@ -304,7 +298,7 @@ class Score {
             const left = -edge_distance + (padding + width)/2 + i*(width+padding);
 
             // note spawners children of camera to lock them in correct position
-            let note_spawner = cam.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
+            let note_spawner = this.cam.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
             spawners.push[note_spawner];
             // debug to create static notes
             let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
@@ -374,6 +368,10 @@ class Score {
 		}
 	}
 
+	static load_make_score(note_data_json, tempo, note_mesh, skybox_mesh, background=null) {
+
+	}
+
 	/**
 	 * makes a target mesh
 	 * TODO: make target method
@@ -432,7 +430,7 @@ class Score {
 	 * 
 	 * @return {Dict} dictionary of note data
 	 */
-	#read_json_file(file, gamestate) {
+	#convert_json_file(file) {
 		// invert so instead list of dicts, becomes dict of lists
 		// expect to be list of json objects ex:
 		// [{"a":1, "b":2},
@@ -446,18 +444,11 @@ class Score {
             "channel":[]
         };
 
-        // TODO: make sure data is sorted before adding it to list
         // get largest element of list with .reduce
-        // TODO: drop elements where velocity is 0
-		let midi_json = get_json_file(file, function(text) {
-            json_text = JSON.parse(text);
-            MIDI_JSON_LOADED = true;
-            json_text.map(function(ent)  {
-                Object.entries(ent).forEach(([key, value]) => {
-                    note_data_dict[key].push(value)
-                });
+		let midi_json = json_text.map(function(ent)  {
+            Object.entries(ent).forEach(([key, value]) => {
+                note_data_dict[key].push(value)
             });
-            gamestate.json_midi_loaded = 1;
         });
         return midi_json;
 	}
