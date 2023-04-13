@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Oseru</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+    <h2>Welcome to Oseru!</h2>
+    <div class="box" id="box">
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel sign-in-panel">
+                    <h1>Have an account?</h1>
+                    <p>Sign in here!</p>
+                    <button class="transparent" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel sign-up-panel">
+                    <h1>Need an account?</h1>
+                    <p>Sign up here!</p>
+                    <button class="transparent" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-container sign-up-container">
+            <form action="#">
+                <h1>Create Account</h1>
+                <input type="username" placeholder="Username" />
+                <input type="email" placeholder="Email" />
+                <input type="password" placeholder="Password" />
+                <button>Sign Up</button>
+            </form>
+        </div>
+        
+        <div class="form-container sign-in-container">
+            <form action="#">
+                <h1>Sign in</h1>
+                <input type="username" placeholder="Username" />
+                <input type="password" placeholder="Password" />
+                <a href="#">Forgot your password?</a>
+                <button>Sign In</button>
+            </form>
+        </div>
+
+    </div>
+    <script src="login.js"></script>
+</body>
+</html>

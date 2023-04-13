@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import Frequency from './functions/Frequency'
+import React, { useState } from 'react';
+import Frequency from './functions/Frequency';
 
 export default function Game() {
 
@@ -54,7 +54,17 @@ export default function Game() {
     
     return (
         <div>
-            <button onClick= {()=>startReactGame()}>Start Game</button>
+            <div>
+            <button>Start</button>
+            </div>
+            <div>
+            <button>Leaderboards</button>
+            </div>
+            <div>
+            <button>Import Songs</button>
+            </div>
+            <div>
+            <button onClick= {()=>startReactGame()}>Frequency Tester</button>
             <h3>{currentState != null ? currentState.map((note) => {
                 return (
                     <div>
@@ -71,7 +81,10 @@ export default function Game() {
                     </div>
                 )
             }) : <></>}</h3>
+            </div>
+            <div>
+            <button>Settings</button>
+            </div>
         </div>
-        
     )
 }

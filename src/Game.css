@@ -1,0 +1,59 @@
+.Game {
+	box-sizing: border-box;
+}
+
+.Game-root {
+	--bg: #FFFFFF;
+	--input: #EEEEEE;
+	--buttonbg: #333333;
+	--overlaybg: #333333;
+	--font: "Heebo", sans-serif; 
+	--bodybg:#F6F5F7;
+}
+
+.Game-body {
+    font-family: var(--font);
+}
+
+.Game-h2 {
+    padding-top: 200px;
+    padding-bottom: 20px;
+	font-size: 50px;
+	text-align: center;
+}
+.Game-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.Game-button-frame {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2.5vh;
+}
+
+/* Remove the list decoration */
+.Game-button-frame > li {
+    display: inline-flex;
+    position: relative;
+}
+
+.Game-button-frame button {
+    background-color: var(--buttonbg);
+    color: var(--bg);
+    font-size: min(5vmin, 3rem);
+    padding-block: .75ch;
+    padding-inline: 2ch;
+    border-color: var(--buttonbg);
+    border-radius: 10px;
+}
+
+.Game-button:hover {
+    color: var(--bg);
+    box-shadow: 0 5px 50px rgba(60, 172, 26);
+}
