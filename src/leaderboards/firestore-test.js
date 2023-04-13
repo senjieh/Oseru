@@ -18,11 +18,41 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const songName =  "SilentNight";
-const userName = "J.Leffler";
+const userName = "JoeMama";
+const userID = Math.random().toString(36).substring(2);
 const score = Math.floor(Math.random() * 1000) + 1;
 
+
+//function for initializing the collection... was just done manually
+async function InitializeCollection(){
+  const collections = await db.listCollections();
+  const collection_exists = collections.some((col)=> col.id === "scoreboards");
+  if(!collection_exists){
+    await db.collection("scoreboards").add({
+      title: "fake-song"
+    }).then(() => {
+      console.log("Song added")
+    })
+  }
+}
+
+//function for adding songs... was just done manually
+async function AddNewSong(songName){
+  const boardsRef = collection(db, "songboards");
+  const songRef = doc(boardsRef, songName);
+  const songDoc = await getDoc(songRef);
+  if(songDoc.exists){
+    return;
+  }else{
+    await addDoc(boardsRef, {
+        title: songName
+    });
+  }
+}
+
+
 // function to add a song document to the database
-async function addScoreIfTop(songName, userName, score) {
+async function AddScoreIfTop(songName, userName, score, userID) {
   const songRef = doc(db, "songboards", songName);
   const songDoc = await getDoc(songRef);
 
@@ -41,12 +71,13 @@ async function addScoreIfTop(songName, userName, score) {
   let userDocRef;
   let userDoc;
 
-  const userScoresQuery = query(scoresRef, where("user", "==", userName));
+  const userScoresQuery = query(scoresRef, where("user_ID", "==", userID));
   const userScoresQuerySnapshot = await getDocs(userScoresQuery);
 
   if (userScoresQuerySnapshot.empty) {
     userDocRef = await addDoc(scoresRef, {
-      user: userName,
+      user_name: userName,
+      user_ID: userID,
       score: score,
       timestamp: serverTimestamp(),
     });
@@ -110,7 +141,7 @@ const leaderboardTable = document.getElementById("leaderboard-table");
     const rankCell = row.insertCell(0);
     rankCell.innerHTML = rank;
     const nameCell = row.insertCell(1);
-    nameCell.innerHTML = score.user;
+    nameCell.innerHTML = score.user_name;
     const scoreCell = row.insertCell(2);
     scoreCell.innerHTML = score.score;
     rank++;
@@ -134,10 +165,8 @@ async function getAndRenderLeaderboard() {
   // Render the leaderboard data
   renderLeaderboard(scores);
 }
-  
-getAndRenderLeaderboard();  
-  
-  
+AddScoreIfTop(songName, userName, score, userID); 
+getAndRenderLeaderboard(); 
   
 
 
