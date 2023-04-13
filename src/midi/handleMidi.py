@@ -22,20 +22,42 @@ class handleMIDI():
     def determineMethod(self):
         mainInstChannel, supportInstChannel = self.mainChannelSimple()
         instList = self.channelInstList()
-        print(mainInstChannel)
-        print(supportInstChannel)
+        print("main: ",mainInstChannel)
+        print("support: ",supportInstChannel)
         for x in range(0,len(instList),1):
             print(instList[x].channel, instList[x].inst, instList[x].msgCount)
 
         if (len(mainInstChannel) + len(supportInstChannel)) == 0:
             print("No Channels Found")
             return -1
+    
         # this is the case for when midi has no channel switches
-        if (len(mainInstChannel) + len(supportInstChannel)) == len(instList):
+        elif (len(mainInstChannel) + len(supportInstChannel)) == len(instList):
+            
+            # now we need to add a check for if any of the channels have the same instrument.
+            moveToMain = []
+            for y in mainInstChannel:
+                for x in supportInstChannel:
+                    for i in range(0,len(instList),1):
+                        if instList[i].channel == x:
+                            xIndex = i
+                        if instList[i].channel == y:
+                            yIndex = i
+                    if instList[xIndex].inst == instList[yIndex].inst:
+                        moveToMain.append(x)
+            for y in moveToMain:
+                mainInstChannel.append(y)
+                supportInstChannel.remove(y)
+            
             return True, mainInstChannel, instList
+        
         # case for when midi has channel switches and is more complicated
         elif (len(mainInstChannel) + len(supportInstChannel)) != len(instList):
             return False, mainInstChannel, instList
+        
+        else:
+            print("Error - no method determined.")
+            return -1
 
     def mainChannelComplex(self, instList, mainChannelList):
         tier1inst = ["Piano", "Guitar", "Strings"]
@@ -68,7 +90,8 @@ class handleMIDI():
         mainInstChannel = []
         supportInstChannel = []
         backupChannel = []
-
+        freqSum = {}
+        freqAvg = {}
         # what to do for cases when instrument range is from 0 -127 instead of 1-128
 
         tier1inst = ["Piano", "Guitar", "Strings"]
@@ -80,6 +103,11 @@ class handleMIDI():
                 else:
                     prevCount = noteCount[msg.channel]
                     noteCount[msg.channel] = prevCount + 1
+                if msg.channel not in freqSum:
+                    freqSum[msg.channel] = msg.velocity
+                else:
+                    prevAvg = freqSum[msg.channel]
+                    freqSum[msg.channel] = prevAvg + msg.velocity
         for msg in mid:
             if msg.type == 'program_change':
                 inst = im.getInstClass(msg.program)
@@ -93,6 +121,9 @@ class handleMIDI():
                     if msg.channel not in supportInstChannel:
                         supportInstChannel.append(msg.channel)
 
+        for key in freqSum:
+            freqAvg[key] = freqSum[key] / noteCount[key]
+
         if len(mainInstChannel) == 0 and len(backupChannel) != 0:
             for i in backupChannel:
                 mainInstChannel.append(i)
@@ -100,7 +131,7 @@ class handleMIDI():
             for i in backupChannel:
                 if i not in supportInstChannel:
                     supportInstChannel.append(i)
-
+        
         noteCountList = list(noteCount.keys())
         toBeDel = []
         for i in mainInstChannel:
@@ -108,18 +139,30 @@ class handleMIDI():
                 toBeDel.append(i)
         for j in toBeDel:
             mainInstChannel.remove(j)   
-    
+
         toBeMoved = []
         if len(mainInstChannel) > 1:
             mostNotes = 0
-            leadChannel = 0
+            loudestNotes = 0
+            mostNChannel = 0
+            loudNChannel = 0
             for i in mainInstChannel:
                 if noteCount[i] > mostNotes:
                     mostNotes = noteCount[i]
-                    leadChannel = i
+                    mostNChannel = i
+                if freqAvg[i] > loudestNotes:
+                    loudestNotes = freqAvg[i]
+                    loudNChannel = i
+            
+            leadChannel = 0
+            if (freqAvg[loudNChannel] - freqAvg[mostNChannel]) > 10:
+                leadChannel = loudNChannel
+            else:
+                leadChannel = mostNChannel
+
             for j in mainInstChannel:
                 if j != leadChannel:
-                    toBeMoved.append(j)
+                   toBeMoved.append(j)
 
         if len(toBeMoved) > 0:
             for k in toBeMoved:
@@ -184,10 +227,17 @@ if __name__ == "__main__":
             print("file is simple!")
             mr.midiToArray(midiFile, inPath, "jsonMidi/", mainChannelList, createJson=True)
             mod.newMidiFile(mainChannelList, midiFile, inPath, "modmidi/")
-            mod.playMidi(midiFile, "modmidi/")
+            #mod.playMidi(midiFile, "modmidi/")
         else:
             print("file is complex, we do not handle complex files yet!")
             #obj.mainChannelComplex(instList, mainChannelList)
     else:
         print("Error: File not Found.")
         # return an error to the user that file was not uploaded properly 
+
+
+# FILES
+
+# DrDre-StillDre DONE
+# SilentNight - Some ambiguity
+# 

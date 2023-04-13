@@ -88,8 +88,10 @@ def playMidi(file, inPath, mainChannel, supportChannel, mainInst=True,supportIns
 
 
 if __name__ == "__main__":
-    playMidi("SilentNight.mid","midifiles/",[0,2],[4,1,3,6,2,5,9], supportInst=False)
-   
+    playMidi("SilentNight.mid","midifiles/",[0,1],[1], supportInst=False)
+    # silent night main channel is not 2,3,4,5,9
+    # silent night we want 0 and 1 to be main channel and if not both then we want 0.
+
     #midiObj = midi2Array(songTitle="UnderTheSea-LittleMermaid")
     #midiObj.instList()
     #print(midiObj.mainInstChannel)
@@ -105,8 +107,6 @@ if __name__ == "__main__":
    # rhcp.playMidi([0],[2,3,9,6,0],supportInst=False)
     #instList("UnderTheSea-LittleMermaid.mid","midifiles/")
     
-# SILENT NIGHT - JSON DONE, NO MOD TO BE DONE - NO SUPPORTING TRACKS TO BE PLAYED
-# main channel = 0, no supporting inst channels
 
 # under the sea main channels = 2, 13, 4, not 12....
 

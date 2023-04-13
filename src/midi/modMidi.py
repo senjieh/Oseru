@@ -125,11 +125,11 @@ def playMidi(file, filepath):
                 port.send(msg)
 
 if __name__ == "__main__":
-    playMidi("SilentNight.mid","modmidi/")
+    #playMidi("SilentNight.mid","modmidi/")
     #pass
     #obj = modMidi("SilentNight","midifiles/")
 
-    #obj.newMidiFile([0],"modmidi/")
+    newMidiFile([0,2],"SilentNight.mid","midifiles/","test/")
     #playMidi("SilentNight_new.mid","modmidi/")
     #obj.modMidFile([0],"modmidi/")
 
