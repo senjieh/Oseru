@@ -32,8 +32,8 @@
         <script src = "controls.js"></script>
         <script src = "lit_material.js"></script>
         <script src = "light.js"></script>
-        <script src = "scene.js"></script>
         <script src = "node_note.js"></script>
+        <script src = "scene.js"></script>
         <script src = "menu.js"></script>
         <script>
             // server: python3 -m http.server 
@@ -211,17 +211,7 @@
             });
 
             // TODO: block needs to happen before getting to page
-            // block until shaders are loaded
-            //const sleep = ms => new Promise(r => setTimeout(r, ms));
-            /*while(!frag_shader_loaded && !vert_shader_loaded) {
-                // wait 10mn before each check
-                //sleep(10);
-                if (frag_shader_loaded) {
-                    if (vert_shader_loaded) {
-                        break;
-                    }
-                }
-            }*/
+
 
 //----------------------------------------------------------------------------------------------------
 //           DEBUG VARIABLES
@@ -317,39 +307,37 @@
 
 
 //----------------------------------------------------------------------------------------------------
+//           TEST CODE
+//----------------------------------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------------------------------
 //           GENERATE SCENE
 //----------------------------------------------------------------------------------------------------
 
             // TODO: fetch meshs same way
-            var score;
+            var score = null;
             let file = "jsonMidi/SilentNight.json"
-            fetch(file).then((resopnse) => {
+            fetch(file).then((response) => {
                 // get note json
-                if (response.status === "200") {
+                if (response.status == "200") {
                     console.log("fetched data",response);
                     gamestate.json_midi_loaded = 1;
                     return response.json();
                 }
                 else {
-                    console.log("ERROR: ",resopnse.status);
+                    console.log("ERROR: ",response.status);
                 }
-            }).then((resopnse) => {
+            }).then((response) => {
                 // then make score
-                score = new Score(response, 100, 
-                NormalMesh.platform(gl, current_program, 
-                    width, height, 0, 1, debug_tex),
-                skybox);
+                score = new Score(response, 100, debug_tex, skybox);
                 console.log("new score made ",score);
                 gamestate.score_generated = 1;
             }).catch((err) => {
                 console.log("something went wrong making score ",err);
                 // TODO: bounce back to stage select on error here
             });
-
-            score = new Score("jsonMidi/SilentNight.json", 100, 
-                NormalMesh.platform(gl, current_program, 
-                    width, height, 0, 1, debug_tex),
-                skybox);
 
             let root = new Scene();
 
@@ -371,31 +359,6 @@
             let start = last_update;
             let prev_time = 0;
 
-            // testing json loader
-            let json_text = null;
-            let file = "jsonMidi/test_midi.json"
-
-            let note_data_dict = {
-                "time_played":[],
-                "midi_note":[],
-                "frequency":[],
-                "note_held":[],
-                "velocity":[],
-                "channel":[]
-            };
-
-            let MIDI_JSON_LOADED = false;
-            // get file and parse it as json object string
-            let return_code = get_json_file(file, function(text) {
-                json_text = JSON.parse(text);
-                MIDI_JSON_LOADED = true;
-                json_text.map(function(ent)  {
-                    Object.entries(ent).forEach(([key, value]) => {
-                        note_data_dict[key].push(value)
-                    });
-                });
-            });
-
             
 //----------------------------------------------------------------------------------------------------
 //           RENDER LOOP
@@ -409,7 +372,7 @@
                     PAUSE_TIME += now - last_update;
                     return;
                 }
-                if (IS_PAUSED) {
+                if (gamestate.is_paused) {
                     // TODO: don't update timer when paused
                     return;
                 }
@@ -495,7 +458,7 @@
             function update() {
                 let keys_down = keys.keys_down_list();
 
-                if (IS_PAUSED) {
+                if (gamestate.is_paused) {
                     return;
                 }
 
@@ -508,6 +471,7 @@
                     // TODO: make this part of score generation process
                     root.set_sun_color(1.0, 1.0, 1.0, 0);
                     root.set_sun_direction(1.0,0.0,0.0);
+                    console.log("root: ",root);
                 }
 
                 for( const key of keys_down ) {

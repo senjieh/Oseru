@@ -353,6 +353,8 @@ function load_txt_file(src, func, progress_func=null) {
  * load a json file given it's path
  * ref: https://qawithexperts.com/article/javascript/read-json-file-with-javascript/380
  * 
+ * NOTE: just use fetch() instead
+ * 
  * @param {String} file path
  * @param {function} callback function to run once file is loaded
  * 
