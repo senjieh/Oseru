@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import Frequency from './functions/Frequency';
+import './Game.css';
+import Button from 'react-button';
+import Modal from 'react-modal';
 
 export default function Game() {
 
@@ -31,60 +34,65 @@ export default function Game() {
             });
     }
 
-    function startReactGame(){
-
+    function startListen(){
         startPitchDetection();
-        
         //repeat code every 100 ms
         setInterval(() => {
-
             //set audio data to new float 32 array
             audioData = new Float32Array(analyzer.fftSize);
             //set float 32 array to current audio data
             analyzer.getFloatFrequencyData(audioData);
-            
             //calculate pitch
             let pitches = Frequency(audioData, audioContext.sampleRate);
-
             setCurrentState(pitches);
-
         }, 500);
+    } 
 
+    const [showModal , setModal] = useState;
+    const handleModal = status => {
+      setModal(status); 
     }
     
     return (
-        <div>
-            <div>
-            <button>Start</button>
+        <>
+            <div id="header">
+                <header>OSERU</header>
             </div>
-            <div>
-            <button>Leaderboards</button>
+            <div id="main">
+                <div>
+                <button>
+                    <ShowModal showModal={showModal} handleModal={handleModal}/>
+                Start</button>
+                </div>
+                <div>
+                <button>Leaderboards</button>
+                </div>
+                <div>
+                <button>Import Songs</button>
+                </div>
+                <div>
+                <button onClick={()=>startListen()}>Frequency Tester</button>
+                <h3>{currentState != null ? currentState.map((note) => {
+                    return (
+                        <div>
+                            <h3>Note:</h3>
+                            <h2>{note[0]}</h2>
+                            <h3>Frequency:</h3>
+                            <h2>{note[1]}</h2>
+                            <h3>Average Frequency Amplitude:</h3>
+                            <h2>{note[2]}</h2>
+                            <h3>Peak Amplitude:</h3>
+                            <h2>{note[3]}</h2>
+                            <h3>Offset:</h3>
+                            <h2>{note[4]}</h2>
+                        </div>
+                    )
+                }) : <></>}</h3>
+                </div>
+                <div>
+                <button>Settings</button>
+                </div>
             </div>
-            <div>
-            <button>Import Songs</button>
-            </div>
-            <div>
-            <button onClick= {()=>startReactGame()}>Frequency Tester</button>
-            <h3>{currentState != null ? currentState.map((note) => {
-                return (
-                    <div>
-                        <h3>Note:</h3>
-                        <h2>{note[0]}</h2>
-                        <h3>Frequency:</h3>
-                        <h2>{note[1]}</h2>
-                        <h3>Average Frequency Amplitude:</h3>
-                        <h2>{note[2]}</h2>
-                        <h3>Peak Amplitude:</h3>
-                        <h2>{note[3]}</h2>
-                        <h3>Offset:</h3>
-                        <h2>{note[4]}</h2>
-                    </div>
-                )
-            }) : <></>}</h3>
-            </div>
-            <div>
-            <button>Settings</button>
-            </div>
-        </div>
+        </>
     )
 }
