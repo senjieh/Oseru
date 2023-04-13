@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import Frequency from './functions/Frequency';
 import './Game.css';
-import Button from 'react-button';
-import Modal from 'react-modal';
 
 export default function Game() {
 
@@ -11,7 +9,6 @@ export default function Game() {
     let micStream = null;
     let analyzer = null;
     let audioData = null;
-    
 
     function startPitchDetection(){
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -48,9 +45,9 @@ export default function Game() {
         }, 500);
     } 
 
-    const [showModal , setModal] = useState;
-    const handleModal = status => {
-      setModal(status); 
+    function startGame(){
+        const songTitle = 'SilentNight'
+        setCurrentState(songTitle);
     }
     
     return (
@@ -60,9 +57,7 @@ export default function Game() {
             </div>
             <div id="main">
                 <div>
-                <button>
-                    <ShowModal showModal={showModal} handleModal={handleModal}/>
-                Start</button>
+                <button onClick={()=>startGame()}>Start</button>
                 </div>
                 <div>
                 <button>Leaderboards</button>
