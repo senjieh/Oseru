@@ -134,11 +134,12 @@ class NoteSpawner{
 	 * @param {Node} pointer to node spawner lives in
 	 * @param {NormalMesh} note shape
 	 */
-	constructor(data, note_mesh, start_height, node) {
+	constructor(data, note_mesh, start_height, node, lead_time=5) {
 		this.data = data;
 		this.note_mesh = note_mesh;
 		this.start_height = start_height;
 		this.node = node;
+		this.lead_time = lead_time;
 	}
 
 	/**
@@ -171,15 +172,16 @@ class NoteSpawner{
 	// called as part of render batch
 	// return nodeNote
 	check_spawn_note(time) {
-		console.log("time",time)
+		//console.log("time",time)
 		if (time >= this.data[this.data.length -1]) {
 			const next = this.data.pop();
+			console.log("spawned note ",next,"at time: ",time)
 
 			// TODO: replace filler values
 			// time+3 means play 3 sec from now
 			//console.log('make note')
 			return new NodeNote(
-				'data', 'freq', time+10, 0,
+				'data', 'freq', time+this.lead_time, 0,
 				this.note_mesh, this.node.get_matrix(),
 				false, this.start_height, this.target_height);
 		}
@@ -286,8 +288,8 @@ class Score {
 		//const song_end = last_note[0] + last_note[2];
 
 		// convert from sec to ms
-		this.song_data.time_played = this.song_data.time_played.map(x => x * 1);
-		this.song_data.note_held = this.song_data.note_held.map(x => x * 1);
+		this.song_data.time_played = this.song_data.time_played.map(x => x * 1000);
+		this.song_data.note_held = this.song_data.note_held.map(x => x * 1000);
 
 		console.log(this.song_data);
 
@@ -328,19 +330,30 @@ class Score {
 
         // add note data
         let song_arr = [];
+        // for each possible note
         for (let i = 0; i<num_notes; i++) {
         	let note_arr = [];
+        	// for each note in note list
         	for (let j=0; j<this.song_data.midi_note.length; j++) {
-        		if (this.song_data.midi_note[j] == i + low_note - 1) {
+        		// if note corresponds to spawner
+        		if (this.song_data.midi_note[j] == i + low_note) {
         			// truncate data to ms via ~~
+        			// add it to note data arr for spawners
         			note_arr.push(this.song_data.time_played[j]);
         		}
         	}
         	// make sure notes are played in assenting order, may not be necessary
-        	note_arr.sort();
+        	note_arr.sort((a,b) => {
+        		if (a > b) {
+        			return 1
+        		}
+        		return 0;
+        	});
+        	// notes checked back to front
         	note_arr.reverse();
         	song_arr.push(note_arr);
         }
+        song_arr.reverse();
         console.log("song arr: ",song_arr);
         console.log(spawners)
 

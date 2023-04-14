@@ -379,7 +379,7 @@
                 }
 
                 //console.log(now - last_update)
-                last_update = now - PAUSE_TIME + 1300;
+                last_update = now - PAUSE_TIME + 13000; // hard coded value because test song as 13s lead in
                 //last_update *= 10;
                 //console.log(now);
 
@@ -483,7 +483,7 @@
                 // update clock if game started
                 if (gamestate.score_generated > 0) {
                     last_update = performance.now() - start
-                    console.log(last_update);
+                    //console.log(last_update);
                 }
 
                 for( const key of keys_down ) {
