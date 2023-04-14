@@ -159,7 +159,6 @@ class Mat4 {
                 }
             }
         }
-        //
         return res;
     }
 

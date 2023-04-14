@@ -42,7 +42,7 @@ class NodeNote {
 	 * @param {Mesh} mesh of note
 	 * @param {bool} is mine
 	 */
-	constructor(note, freq, play_at, duration, mesh, pos_mat, start_height, target_height, is_mine=false) {
+	constructor(note, freq, play_at, duration, mesh, scale_mat, start_height, target_height, is_mine=false) {
 		this.note = note;
 		this.freq = freq;
 		this.play_at = play_at;
@@ -55,9 +55,11 @@ class NodeNote {
 
 		this.delay; // TODO: this
 
-		this.pos_mat = pos_mat;
+		this.scale_mat = scale_mat;
 
 		this.past_top = false;
+
+		this.played = false;
 	}
 
 	/**
@@ -96,8 +98,9 @@ class NodeNote {
             // cal position in node based on time instead of updating based on frame
             const distance = this.target_height - this.start_height;
             // TODO: get rid of hard coded delay
+            // NOTE: the -2 effects note speed (negative makes them travel up)
             // percentage distance traveled from spawn to target
-            const prec = ((time - this.play_at + 300) / 3000)*-1;
+            const prec = ((time - this.play_at) / 3000)*-2;
             const loc = distance * prec;
             return loc;
 		} else {
@@ -161,6 +164,8 @@ class NoteSpawner{
 		// idk why I need this but I do
 		top *= 2;
 
+		this.lead_time = 0
+
 		this.target_height = top;
 
 		// create mesh and move it to top of screen
@@ -173,17 +178,23 @@ class NoteSpawner{
 	// return nodeNote
 	check_spawn_note(time) {
 		//console.log("time",time)
-		if (time >= this.data[this.data.length -1]) {
-			const next = this.data.pop();
-			console.log("spawned note ",next,"at time: ",time)
+		let tmp = this.data[this.data.length -1]
+		if (tmp) {
+			if (time >= tmp[0]) {
+				const next = this.data.pop();
+				//console.log("spawned note ",next,"at time: ",time)
+				let mat = this.node.get_matrix();
+				mat = mat.mul(Mat4.scale(1,(tmp[1]/1000),1));
 
-			// TODO: replace filler values
-			// time+3 means play 3 sec from now
-			//console.log('make note')
-			return new NodeNote(
-				'data', 'freq', time+this.lead_time, 0,
-				this.note_mesh, this.node.get_matrix(),
-				false, this.start_height, this.target_height);
+				// TODO: replace filler values
+				// time+3 means play 3 sec from now
+				//console.log('make note')
+				return new NodeNote(
+					'data', 'freq', tmp[0]+this.lead_time, tmp[1],
+					this.note_mesh, 
+					mat,
+					false, this.start_height, this.target_height);
+			}
 		}
 		// no note to spawn
 		return null;
@@ -339,10 +350,10 @@ class Score {
         		if (this.song_data.midi_note[j] == i + low_note) {
         			// truncate data to ms via ~~
         			// add it to note data arr for spawners
-        			note_arr.push(this.song_data.time_played[j]);
+        			note_arr.push([~~this.song_data.time_played[j],this.song_data.note_held[j]]);
         		}
         	}
-        	// make sure notes are played in assenting order, may not be necessary
+        	// make sure notes are played in assenting order
         	note_arr.sort((a,b) => {
         		if (a > b) {
         			return 1
@@ -353,7 +364,6 @@ class Score {
         	note_arr.reverse();
         	song_arr.push(note_arr);
         }
-        song_arr.reverse();
         console.log("song arr: ",song_arr);
         console.log(spawners)
 

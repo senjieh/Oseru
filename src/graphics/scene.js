@@ -148,19 +148,29 @@ class Node {
                 // this warp effects next render pass, not current one
                 this.warp(this.x, loc, this.z);
                 jobs.push(new RenderMesh(matrix, this.data.mesh));
+                // debug to test when note should be played
+                // below works as rough play check
+                // TODO: add offset to notess
+                // TODO: add func to check if note played
+                if (loc > 1.88 && loc<1.9 && (!this.data.played)) {
+                    //console.log("play note at ", time, this.data)
+                    this.data.played = true;
+                }
             }
+            
         } else if (this.data instanceof NoteSpawner) {
             // check to spawn note
             let note = this.data.check_spawn_note(time);
             if (note) {
                 this.create_child_node(
-                    0, 0, -0.01,       // spawn note slightly above target
+                    0, -10, -0.01,       // spawn note slightly above target
                     this.roll, this.pitch+0.25, this.yaw,
-                    this.scale_x, this.scale_y, this.scale_z, 
+                    this.scale_x, this.scale_y*2, this.scale_z*note.duration/1000, 
                     note);
                 /*console.log(child.x, child.y, child.z)
                 console.log(this.x, this.y, this.z)
                 console.log('------')*/
+                //console.log(note)
             }
         } else if (this.data == null) {
             // do nothing
