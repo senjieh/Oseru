@@ -3,6 +3,9 @@ import { getFirestore, updateDoc,
   deleteDoc, getDoc, getDocs, setDoc, 
   collection, doc, query, orderBy, 
   limit, where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+  
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+import { getFunctions } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDU5XtGo5gNOfZKqA_5_nUUVoDM_cBoZWE",
@@ -18,11 +21,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const songName =  "SilentNight";
-const userName = "JoeMama";
-const userID = Math.random().toString(36).substring(2);
+var userName = "Tom";
+var userID = "Tom#5055";
 const score = Math.floor(Math.random() * 1000) + 1;
 
-
+//function for generating a unique user so two users cna have the same username
+async function GenerateUniqueID(userName, scoresRef){
+  let unique_code = Math.floor(Math.random() * 99900) + 100; //random code between 100 and 99999 
+  let unique_ID = `${userName}#${unique_code}`;
+  const userScoresQuery = query(scoresRef, where("user_ID", "==", unique_ID));
+  const userScoresQuerySnapshot = await getDocs(userScoresQuery);
+  if(!userScoresQuerySnapshot.empty){
+    return (GenerateUniqueID(userName, scoreRef));
+  }
+  return(unique_ID);
+}
 //function for initializing the collection... was just done manually
 async function InitializeCollection(){
   const collections = await db.listCollections();
@@ -77,7 +90,7 @@ async function AddScoreIfTop(songName, userName, score, userID) {
   if (userScoresQuerySnapshot.empty) {
     userDocRef = await addDoc(scoresRef, {
       user_name: userName,
-      user_ID: userID,
+      user_ID: await GenerateUniqueID(userName, scoresRef),
       score: score,
       timestamp: serverTimestamp(),
     });
@@ -95,7 +108,7 @@ async function AddScoreIfTop(songName, userName, score, userID) {
   }
   const scoresQuery = query(scoresRef, orderBy("score"));
   const scoresQuerySnapshot = await getDocs(scoresQuery);
-  const scoresCount = scoresQuerySnapshot.size;
+  var scoresCount = scoresQuerySnapshot.size;
   if (scoresCount > 10) {
     while(scoresCount > 10){
       const lowestScoreDoc = scoresQuerySnapshot.docs[0];
@@ -122,6 +135,9 @@ async function AddScoreIfTop(songName, userName, score, userID) {
 function renderLeaderboard(scores) {
   // Get the leaderboard table element
 const leaderboardTable = document.getElementById("leaderboard-table");
+
+  //Get the leaderboard title element
+  document.querySelector("h1").textContent = songName + " Leaderboard";
   // Clear the current contents of the leaderboard table
   leaderboardTable.innerHTML = "";
 
@@ -141,7 +157,7 @@ const leaderboardTable = document.getElementById("leaderboard-table");
     const rankCell = row.insertCell(0);
     rankCell.innerHTML = rank;
     const nameCell = row.insertCell(1);
-    nameCell.innerHTML = score.user_name;
+    nameCell.innerHTML = score.user_ID;
     const scoreCell = row.insertCell(2);
     scoreCell.innerHTML = score.score;
     rank++;
@@ -166,7 +182,7 @@ async function getAndRenderLeaderboard() {
   renderLeaderboard(scores);
 }
 AddScoreIfTop(songName, userName, score, userID); 
-getAndRenderLeaderboard(); 
+getAndRenderLeaderboard();   
   
 
 

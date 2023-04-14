@@ -204,7 +204,7 @@ class NoteScore{
     ScoreEachNote(){
         var final_note_score = 0;
         var time_score = this.CalculateTimingScore();
-        //useful for checking if frequency is check
+        //useful for checking if frequency is changing
         /*var tick_interval = 10;
         freq_interval_check = setInterval(CalculateFreqScore(), tick_interval)
 
