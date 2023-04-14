@@ -171,6 +171,7 @@ class NoteSpawner{
 	// called as part of render batch
 	// return nodeNote
 	check_spawn_note(time) {
+		console.log("time",time)
 		if (time >= this.data[this.data.length -1]) {
 			const next = this.data.pop();
 
@@ -285,8 +286,8 @@ class Score {
 		//const song_end = last_note[0] + last_note[2];
 
 		// convert from sec to ms
-		this.song_data.time_played = this.song_data.time_played.map(x => x * 1000);
-		this.song_data.note_held = this.song_data.note_held.map(x => x * 1000);
+		this.song_data.time_played = this.song_data.time_played.map(x => x * 1);
+		this.song_data.note_held = this.song_data.note_held.map(x => x * 1);
 
 		console.log(this.song_data);
 
@@ -332,7 +333,7 @@ class Score {
         	for (let j=0; j<this.song_data.midi_note.length; j++) {
         		if (this.song_data.midi_note[j] == i + low_note - 1) {
         			// truncate data to ms via ~~
-        			note_arr.push(~~this.song_data.time_played[j]);
+        			note_arr.push(this.song_data.time_played[j]);
         		}
         	}
         	// make sure notes are played in assenting order, may not be necessary
@@ -340,7 +341,7 @@ class Score {
         	note_arr.reverse();
         	song_arr.push(note_arr);
         }
-        console.log(song_arr);
+        console.log("song arr: ",song_arr);
         console.log(spawners)
 
         if (song_arr.length != spawners.length) {
@@ -348,8 +349,7 @@ class Score {
         }
 
         for (let i = 0; i<spawners.length; i++) {
-        	console.log(spawners[i])
-        	spawners[i].data.data = note_data[i];
+        	spawners[i].data.data = song_arr[i];
         }
 
 

@@ -237,7 +237,6 @@
             // setup render loop
             set_render_params( gl );
 
-            let last_update = performance.now();
 
             // lets make a solar system to start
             //let solar_system = new Scene();
@@ -351,13 +350,15 @@
             root.set_sun_color(1.0, 1.0, 1.0, 0);
             root.set_sun_direction(1.0,0.0,0.0);
 
-            // TODO: loading scene while waiting on load
+            // TODO: loading graphic while waiting on load
             
             // Track time
             // tie update freq to fps so if game is chugging calcs happen less often
             // game updates should still occur based on now - prev because we aren't Bertha
-            let start = last_update;
-            let prev_time = 0;
+            // TODO: start at score load
+            let start = -1;
+            let last_update = -1;
+
 
             
 //----------------------------------------------------------------------------------------------------
@@ -378,7 +379,8 @@
                 }
 
                 //console.log(now - last_update)
-                last_update = now - PAUSE_TIME;
+                last_update = now - PAUSE_TIME + 1300;
+                //last_update *= 10;
                 //console.log(now);
 
                 // get permission to draw frame from browser
@@ -472,6 +474,16 @@
                     root.set_sun_color(1.0, 1.0, 1.0, 0);
                     root.set_sun_direction(1.0,0.0,0.0);
                     console.log("root: ",root);
+
+                    // TODO: add press key to continue here
+
+                    start = performance.now()
+                }
+
+                // update clock if game started
+                if (gamestate.score_generated > 0) {
+                    last_update = performance.now() - start
+                    console.log(last_update);
                 }
 
                 for( const key of keys_down ) {
