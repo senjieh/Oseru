@@ -11,7 +11,6 @@ var userName = "Tom";
 var userID = "Tom#5055";
 const score = Math.floor(Math.random() * 1000) + 1;
 
-
 //function for signing up with email and password
 function MakeNewUser(){
   createUserWithEmailAndPassword(auth, email, password)
