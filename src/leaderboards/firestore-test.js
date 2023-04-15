@@ -1,30 +1,55 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-import { getFirestore, updateDoc,
+import { db, auth } from "/src/firebase-config.js";
+import { updateDoc,
   deleteDoc, getDoc, getDocs, setDoc, 
   collection, doc, query, orderBy, 
   limit, where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
-  
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
-import { getFunctions } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDU5XtGo5gNOfZKqA_5_nUUVoDM_cBoZWE",
-  authDomain: "leaderboard-333.firebaseapp.com",
-  projectId: "leaderboard-333",
-  storageBucket: "leaderboard-333.appspot.com",
-  messagingSenderId: "567434960342",
-  appId: "1:567434960342:web:3ab15d265107af91c1d877",
-  measurementId: "G-0NDFR4EWD8"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+//some temp test variables
 const songName =  "SilentNight";
 var userName = "Tom";
 var userID = "Tom#5055";
 const score = Math.floor(Math.random() * 1000) + 1;
 
+
+//function for signing up with email and password
+function MakeNewUser(){
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    });
+}
+
+//function for signing in with email and password
+function SignInUser(auth, email, password){
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    });
+}
+//function for getting infor about the currently signed in user
+function SignedInInfo(auth, user){
+  onAuthStateChanged(auth, (user) => {
+    if(user){
+      //user is signed in
+      const uid = user.uid;
+    } else{
+      //user signed out
+    }
+  })
+}
+//function for signing current user out
+function SignUserOut(auth){
+  signOut(auth);
+}
 //function for generating a unique user so two users cna have the same username
 async function GenerateUniqueID(userName, scoresRef){
   let unique_code = Math.floor(Math.random() * 99900) + 100; //random code between 100 and 99999 
@@ -182,7 +207,7 @@ async function getAndRenderLeaderboard() {
   renderLeaderboard(scores);
 }
 AddScoreIfTop(songName, userName, score, userID); 
-getAndRenderLeaderboard();   
+getAndRenderLeaderboard();
   
 
 
