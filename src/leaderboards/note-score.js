@@ -1,20 +1,18 @@
 class NoteScore{
-    constructor(song_data, elapsed_time){
+    constructor(song_data, elapsed_time, freq_list){
         this.song_data = song_data; 
         this.expected_input_freq = song_data[2]; // get the expected note frequency from json array
         this.note_duration = song_data[3];  // get the expected note duration from json array
         this.expected_time = song_data[0]; // get the expected timing for when a note is played
         this.elapsed_time = elapsed_time; //get the timing the function was initially called (when a player played a note)
+        this.list_of_played_freqs = freq_list;
+        this.freq_scores = [];
     }
 
     //Scoring will be divided into three parts: note accuracy and timing
-    //Create score variables
-    ScoreEachNote(){
-        var note_score = 0;
-        var timing_score = 0;
-        var final_note_score = 0;
-        
-        //Part 1: Note Accuracy
+    //Function that will calculate the score based on frequency
+    CalculateFreqScore(){
+        var freq_score = 0;
         //create note-to-frequency dictionary
         const note_dict = [
             4186.01,
@@ -107,66 +105,76 @@ class NoteScore{
             29.14,
             27.5
         ];
+        //Part 1: Note Accuracy
+        
 
         //get frequency the user plays
         //!!!!!!!!NEEDS TO BE PROVIDED!!!!!!!!!!!!!!
-        var user_input_freq = 392; //get_played_val_from_note_class();
-
+         //get_played_val_from_note_class();
+        //freq_to_check = freq_to_check + ((Math.floor(Math.random()) * 2 - 1) * 5); //somewhat random generation of player_notes
         //needed variables 
         var two_per_val = 0;
+        var freq2 = 0;
+        var perc = 0;
+        for(let i = 0; i < this.list_of_played_freqs.length; i++){
+            const freq_to_check = this.list_of_played_freqs[i];
+            // SUPER LOW or SUPER HIGH edgecases
+            if(freq_to_check < 27.5 || freq_to_check > 4186.01){
+                freq_score = 0;
+            }
+            else{
+                //find the index of the expected note
+                var expected_note = note_dict.indexOf(this.expected_input_freq);
+                //Check if note is exact
+                if(freq_to_check === this.expected_input_freq){
+                    freq_score = 50;
+                }
+                else{
+                //Find nearest two notes based on the frequency the user played (for example is it between C4 and C#4)
+                //Then use formula for scoring:
+                //(|Freq(1) - Freq(2)|) / 50 = 2_per_val  [This is the value that will determine each point given]
+                //(|Freq(1) - Freq(user)|) /  2_per_val = perc_diff
+                //100 - perc_diff = note_score [between 25 to 50]
+                    if(freq_to_check < this.expected_input_freq){
+                        freq2 = note_dict[expected_note + 1];
+                        if(freq_to_check < freq2){
+                            freq_score = 0;
+                        }
+                        else{
+                        two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
+                        perc = (Math.abs(this.expected_input_freq - freq_to_check) / two_per_val)
+                        freq_score = ((100 - perc)/100) * 50;
+                        }
+                    }
+                    else{
+                        freq2 = note_dict[expected_note - 1];
+                        if(freq_to_check > freq2){
+                            freq_score = 0;
+                        }
+                        else{
+                        two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
+                        perc = (Math.abs(this.expected_input_freq - freq_to_check) / two_per_val)
+                        freq_score = ((100 - perc)/100) * 50;
+                        }
+                    }
+                    
+                }
+            }
+            this.freq_scores.push(freq_score);
+        }   
+    }
+    //Function to determine the score based on timing
+    CalculateTimingScore(){
         var tolerance = 0;
         var left_tol = 0;
         var right_tol = 0;
-        var freq2 = 0;
-        var perc = 0;
         var perc_diff = 0;
-
-        // SUPER LOW or SUPER HIGH edgecases
-        if(user_input_freq < 27.5 || user_input_freq > 4186.01){
-            note_score = 0;
-        }
-        else{
-            //find the index of the expected note
-            var expected_note = note_dict.indexOf(this.expected_input_freq);
-            //Check if note is exact
-            if(user_input_freq === this.expected_input_freq){
-                note_score = 50;
-            }
-            else{
-            //Find nearest two notes based on the frequency the user played (for example is it between C4 and C#4)
-            //Then use formula for scoring:
-            //(|Freq(1) - Freq(2)|) / 50 = 2_per_val  [This is the value that will determine each point given]
-            //(|Freq(1) - Freq(user)|) /  2_per_val = perc_diff
-            //100 - perc_diff = note_score [between 25 to 50]
-                if(user_input_freq < this.expected_input_freq){
-                    freq2 = note_dict[expected_note + 1];
-                    if(user_input_freq < freq2){
-                        note_score = 0;
-                    }
-                    else{
-                    two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
-                    perc = (Math.abs(this.expected_input_freq - user_input_freq) / two_per_val)
-                    note_score = ((100 - perc)/100) * 50;
-                    }
-                }
-                else{
-                    freq2 = note_dict[expected_note - 1];
-                    if(user_input_freq > freq2){
-                        note_score = 0;
-                    }
-                    else{
-                    two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
-                    perc = (Math.abs(this.expected_input_freq - user_input_freq) / two_per_val)
-                    note_score = ((100 - perc)/100) * 50;
-                    }
-                }
-                
-            }
-        }
-
-        //Part 2: Timing
+        var timing_score = 0;
+         //Part 2: Timing
         //get the amount of time the note was played by player
-        var played_duration =  1.1;
+        //NEEDS TO BE PROVIDED!!!!!!!!!!!
+        var played_duration = this.song_data[3];
+        played_duration = played_duration + (Math.floor(Math.random() * 2 - 1)); //semi-randomized duration time
         //calculate the tolerance for time playing a note
         tolerance = .2 * this.note_duration;
         left_tol = this.note_duration - tolerance;
@@ -188,16 +196,34 @@ class NoteScore{
                 else{
                     timing_score = 0;
                 }
-            }
-            if(note_score === 0 || timing_score === 0){
-                final_note_score = 0;
-            }
-            else{
-                final_note_score = note_score + timing_score;
-            }
-            final_note_score = Math.round(final_note_score);
+            }       
         }
-        return(final_note_score);
+    return (timing_score);
+    }
+    //Each note will be scored individually here
+    ScoreEachNote(){
+        var final_note_score = 0;
+        var time_score = this.CalculateTimingScore();
+        //useful for checking if frequency is changing
+        /*var tick_interval = 10;
+        freq_interval_check = setInterval(CalculateFreqScore(), tick_interval)
+
+        setTimeout(() => {
+            clearInterval(freq_interval_check);
+            this.freq_avg = this.freq_scores.reduce((a,b) => a + b, 0) / this.freq_scores.length;
+    }, this.note_duration);*/
+        this.CalculateFreqScore();
+        var sum = this.freq_scores.reduce((a,b) => a + b, 0);
+        var freq_avg_score = sum / this.freq_scores.length;
+        if(freq_avg_score < 0 || time_score === 0){
+            final_note_score = 0;
+        }
+        else{
+            final_note_score = freq_avg_score + time_score;
+        }
+        final_note_score = Math.round(final_note_score);
+        
+        return (final_note_score);   
     }
 }
-module.exports = NoteScore;
+//module.exports = NoteScore;
