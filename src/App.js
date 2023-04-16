@@ -5,6 +5,7 @@ import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 import Dash from './pages/Dash';
 import ProtectedRoute from './components/ProtectedRoute';
+import './App.css';
 
 
 
