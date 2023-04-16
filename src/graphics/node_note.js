@@ -375,6 +375,8 @@ class Score {
         	spawners[i].data.data = song_arr[i];
         }
 
+        this.spawners = spawners;
+
 
 		if (background) {
 			// add background to scene

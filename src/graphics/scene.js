@@ -153,12 +153,12 @@ class Node {
                 // TODO: add offset to notess
                 // TODO: add func to check if note played
                 if (loc > 1.88 && loc<1.9 && (!this.data.played)) {
-                    //console.log("play note at ", time, this.data)
+                    console.log("play note at ", time, this.data)
                     this.data.played = true;
                 }
             }
             // if off screen
-            if (loc > 2.5) {
+            if (loc > 2.2) {
                 // TODO: drop entire node, not just data
                 this.data = null;
                 this.children = [];
