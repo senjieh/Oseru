@@ -38,31 +38,32 @@ const Signin = () => {
   }, [user])
 
   return (
+    <div className='signinsplit'>
       <div className='signinbox'>
-        <div>
-          <h1 >Sign in to your account</h1>
-          <p>
-            Don't have an account yet?{' '}
-            <Link to='/signup' className='underline'>
-              Sign up.
-            </Link>
-          </p>
+        <div className='signincontentleft'>
+          <h1>Sign in</h1>
+          <form className='signinform' onSubmit={handleSubmit}>
+            <div className='inputformdiv'>
+              <input className='inputbox' onChange={(e) => setEmail(e.target.value)} type='email' placeholder="Email Address" />
+            </div>
+            <div className='inputformdiv'>
+              <input className='inputbox' onChange={(e) => setPassword(e.target.value)}  type='password' placeholder="Password"/>
+            </div>
+            <button className='submit-button'>
+              Sign In.
+            </button>
+          </form>
         </div>
-        <form className="form" onSubmit={handleSubmit}>
-          <div className='inputformdiv'>
-            <label className='form-text'>Email Address: </label>
-            <input className="inputbox" onChange={(e) => setEmail(e.target.value)} type='email' />
-          </div>
-          <div className='inputformdiv'>
-            <label className='form-text'>Password: </label>
-            <input className="inputbox" onChange={(e) => setPassword(e.target.value)}  type='password' />
-          </div>
-          <button className='submit-button'>
-            Sign In
-          </button>
-        </form>
       </div>
-    
+      <div className='signupbox'>
+        <div className='signincontentright'>
+          <h1>Don't have an account yet?</h1>
+          <Link to='/signup'>
+            <button className='submitsignup-button'>Sign up.</button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
 

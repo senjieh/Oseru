@@ -39,55 +39,59 @@ const Signup = () => {
     e.preventDefault();
   }
 
-
-  return (
-    <div>
-      <div>
-        <h1>Sign up for a free account</h1>
-        <p className='py-2'>
-          Already have an account yet?{' '}
-          <Link to='/'>
-            Sign in.
-          </Link>
-        </p>
-      </div>
-      <form onSubmit={handleSubmit}>
-        {step === 0 && (
-          <div>
-            <div>
-              <label>Email Address</label>
-              <input
-                onChange={(e) => setEmail(e.target.value)}
-                type='email'
-              />
-            </div>
-            <button onClick={nextPage}>
-              Next
-            </button>
-          </div>
-        )}
-        {step === 1 && (
-          <div>
-            <div>
-              <label >Password</label>
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-      
-                type='password'
-              />
-            </div>
-            <button onClick={previousPage}>
-              Back
-            </button>
-            <button>
-              Sign Up
-            </button>
-          </div>
-        )}
-      
   
-    
-      </form>
+  return (
+    <div className="signupsplit">
+      <div className='signupbox'>
+        <div className='signincontentleft'>
+          <h1>Sign up for a free account</h1>
+          <form onSubmit={handleSubmit}>
+            {step === 0 && (
+              <div className='signupform'>
+                <div>
+                  <input
+                    className='inputbox'
+                    onChange={(e) => setEmail(e.target.value)}
+                    type='email'
+                    placeholder="Email Address"
+                  />
+                </div>
+                <button className='signupnextbutton'onClick={nextPage}>
+                  Next
+                </button>
+              </div>
+            )}
+            {step === 1 && (
+              <div>
+                <div>
+                  <input
+                    className='inputbox'
+                    onChange={(e) => setPassword(e.target.value)}
+                    type='password'
+                    placeholder="Password"
+                  />
+                </div>
+                <div className='signupform2'>
+                  <button className="signupbackbutton" onClick={previousPage}>
+                    Back
+                  </button>
+                  <button className='signupbutton'>
+                    Sign Up
+                  </button>
+                </div>
+              </div>
+            )}
+          </form>
+        </div>
+      </div>
+      <div className="signinbox">
+        <div className='signincontentright'>
+          <h1>Already have an account?</h1>
+            <Link to='/'>
+              <button className='submitsignin-button'>Sign in.</button>
+            </Link>
+        </div>
+      </div>
     </div>
   );
 };
