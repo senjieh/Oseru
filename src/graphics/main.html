@@ -30,11 +30,11 @@
         <script src = "matrix.js"></script>
         <script src = "normal_mesh.js"></script>
         <script src = "controls.js"></script>
-        <script src = "cam.js"></script>
         <script src = "lit_material.js"></script>
-        <!-- <script src = "programs.js"></script> -->
         <script src = "light.js"></script>
         <script src = "scene.js"></script>
+        <script src = "node_note.js"></script>
+        <script src = "menu.js"></script>
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
@@ -43,7 +43,7 @@
             /** @type {WebGLRenderingContext} */
             let gl = canvas.getContext( 'webgl2' );
 
-            const GOURAUD_VERTEX_SHADER = 
+            let GOURAUD_VERTEX_SHADER = 
             `   #version 300 es
                 precision mediump float;
 
@@ -177,7 +177,7 @@
                 }
             `;
 
-            const GOURAUD_FRAGMENT_SHADER = 
+            let GOURAUD_FRAGMENT_SHADER = 
             `   #version 300 es
                 precision mediump float;
 
@@ -195,11 +195,46 @@
                     f_color = vec4(vec3(gl_FragCoord.z), 1.0); */
                 }
             `;
+            let vert_shader_loaded = false;
+            let vert_req = load_txt_file('vertex.vs', function() {
+                console.log('loaded vertex.vs');
+                GOURAUD_VERTEX_SHADER = vert_req.responseTest;
+                vert_shader_loaded = true;
+                //TODO: should block render loop until loaded
+            });
+
+            let frag_shader_loaded = false;
+            let frag_req = load_txt_file('fragment.fs', function() {
+                console.log('loaded fragment.fs');
+                GOURAUD_FRAGMENT_SHADER = vert_req.responseTest;
+                frag_shader_loaded = true;
+            });
+
+            // TODO: block needs to happen before getting to page
+            // block until shaders are loaded
+            //const sleep = ms => new Promise(r => setTimeout(r, ms));
+            /*while(!frag_shader_loaded && !vert_shader_loaded) {
+                // wait 10mn before each check
+                //sleep(10);
+                if (frag_shader_loaded) {
+                    if (vert_shader_loaded) {
+                        break;
+                    }
+                }
+            }*/
+
+//----------------------------------------------------------------------------------------------------
+//           DEBUG VARIABLES
+//----------------------------------------------------------------------------------------------------
             // NOTE: debuging vars
             //DRAW_ASTROIDS = true;
             DRAW_SKYBOX = false;
             DRAW_SUN = true;
 
+
+//----------------------------------------------------------------------------------------------------
+//           BASIC SETUP
+//----------------------------------------------------------------------------------------------------
             let lit_program = 
                 create_compile_and_link_program( 
                     gl, 
@@ -217,7 +252,7 @@
             // lets make a solar system to start
             //let solar_system = new Scene();
             
-            // setup controlls
+            // setup controls
             const DESIRED_TICK_RATE = 60;
             const DESIRED_MSPT = 1000.0 / DESIRED_TICK_RATE;
 
@@ -229,6 +264,15 @@
 
             let keys = Keys.start_listening();
 
+            // setup projection matrix
+            const FOV_ANGLE = 0.125;
+            const ASPECT_RATIO = 4/3;
+            let projection = Mat4.perspective_fovx( FOV_ANGLE, ASPECT_RATIO, 0.125, 1024 );
+            let current_program = lit_program;
+
+//----------------------------------------------------------------------------------------------------
+//          LOAD RESOURCES
+//----------------------------------------------------------------------------------------------------
 
             // load textures
             /*
@@ -237,6 +281,9 @@
             let debug_tex = 
                 new LitMaterial(gl, null, gl.LINEAR, 0.25, 1, 2, 5);
             
+//----------------------------------------------------------------------------------------------------
+//           SETUP LIGNTS
+//----------------------------------------------------------------------------------------------------
             
             let light1 = new Light( -20, -20, 0, 1.0, 0.2, 0.9, 1 );
             let light2 = new Light(20,20,0, 0,1,0, 2);
@@ -247,14 +294,10 @@
                 NormalMesh.uv_sphere( gl, lit_program, 1, 16, scale ); 
                 // NormalMesh.box( gl, lit_program, 1, 1, 1, metal ); */
 
-            // setup projection matrix
-            let projection = Mat4.perspective_fovx( 0.125, 4 / 3, 0.125, 1024 );
-            let current_program = lit_program;
 
-
-            
-
-//-----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//           GENERATE SCENE
+//----------------------------------------------------------------------------------------------------
             let root = new Scene();
 
             // initalize camera
@@ -284,23 +327,97 @@
                 16, 16, 0, 1, water_tex);*/
 
 
+            /*let note_root = root.create_node(-0.8,-0.92,3, 0,0,0, 0.5,0.5,0.5,);
+            let note = note_root.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
+            note.data = new NodeNote(1,1,1,1,
+                NormalMesh.platform(gl, current_program, 
+                    0.3, 0.1, 0, 1,
+                    debug_tex),
+                false);*/
 
-            let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
+            // calc frustum edge
+            let distance = 3;
+            let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
+            // calc note width
+            let num_notes = 7;
+            let padding_pre = 0.05;
+            let div_width = (2*edge_distance)/num_notes;
+            let padding = div_width * padding_pre;
+            let width = div_width - padding;
+            // calc height
+            let height = width/3;
+            let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
+
+            let spawners = [];
+
+            // TODO: check if adding same NodeNote to each object or if is working as intended
+            let note_mesh = NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1, debug_tex);
+            let note_node = new NodeNote(1,1,1,1, note_mesh, false);
+
+            // create note spawners
+            for (let i=0; i<num_notes; i++) {
+                let left = -edge_distance + (padding + width)/2 + i*(width+padding);
+
+                let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1);
+                note_spawner.data = new NoteSpawner(null, note_mesh, bottom, note_spawner);
+                //note_spawner.node = note_spawner;
+                spawners.push(note_spawner);
+                // place static notes on spawners to make them visible
+                let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1,note_mesh);
+                //note.data = note_node;
+            }
+
+            // make targets for notes
+            for (let i=0; i<spawners.length; i++) {
+                let tmp_node = spawners[i].create_child_node(0,0,0, 0,0.25,0, 1,1,1, NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1,
+                    debug_tex));
+                let top = spawners[i].data.get_target_height(padding, height);
+                tmp_node.warp(tmp_node.x, top, tmp_node.z);
+            }
+
+            // make test note data
+            // 2d array, each inner array containing the time of each note in ascending order
+            const num_notes_to_play = 100;
+            let note_data = [];
+            for (let i=0; i<num_notes; i++) {
+                let lst = [];
+                for (let j=0; j<num_notes_to_play; j++) {
+                    if ((j)%(i+2) == 0) {
+                        lst.push(j*1000);
+                    }
+                }
+                note_data.push(lst);
+                console.log(lst);
+            }
+
+            // add note data to each spawner
+            // NOTE: normally add data in construction, don't do this elsewhere
+            for (let i=0; i< spawners.length; i++) {
+                //note_data[i].reverse();
+                spawners[i].data.data = note_data[i].reverse();
+            }
+
+
+            /*let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
             box.data = NormalMesh.box(gl, current_program, 
                     4, 4, 4,
-                    debug_tex);
+                    debug_tex);*/
 
             
             // Track time
-            let start = performance.now();
+            // tie update freq to fps so if game is chugging calcs happen less often
+            // game updates should still occur based on now - prev because we aren't Bertha
+            let start = last_update;
             let prev_time = 0;
             
-
-            
-
-
+//----------------------------------------------------------------------------------------------------
+//           RENDER LOOP
+//----------------------------------------------------------------------------------------------------
             function render( now ) {
                 last_update = now;
+                //console.log(now);
 
                 // get permission to draw frame from browser
                 requestAnimationFrame( render );
@@ -320,9 +437,11 @@
                 // generate list of meshes to draw
                 let mesh_list = [];
                 let light_list = []
-                root.generate_render_batch(mesh_list, light_list);
+                //console.log(last_update)
+                root.generate_render_batch(mesh_list, light_list, last_update);
+                //console.log(Math.floor(last_update/100));
 
-                // TODO: this is a stop gap as currenlty shader only accepts single dynamic light
+                // TODO: this is a stop gap as currently shader only accepts two hard-ocded dynamic lights
                 //light_list[0].bind(gl, current_program);
 
                 //back_end_render(gl, mesh_list);
@@ -351,10 +470,11 @@
                     // draw mesh
                     mesh.render(gl);
                 } 
-
             }
 
-            // define controls
+//----------------------------------------------------------------------------------------------------
+//           DEFINE CONTROLS TODO: move to file maybe?
+//----------------------------------------------------------------------------------------------------
             const KEYMAP = {
                 'Space': function() { cam.move_in_direction( 0, 0, FLY_SPEED_PER_FRAME ); },
                 'KeyC': function() { cam.move_in_direction( 0, 0, -FLY_SPEED_PER_FRAME ); },
@@ -370,7 +490,9 @@
                 'ArrowDown': function() { cam.add_pitch( ROTATION_SPEED_PER_FRAME ); },
             };
 
-            // main loop
+//----------------------------------------------------------------------------------------------------
+//           UPDATE LOOP
+//----------------------------------------------------------------------------------------------------
             function update() {
                 let keys_down = keys.keys_down_list();
 
@@ -394,9 +516,9 @@
 
                 
                 // spin earth
-                box.add_roll(ROTATION_SPEED_PER_FRAME*0.5);
-                box.add_pitch(ROTATION_SPEED_PER_FRAME*0.4);
-                box.add_yaw(ROTATION_SPEED_PER_FRAME*0.6)
+                //box.add_roll(ROTATION_SPEED_PER_FRAME*0.5);
+                //box.add_pitch(ROTATION_SPEED_PER_FRAME*0.4);
+                //box.add_yaw(ROTATION_SPEED_PER_FRAME*0.6)
 
                 //tmp_anch.add_roll(ROTATION_SPEED_PER_FRAME*32);
                 // spin baybe spin!
@@ -416,7 +538,6 @@
                 
                 
                 return;
-                
             }
             
             // ask browser for frame

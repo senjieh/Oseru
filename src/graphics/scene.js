@@ -1,6 +1,5 @@
-
 class Node {
-    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data ) {
+    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, parent=null ) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -16,6 +15,7 @@ class Node {
         this.data = data;
 
         this.children = [];
+        this.parent = parent;
     }
 
     add_yaw( amount ) { 
@@ -114,7 +114,7 @@ class Node {
     }
 
     create_child_node( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data ) {
-        let child = new Node( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data );
+        let child = new Node( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, this );
         this.children.push( child );
 
         return child;
@@ -126,7 +126,7 @@ class Node {
         return matrix.get_transformed_coordinates();
     }
 
-    generate_render_batch( parent_matrix, jobs, lights ) {
+    generate_render_batch( parent_matrix, jobs, lights, time=0 ) {
         let matrix = parent_matrix.mul( this.get_matrix() );
 
         if( this.data instanceof NodeLight ) {
@@ -136,12 +136,35 @@ class Node {
             }
         }
         else if( this.data instanceof NormalMesh ) {
-            jobs.push( new RenderMesh( matrix, this.data ) )
+            jobs.push( new RenderMesh( matrix, this.data ) );
         }
-        else if( this.data == null ) {
+        else if(this.data instanceof NodeNote) {
+            // cal position in node based on time instead of updating based on frame
+            // position is one frame behind but cuts out extra matrix multiplication
+            const loc = this.data.get_height(time);
+            // only push render job if note is on screen
+            if (loc != null) {
+                // move note to correct height
+                // this warp effects next render pass, not current one
+                this.warp(this.x, loc, this.z);
+                jobs.push(new RenderMesh(matrix, this.data.mesh));
+            }
+        } else if (this.data instanceof NoteSpawner) {
+            // check to spawn note
+            let note = this.data.check_spawn_note(time);
+            if (note) {
+                let child = this.create_child_node(
+                    0, 0, -0.01,       // spawn note slightly in font of target
+                    this.roll, this.pitch+0.25, this.yaw,
+                    this.scale_x, this.scale_y, this.scale_z, 
+                    note);
+                /*console.log(child.x, child.y, child.z)
+                console.log(this.x, this.y, this.z)
+                console.log('------')*/
+            }
+        } else if (this.data == null) {
             // do nothing
-        }
-        else {
+        } else {
             console.log( this );
             throw new Error( 
                 'unrecognized node data: ' + 
@@ -150,7 +173,7 @@ class Node {
         }
 
         for( let child of this.children ) {
-            child.generate_render_batch( matrix, jobs, lights );
+            child.generate_render_batch( matrix, jobs, lights, time );
         }
     }
 
@@ -238,8 +261,8 @@ class Scene {
         set_uniform_vec3( gl, program, 'sun_color', sun.data.r, sun.data.g, sun.data.b );
     }
 
-    generate_render_batch( jobs, lights ) {
-        this.root.generate_render_batch( Mat4.identity(), jobs, lights );
+    generate_render_batch( jobs, lights, time=0 ) {
+        this.root.generate_render_batch( Mat4.identity(), jobs, lights, time );
     }
 
     get_camera_view() {
