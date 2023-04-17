@@ -1,3 +1,4 @@
+//import { AddScoreIfTop } from  "./firestore-test.js";
 // Load scores from local storage
 class LocalBoard{
   constructor(filename){
@@ -9,8 +10,11 @@ class LocalBoard{
 
   RunBoard(a_new_score){
     document.querySelector("h1").textContent = this.level_title;
+    // Add an event listener to the clear button
     document.getElementById("clear-button").addEventListener("click", clearBoard);
+    // Refresh the scoreboard table initially
     refreshScoreboard();
+    // Add a listener for the form submission
     document.getElementById("score-form").addEventListener("submit", function(event) {
       event.preventDefault(); // Prevent the form from submitting
     
@@ -43,6 +47,9 @@ class LocalBoard{
         // Save the scores to local storage
         localStorage.setItem(this.level_key, JSON.stringify(this.scores));
       
+        //Check if it beats global leaderboard scores
+        /*let user_ID = GetUserID(); get and send the userId to global leaderboard database*/
+        AddScoreIfTop(this.level_name, new_score.name, new_score.score, user_ID)
         // Clear the name input field
         document.getElementById("score-form").remove();
       
@@ -51,13 +58,6 @@ class LocalBoard{
       });
     }
   
-  // Refresh the scoreboard table initially
-  
-  
-  // Add an event listener to the clear button
-  
-  
-  // Add a listener for the form submission
  
   //Clears all scores and players from the board
   clearBoard(){
