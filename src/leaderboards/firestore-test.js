@@ -1,4 +1,9 @@
-import { db, auth } from "/src/firebase-config.js";
+
+// This is for me to use
+import { db, auth } from "/Spring\ 2023/CS\ 320/Oseru/src/leaderboards/firebase-config.js";
+
+// How it was before
+// import { db, auth } from "/src/firebase-config.js";
 import { updateDoc,
   deleteDoc, getDoc, getDocs, setDoc, 
   collection, doc, query, orderBy, 
@@ -168,6 +173,7 @@ const leaderboardTable = document.getElementById("leaderboard-table");
 
   // Add the table header row
   const headerRow = leaderboardTable.insertRow();
+  headerRow.bgColor="#dc2414";
   const rankHeader = headerRow.insertCell(0);
   rankHeader.innerHTML = "Rank";
   const nameHeader = headerRow.insertCell(1);
