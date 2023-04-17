@@ -1,6 +1,6 @@
 //const NoteScore = require('./note-score.js');
 class FinalScore {
-  constructor(){
+  constructor(filename){
     this.score_array = [];
     this.json_name = filename; //give it the name of the json file being used for current song
     this.current_note_num = 0; //keeps track of which note is being used from the json file
@@ -13,7 +13,7 @@ class FinalScore {
   }
 //function to get the song data from the json file
   static GetSongInfo() {
-    const my_request = new Request('http://127.0.0.1:8080/midi/jsonMidi/SilentNight.json'); //chage to include the path to filename for specific song
+    const my_request = new Request(`http://127.0.0.1:8080/midi/jsonMidi/${this.json_name}`); 
     return fetch(my_request)
       .then((response) => {
         if (!response.ok) {
@@ -26,9 +26,8 @@ class FinalScore {
       });
   }
 //test function for checking scores, can ignore
-  static GetNoteScore(note_data) {
+  static GetNoteScore(note_data, elapsed_time) {
     var freq_array = [392, 391, 398, 400, 55, 65, 1500]; //fake freq info to test
-    const elapsed_time = note_data[0];
     const check_note = new NoteScore(note_data, elapsed_time, freq_array);
     const score = check_note.ScoreEachNote();
     return score;
@@ -43,16 +42,20 @@ class FinalScore {
     this.score_array.push(score);
   }
 //Function for adding all scores pushed to the score array together
-  static CalculateFinalScore(extra_note_count) {
-      const array_length = this.score_array.length;
-      let total_score = 0;
-
-      for (let i = 0; i < array_length; i++) {
-        total_score += this.score_array[i];
-      }
-      total_score -= extra_note_count * 25; //extra_note_count will be passed and retrieved from ExtraNote.GetCount();
-      return total_score;
-    
+  static CalculateFinalScore(extra_note_count){
+    let json_data = JSON.parse(this.json_name); //need the json file to get the expected_note_count
+    let expected_note_count = json_data.length;
+    const array_length = this.score_array.length;
+    let incomplete_notes = expected_note_count - array_length;
+    let total_score = 0;
+    let incomplete_notes_score = incomplete_notes * 50
+    for (let i = 0; i < array_length; i++) {
+      total_score += this.score_array[i];
+    }
+    total_score -= extra_note_count * 25; //extra_note_count will be passed and retrieved from ExtraNote.GetCount();
+    total_score -= incomplete_notes_score; //subtract the score for completely missing notes 
+    let new_final_score = new LocalBoard(this.json_name);
+    new_final_score.RunBoard(total_score);
   }
 }
   //module.exports = FinalScore;
