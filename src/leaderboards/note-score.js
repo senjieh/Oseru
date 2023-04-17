@@ -1,3 +1,4 @@
+//class to for player adding extra notes, call increment to increase everytime an extra note is played
 class ExtraNote{
     constructor(){
         this.extra_notes = 0;
