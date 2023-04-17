@@ -35,7 +35,7 @@
         <script src = "node_note.js"></script>
         <script src = "scene.js"></script>
         <script src = "menu.js"></script>
-        <script src = "../leaderboards/note-score.js"></script>
+        <script src = "note-score.js"></script>
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
@@ -322,7 +322,9 @@
             var leaderboard = null;
             var score_json = null;
             var extra_note = new ExtraNote();
-            var note_score_lst = [extra_note];
+            var note_score_lst = [];
+            note_score_lst.push(extra_note);
+            var end_time = 0;
             let file = "jsonMidi/SilentNight.json"
             fetch(file).then((response) => {
                 // get note json
@@ -338,6 +340,9 @@
                 // then make score
                 score = new Score(response, 100, debug_tex, skybox);
                 score_json = response;
+                tmp = response[response.length-1];
+                // last note at last note + 10s
+                end_time = tmp.time_played * 1000 + 10000;
                 //leaderboard = new NoteScore(response, )
                 console.log("new score made ",score);
                 gamestate.score_generated = 1;
@@ -400,21 +405,21 @@
                     if (current_note == null) {
                         // no active not was found, was a "miss"
                         //console.log("miss ",current_note)
-                        extra_note.increment();
+                        extra_note.Increment();
                     } else {
                         if (current_note.y < 1.88 || current_note.y > 1.9) {
                             // note not on target yet, was a "miss"
                             // NOTE: these values are an estimate, could be refined
                             //console.log("miss ",current_note)
                             //current_note.add_yaw(0.05);
-                            extra_note.increment();
+                            extra_note.Increment();
 
                         } else {
                             // valid note at correct time, set note as played
                             current_note.data.played = true;
                             // darken played note
                             //current_note.data.mesh.material.ambient /= 2;
-                            //current_note.add_yaw(1.5);
+                            current_note.add_yaw(0.5);
                             console.log("hit ", current_note);
                             tmp = score_json.pop();
                             // start global timer declared in main loop
@@ -424,6 +429,7 @@
                         }
                     }
                 }
+                console.log(note_score_lst);
             }
 
             
