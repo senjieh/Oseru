@@ -42,14 +42,14 @@ class NodeNote {
 	 * @param {Mesh} mesh of note
 	 * @param {bool} is mine
 	 */
-	constructor(note, freq, play_at, duration, mesh, scale_mat, start_height, target_height, score_tracker_index, is_mine=false) {
+	constructor(note, freq, play_at, duration, mesh, scale_mat, start_height, target_height, score_tracker_index=null, is_mine=false) {
 		this.note = note;
 		this.freq = freq;
 		this.play_at = play_at;
 		this.duration = duration;
 		this.mesh = mesh;
 		this.is_mine = is_mine;
-		this.score_tracker_index = score_tracker_index;
+		this.score_tracker = score_tracker_index;
 
 		this.target_height = target_height;
 		this.start_height = start_height;

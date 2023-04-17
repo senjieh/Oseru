@@ -423,7 +423,7 @@
                             console.log("hit ", current_note);
                             tmp = score_json.pop();
                             // start global timer declared in main loop
-                            freq_list = null;
+                            freq_list = null; // TODO: this needs to get input from mic
                             note_score = new NoteScore(tmp, start, freq_list);
                             note_score_lst.push(note_score);
                         }
