@@ -48,7 +48,7 @@ class FinalScore {
       let total_score = 0;
 
       for (let i = 0; i < array_length; i++) {
-        total_score += score_array[i];
+        total_score += this.score_array[i];
       }
       total_score -= extra_note_count * 25; //extra_note_count will be passed and retrieved from ExtraNote.GetCount();
       return total_score;
