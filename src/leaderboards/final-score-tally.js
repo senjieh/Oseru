@@ -48,11 +48,11 @@ class FinalScore {
     const array_length = this.score_array.length;
     let incomplete_notes = expected_note_count - array_length;
     let total_score = 0;
-    let incomplete_notes_score = incomplete_notes * 50
+    let incomplete_notes_score = incomplete_notes * 100
     for (let i = 0; i < array_length; i++) {
       total_score += this.score_array[i];
     }
-    total_score -= extra_note_count * 25; //extra_note_count will be passed and retrieved from ExtraNote.GetCount();
+    total_score -= extra_note_count * 50; //extra_note_count will be passed and retrieved from ExtraNote.GetCount();
     total_score -= incomplete_notes_score; //subtract the score for completely missing notes 
     let new_final_score = new LocalBoard(this.json_name);
     new_final_score.RunBoard(total_score);
