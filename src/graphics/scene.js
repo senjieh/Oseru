@@ -1,5 +1,5 @@
 class Node {
-    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, parent=null ) {
+    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, parent=null, animation=null, animation_state=null ) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -16,6 +16,11 @@ class Node {
 
         this.children = [];
         this.parent = parent;
+
+        // function to run every update. 
+        // must always take {Node, State, time} where State can be anything tracked between frames
+        this.animation = animation;
+        this.animation_state = animation_state;
     }
 
     add_yaw( amount ) { 
@@ -127,6 +132,11 @@ class Node {
     }
 
     generate_render_batch( parent_matrix, jobs, lights, time=0 ) {
+        // run animation function on node if applicable
+        if (this.animation && this.animation_steps > 0) {
+            this.animation_state = this.animation(this, this.animation_state, time);
+        }
+
         let matrix = parent_matrix.mul( this.get_matrix() );
 
         if( this.data instanceof NodeLight ) {

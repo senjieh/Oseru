@@ -320,6 +320,9 @@
             // TODO: fetch meshs same way
             var score = null;
             var leaderboard = null;
+            var score_json = null;
+            var extra_note = new ExtraNote();
+            var note_score_lst = [extra_note];
             let file = "jsonMidi/SilentNight.json"
             fetch(file).then((response) => {
                 // get note json
@@ -334,6 +337,7 @@
             }).then((response) => {
                 // then make score
                 score = new Score(response, 100, debug_tex, skybox);
+                score_json = response;
                 //leaderboard = new NoteScore(response, )
                 console.log("new score made ",score);
                 gamestate.score_generated = 1;
@@ -341,6 +345,7 @@
                 console.log("something went wrong making score ",err);
                 // TODO: bounce back to stage select on error here
             });
+
 
             let root = new Scene();
 
@@ -363,6 +368,63 @@
             let start = -1;
             let last_update = -1;
 
+
+//----------------------------------------------------------------------------------------------------
+//           GET USER INPUTS
+//----------------------------------------------------------------------------------------------------
+
+
+            function get_inputs() {
+                if (gamestate.score_generated < 1) { 
+                    console.log("score not loaded yet");
+                    return;
+                } else {
+                    // test function to play all notes with spacebar only
+                    spawners = score.spawners;
+                    let current_note = null;
+                    // loop through all active notes, find next one to play
+                    for (let spawner of spawners){
+                        for (let child of spawner.children) {
+                            if (child.data instanceof NodeNote) {
+                                if (current_note == null) {
+                                    current_note = child;
+                                    //console.log(child)  
+                                } else {
+                                    if (child.data.play_at < current_note.data.play_at && child.data.played == false) {
+                                        current_note = child;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (current_note == null) {
+                        // no active not was found, was a "miss"
+                        //console.log("miss ",current_note)
+                        extra_note.increment();
+                    } else {
+                        if (current_note.y < 1.88 || current_note.y > 1.9) {
+                            // note not on target yet, was a "miss"
+                            // NOTE: these values are an estimate, could be refined
+                            //console.log("miss ",current_note)
+                            //current_note.add_yaw(0.05);
+                            extra_note.increment();
+
+                        } else {
+                            // valid note at correct time, set note as played
+                            current_note.data.played = true;
+                            // darken played note
+                            //current_note.data.mesh.material.ambient /= 2;
+                            //current_note.add_yaw(1.5);
+                            console.log("hit ", current_note);
+                            tmp = score_json.pop();
+                            // start global timer declared in main loop
+                            freq_list = null;
+                            note_score = new NoteScore(tmp, start, freq_list);
+                            note_score_lst.push(note_score);
+                        }
+                    }
+                }
+            }
 
             
 //----------------------------------------------------------------------------------------------------
@@ -457,44 +519,7 @@
                 'ArrowRight': function() { cam.add_yaw( ROTATION_SPEED_PER_FRAME ); },
                 'ArrowUp': function() { cam.add_pitch( -ROTATION_SPEED_PER_FRAME ); },
                 'ArrowDown': function() { cam.add_pitch( ROTATION_SPEED_PER_FRAME ); },
-                'Space': function() {
-                    // test function to play all notes with spacebar only
-                    spawners = score.spawners;
-                    let current_note = null;
-                    // loop through all active notes, find next one to play
-                    for (let spawner of spawners){
-                        for (let child of spawner.children) {
-                            if (child.data instanceof NodeNote) {
-                                if (current_note == null) {
-                                    current_note = child;
-                                    //console.log(child)  
-                                } else {
-                                    if (child.data.play_at < current_note.data.play_at && child.data.played == false) {
-                                        current_note = child;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (current_note == null) {
-                        // no active not was found, was a "miss"
-                        //console.log("miss ",current_note)
-                    } else {
-                        if (current_note.y < 1.88 || current_note.y > 1.9) {
-                            // note not on target yet, was a "miss"
-                            //console.log("miss ",current_note)
-                            current_note.add_yaw(0.05);
-
-                        } else {
-                            // valid note at correct time, set note as played
-                            current_note.data.played = true;
-                            // darken played note
-                            //current_note.data.mesh.material.ambient /= 2;
-                            current_note.add_yaw(1.5);
-                            console.log("hit ", current_note);
-                        }
-                    }
-                }
+                'Space': function() {get_inputs();},
             };
 
 //----------------------------------------------------------------------------------------------------
