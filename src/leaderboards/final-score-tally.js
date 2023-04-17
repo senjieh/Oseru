@@ -53,7 +53,10 @@ class FinalScore {
       total_score += this.score_array[i];
     }
     total_score -= extra_note_count * 50; //extra_note_count will be passed and retrieved from ExtraNote.GetCount();
-    total_score -= incomplete_notes_score; //subtract the score for completely missing notes 
+    total_score -= incomplete_notes_score; //subtract the score for completely missing notes
+    if(total_score < 0){
+      total_score = 0;
+    } 
     let new_final_score = new LocalBoard(this.json_name);
     new_final_score.RunBoard(total_score);
   }

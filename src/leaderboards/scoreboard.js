@@ -47,7 +47,7 @@ class LocalBoard{
         // Save the scores to local storage
         localStorage.setItem(this.level_key, JSON.stringify(this.scores));
       
-        //Check if it beats global leaderboard scores
+        //Check if score beats global leaderboard scores
         /*let user_ID = GetUserID(); get and send the userId to global leaderboard database*/
         AddScoreIfTop(this.level_name, new_score.name, new_score.score, user_ID)
         // Clear the name input field
