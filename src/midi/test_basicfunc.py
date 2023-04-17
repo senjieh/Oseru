@@ -10,6 +10,13 @@ testingPool = ["DrDre-StillDre", "He'sAPirate", "MichaelJackson-BillieJean", "Si
 simpleMidi = testingPool[3]
 complexMidi = testingPool[4]
 
+testMidi = [
+    ["DrDre-StillDre.mid",[0,2]],
+    ["SilentNight.mid",[]],
+    ["Beethoven-FurElise.mid",[]],
+    []
+]
+
 class MidiTests(unittest.TestCase):
 
     # note: there are a lot of tests that may look like duplicates but I am testing two types of MIDI files - 

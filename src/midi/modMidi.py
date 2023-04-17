@@ -75,7 +75,7 @@ def newMidiFile(mainInstChannels, file, inPath, outPath):
     mainChannelDec = []
     for x in mainInstChannels:
         hexval = "0x9"
-        if x < 9:
+        if x <= 9:
             hexval += str(x)
         elif x == 10:
             hexval += "A"
@@ -114,6 +114,57 @@ def newMidiFile(mainInstChannels, file, inPath, outPath):
             fout.write(binascii.unhexlify(i))
     fout.close()
 
+def newMidiComplicated(mainInstChannels, instList, file, inPath, outPath):
+    """Same functionality as newMidiFile except for complicated midi files that do channel switching i.e.
+    channels switching to different instruments mid song."""
+    readFile = inPath + file
+    outFile = outPath + file
+    noteOnRange = [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]
+
+    # add message count here
+    mainChannelDec = []
+    for x in mainInstChannels:
+        hexval = "0x9"
+        if x <= 9:
+            hexval += str(x)
+        elif x == 10:
+            hexval += "A"
+        elif x == 11:
+            hexval += "B"
+        elif x == 12:
+            hexval += "C"
+        elif x == 13:
+            hexval += "D"
+        elif x == 14:
+            hexval += "E"
+        elif x == 15:
+            hexval += "F"
+        else:
+            print("Channel greater than 15! Not recognized.")
+        dec = int(hexval,16)
+        mainChannelDec.append(dec)
+
+    # need to incorporate inst list here
+    toBeDel = []
+    with open(readFile, "rb") as f:
+            buff = f.read()
+            hexR = ("{:02x}".format(c) for c in buff)
+            hex_list = list(hexR)
+            listLen = len(hex_list)
+            for x in range(0, listLen, 1):
+                intx = int(hex_list[x], 16)
+                if intx in mainChannelDec:
+                    toBeDel.append(x+2)
+    f.close()
+    
+    for x in range((len(toBeDel)-1),-1,-1):
+        hex_list[(toBeDel[x])] = '00'
+
+    with open(outFile, "wb") as fout:
+        for i in hex_list:
+            fout.write(binascii.unhexlify(i))
+    fout.close()
+
 def playMidi(file, filepath):
     midiFile = filepath + file
     mid = mido.MidiFile(midiFile)
@@ -125,11 +176,12 @@ def playMidi(file, filepath):
                 port.send(msg)
 
 if __name__ == "__main__":
-    #playMidi("SilentNight.mid","modmidi/")
+    playMidi("Beethoven-FurElise.mid","modmidi/")
     #pass
     #obj = modMidi("SilentNight","midifiles/")
 
-    newMidiFile([0,2],"SilentNight.mid","midifiles/","test/")
+    #newMidiFile([2,3,6,9,0],"RedHotChiliPeppers-Californication.mid","midifiles/","modmidi/")
+    #newMidiFile([0],"Beethoven-MoonlightSonata.mid","midifiles/","modmidi/")
     #playMidi("SilentNight_new.mid","modmidi/")
     #obj.modMidFile([0],"modmidi/")
 
