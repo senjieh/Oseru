@@ -13,7 +13,7 @@ class FinalScore {
   }
 //function to get the song data from the json file
   static GetSongInfo() {
-    const my_request = new Request('http://127.0.0.1:8080/midi/jsonMidi/SilentNight.json');
+    const my_request = new Request('http://127.0.0.1:8080/midi/jsonMidi/SilentNight.json'); //chage to include the path to filename for specific song
     return fetch(my_request)
       .then((response) => {
         if (!response.ok) {
@@ -35,10 +35,10 @@ class FinalScore {
   }
 
 //Function to call to score a note and add it to the array of scores
-  static AddNoteScoreToArray(elapsed_time, freq_array){
+  static AddNoteScoreToArray(elapsed_time, freq_array, player_duration){
     const note_data = this.song_data[current_note_num];
     current_note_num++;
-    const check_note = new NoteScore(note_data, elapsed_time, freq_array);
+    const check_note = new NoteScore(note_data, elapsed_time, freq_array, player_duration);
     const score = check_note.ScoreEachNote();
     this.score_array.push(score);
   }
