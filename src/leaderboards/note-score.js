@@ -1,3 +1,17 @@
+class ExtraNote{
+    constructor(){
+        this.extra_notes = 0;
+    }
+
+    Increment(){
+        this.extra_notes++;
+    }
+
+    GetCount(){
+        return this.extra_notes;
+    }
+}
+
 class NoteScore{
     constructor(song_data, elapsed_time, freq_list){
         this.song_data = song_data; 

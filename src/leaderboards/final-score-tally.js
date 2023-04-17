@@ -30,6 +30,7 @@ class FinalScore {
       for (let i = 0; i < array_length; i++) {
         total_score += FinalScore.GetNoteScore(song_data[i]);
       }
+      total_score -= ExtraNote.GetCount() * 25;
       return total_score;
     });
   }
