@@ -103,7 +103,8 @@ async function LoadSongs(song_file_name){
       {
         title: "Silent Night",
         artist: "Franz Something",
-        length: "3:12"
+        length: "3:12",
+        album: "Placeholder"
       }
     ]
     // Find the table element by ID
@@ -115,14 +116,21 @@ async function LoadSongs(song_file_name){
     // Insert the song title
     const title_cell = row.insertCell();
     title_cell.innerText = song_data.title;
+    title_cell.style = "font-weight:bold;";
 
     // Insert the artist name
     const artist_cell = row.insertCell();
     artist_cell.innerText = song_data.artist;
+    artist_cell.style = "font-weight:bold;";
 
     // Insert the length of song
     const length_cell = row.insertCell();
     length_cell.innerText = song_data.length;
+    length_cell.style = "text-align:center;";
+
+    // Insert the length of song 
+    const album_cell = row.insertCell();
+    album_cell.innerText = song_data.album;
 
     // Insert the play and upload button
     const play_cell = row.insertCell();
@@ -132,10 +140,14 @@ async function LoadSongs(song_file_name){
     play_button.classList.add('play-button');
     play_button.dataset.src = song_data.file_url;
     play_button.innerText = 'Play';
+    play_button.style = "padding:0.2rem;";
+    play_button.style.fontSize = "2rem";
     play_cell.appendChild(play_button);
     upload_button.classList.add('upload-button');
     upload_button.dataset.src = song_data.file_url;
-    upload_button.innerText = 'Play';
+    upload_button.innerText = 'Upload';
+    upload_button.style = "padding:0.3rem;";
+    upload_button.style.fontSize = "2rem";
     upload_cell.appendChild(upload_button);
 
   }catch(error){

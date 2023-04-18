@@ -1,0 +1,30 @@
+body {
+    /* font-size: 1.5rem; */
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items: center;
+    font-family: 'WorkSans';
+    background-color:#fcf4d4;
+    font-size: 2rem;
+}
+
+.main-table {
+    font-family: 'WorkSans';
+    padding-top: 25vh;
+}
+
+th, td {
+    padding: 2rem;
+    background-color:rgb(23, 23, 23);
+    color:white;
+}
+
+th {
+    color:black;
+    background-color: rgb(110, 110, 110);
+}
+
+#song-table {
+    background-color: rgb(110,110,110);
+}
