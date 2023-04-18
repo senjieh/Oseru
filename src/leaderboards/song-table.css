@@ -12,19 +12,22 @@ body {
 .main-table {
     font-family: 'WorkSans';
     padding-top: 25vh;
+    width:70%;
 }
 
 th, td {
     padding: 2rem;
-    background-color:rgb(23, 23, 23);
-    color:white;
+    color:black;
+    text-align: center;
 }
 
 th {
     color:black;
-    background-color: rgb(110, 110, 110);
+    background-color: #dc2414;
 }
 
 #song-table {
-    background-color: rgb(110,110,110);
+    width:100%;
+    color:black;
+    border-collapse: collapse;
 }

@@ -140,14 +140,14 @@ async function LoadSongs(song_file_name){
     play_button.classList.add('play-button');
     play_button.dataset.src = song_data.file_url;
     play_button.innerText = 'Play';
-    play_button.style = "padding:0.2rem;";
-    play_button.style.fontSize = "2rem";
+    play_button.style = "padding:0.5rem 1rem 0.5rem 1rem;";
+    play_button.style.fontSize = "1.5rem";
     play_cell.appendChild(play_button);
     upload_button.classList.add('upload-button');
     upload_button.dataset.src = song_data.file_url;
     upload_button.innerText = 'Upload';
-    upload_button.style = "padding:0.3rem;";
-    upload_button.style.fontSize = "2rem";
+    upload_button.style = "padding:0.5rem 1rem 0.5rem 1rem;";
+    upload_button.style.fontSize = "1.5rem";
     upload_cell.appendChild(upload_button);
 
   }catch(error){
