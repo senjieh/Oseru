@@ -6,6 +6,7 @@ class Vec4 {
         this.y = y;
         this.z = z;
         this.w = w ?? 0;
+        this.data = [x,y,z,w];
     }
 
     /**
