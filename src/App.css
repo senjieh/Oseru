@@ -38,149 +38,81 @@
 }
 
 /*<----Start of Signin.js---->*/
-.signinform {
+.userAuthOpp {
   display: flex;
-  gap:1vh;
-  flex-direction:column;
-  justify-content:center;
-  align-items: center;
-}
-.signincontentleft {
-  display: flex;
-  padding-top:35vh;
-  flex-direction:column;
-  justify-content:center;
-  align-items: center;
-  text-align:center;
-}
-.signincontentright {
-  display: flex;
-  padding-top:40vh;
   flex-direction:column;
   justify-content:center;
   align-items: center;
   text-align: center;
-}
-.signinsplit {
-  font-size: 2.5rem;
   display: flex;
-  flex-direction: row;
-  background-color:#fcf4d4;
-  height:100vh;
+  gap:1vh;
+  height: auto;
+  padding: 10rem;
 }
-.inputbox {
-	border: none;
-	padding: 2rem;
-  width: 30rem;
-  font-size:1.5rem;
-}
-.submit-button {
-  margin-top:3vh;
-  background-color:#fcf4d4;
-	color: #dc2414;
-	border-radius: 1px;
-	border: 1px solid #dc2414;
-	font-size: 1.3rem;
-	font-weight: bold;
-	padding: 2rem;
-  width: 15rem;
-	letter-spacing: 1px;
-	text-transform: uppercase;
-}
-.submitsignup-button {
-  background-color:#dc2414;
-	color: #ffffff;
-	border-radius: 1px;
-	border: 1px solid #ffffff;
-	font-size: 1.3rem;
-	font-weight: bold;
-	padding: 2rem;
-  width: 15rem;
-	letter-spacing: 1px;
-	text-transform: uppercase;
-}
-.signinbox {
-  width:50%;
-  color:#dc2414;
-}
-.signupbox {
-  width:50%;
-  background-color:#dc2414;
-  color:#ffffff;
-}
-/*<----End of Signin.js---->*/
 
-/*<----Start of Signup.js---->*/
-/* Used a bit of code from signin since its similar */
-.signupsplit {
-  font-size: 2.5rem;
+.userAuthOpp h2{
+  font-family: 'WorkSans';
+  font-weight: 400;
+  font-size: 4rem;
+}
+
+.userAuthMain {
+  width:50%;
+  background-color:#dc2414;
   display: flex;
-  flex-direction: row;
-  background-color:#fcf4d4;
-  height:100vh;
-}
-.submitsignin-button {
-  background-color:#fcf4d4;
-	color: #dc2414;
-	border-radius: 1px;
-	border: 1px solid #dc2414;
-	font-size: 1.3rem;
-	font-weight: bold;
-	padding: 2rem;
-  width: 15rem;
-	letter-spacing: 1px;
-	text-transform: uppercase;
-}
-.signupnextbutton {
-  background-color:#dc2414;
-	color: #ffffff;
-	border-radius: 1px;
-	border: 1px solid #ffffff;
-	font-size: 1.3rem;
-	font-weight: bold;
-	padding: 2rem;
-  width: 15rem;
-	letter-spacing: 1px;
-	text-transform: uppercase;
-}
-.signupbutton {
-  background-color:#dc2414;
-  margin-left:2rem;
-	color: #ffffff;
-	border-radius: 1px;
-	border: 1px solid #ffffff;
-	font-size: 1.3rem;
-	font-weight: bold;
-	padding: 2rem;
-  width: 15rem;
-	letter-spacing: 1px;
-	text-transform: uppercase;
-}
-.signupbackbutton {
-  margin-right:2rem;
-  background-color:#dc2414;
-	color: #ffffff;
-	border-radius: 1px;
-	border: 1px solid #ffffff;
-	font-size: 1.3rem;
-	font-weight: bold;
-	padding: 2rem;
-  width: 15rem;
-	letter-spacing: 1px;
-	text-transform: uppercase;
-}
-.signupform {
-  display: flex;
-  gap: 4vh;
+  height: auto;
+  padding: 10rem;
   flex-direction:column;
   justify-content:center;
   align-items: center;
+  text-align:center;
+  position:relative;
+  color:#ffffff;
 }
-.signupform2 {
-  margin-top:4vh;
-  display: flex;
-  flex-direction:row;
-  justify-content:center;
-  align-items: center;
+
+.userAuthMain h2{
+  font-family: 'WorkSans';
+  font-weight: 400;
+  font-size: 4rem;
 }
-/*<----End of Signup.js---->*/
+
+.inputbox {
+  border: none;
+  padding: 2rem;
+  margin: 1rem;
+  width: 30rem;
+  font-size:1.5rem;
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 1rem;
+}
+
+.light-button {
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 2rem;
+  margin-top:1rem;
+  background-color:#fcf4d4;
+  color: #dc2414;
+  border-radius: 1px;
+  border: 1px solid #dc2414;
+  font-size: 1.3rem;
+  padding: 2rem;
+  width: 15rem;
+  letter-spacing: 1px;
+}
+
+.dark-button {
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 2rem;
+  background-color:#dc2414;
+  color: #ffffff;
+  margin-top:1rem;
+  border-radius: 1px;
+  border: 1px solid #ffffff;
+  font-size: 1.3rem;
+  padding: 2rem;
+  width: 15rem;
+  letter-spacing: 1px;
+}
