@@ -1,5 +1,20 @@
+//class to for player adding extra notes, call increment to increase everytime an extra note is played
+class ExtraNote{
+    constructor(){
+        this.extra_notes = 0;
+    }
+
+    Increment(){
+        this.extra_notes++;
+    }
+
+    GetCount(){
+        return this.extra_notes;
+    }
+}
+
 class NoteScore{
-    constructor(song_data, elapsed_time, freq_list){
+    constructor(song_data, elapsed_time, freq_list, player_duration){
         this.song_data = song_data; 
         this.expected_input_freq = song_data[2]; // get the expected note frequency from json array
         this.note_duration = song_data[3];  // get the expected note duration from json array
@@ -7,6 +22,7 @@ class NoteScore{
         this.elapsed_time = elapsed_time; //get the timing the function was initially called (when a player played a note)
         this.list_of_played_freqs = freq_list;
         this.freq_scores = [];
+        this.player_duration = player_duration;
     }
 
     //Scoring will be divided into three parts: note accuracy and timing
@@ -141,8 +157,8 @@ class NoteScore{
                             freq_score = 0;
                         }
                         else{
-                        two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
-                        perc = (Math.abs(this.expected_input_freq - freq_to_check) / two_per_val)
+                        two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50);
+                        perc = (Math.abs(this.expected_input_freq - freq_to_check) / two_per_val);
                         freq_score = ((100 - perc)/100) * 50;
                         }
                     }
@@ -152,8 +168,8 @@ class NoteScore{
                             freq_score = 0;
                         }
                         else{
-                        two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50)
-                        perc = (Math.abs(this.expected_input_freq - freq_to_check) / two_per_val)
+                        two_per_val = (Math.abs(this.expected_input_freq - freq2) / 50);
+                        perc = (Math.abs(this.expected_input_freq - freq_to_check) / two_per_val);
                         freq_score = ((100 - perc)/100) * 50;
                         }
                     }
@@ -173,12 +189,11 @@ class NoteScore{
          //Part 2: Timing
         //get the amount of time the note was played by player
         //NEEDS TO BE PROVIDED!!!!!!!!!!!
-        var played_duration = this.song_data[3];
-        played_duration = played_duration + (Math.floor(Math.random() * 2 - 1)); //semi-randomized duration time
+        var played_duration = this.player_duration; //duration player held the note for
         //calculate the tolerance for time playing a note
         tolerance = .2 * this.note_duration;
         left_tol = this.note_duration - tolerance;
-        right_tol = this.note_duration + tolerance
+        right_tol = this.note_duration + tolerance;
         //calculate tolerance on exact time played
         if(this.elapsed_time > this.expected_time + .1 || this.elapsed_time < this.expected_time - .1){
             timing_score = 0;
@@ -190,8 +205,8 @@ class NoteScore{
             }
             else{
                 if(played_duration >= left_tol && played_duration <= right_tol){
-                    perc_diff = (Math.abs(this.note_duration - played_duration) / ((this.note_duration + played_duration) / 2)) * 50
-                    timing_score = 50 - perc_diff
+                    perc_diff = (Math.abs(this.note_duration - played_duration) / ((this.note_duration + played_duration) / 2)) * 50;
+                    timing_score = 50 - perc_diff;
                 }
                 else{
                     timing_score = 0;

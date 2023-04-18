@@ -5,18 +5,17 @@ import { db, auth } from "/Spring\ 2023/CS\ 320/Oseru/src/leaderboards/firebase-
 // How it was before
 // import { db, auth } from "/src/firebase-config.js";
 import { updateDoc,
-  deleteDoc, getDoc, getDocs, setDoc, 
+  deleteDoc, getDoc, getDocs, 
   collection, doc, query, orderBy, 
-  limit, where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+  where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 
-//some temp test variables
+/*some temp test variables
 const songName =  "SilentNight";
 var userName = "Tom";
 var userID = "Tom#5055";
-const score = Math.floor(Math.random() * 1000) + 1;
-
-
+const score = Math.floor(Math.random() * 1000) + 1;*/
+//=======================================================
 //function for signing up with email and password
 function MakeNewUser(){
   createUserWithEmailAndPassword(auth, email, password)
@@ -93,6 +92,56 @@ async function AddNewSong(songName){
   }
 }
 
+//function to load a song file from database on click
+async function LoadSongs(song_file_name){
+  try{
+    /*const song_db = collection(db, "songfiles");
+    const song_ref = doc(song_db, song_file_name);
+    const song_data = (await song_ref.get()).data();*/
+    
+    let song_data =[
+      {
+        title: "Silent Night",
+        artist: "Franz Something",
+        length: "3:12"
+      }
+    ]
+    // Find the table element by ID
+    const table = document.getElementById('song-table');
+
+    // Create a new row for the song data
+    const row = table.insertRow();
+
+    // Insert the song title
+    const title_cell = row.insertCell();
+    title_cell.innerText = song_data.title;
+
+    // Insert the artist name
+    const artist_cell = row.insertCell();
+    artist_cell.innerText = song_data.artist;
+
+    // Insert the length of song
+    const length_cell = row.insertCell();
+    length_cell.innerText = song_data.length;
+
+    // Insert the play and upload button
+    const play_cell = row.insertCell();
+    const play_button = document.createElement('button');
+    const upload_cell = row.insertCell();
+    const upload_button = document.createElement('button');
+    play_button.classList.add('play-button');
+    play_button.dataset.src = song_data.file_url;
+    play_button.innerText = 'Play';
+    play_cell.appendChild(play_button);
+    upload_button.classList.add('upload-button');
+    upload_button.dataset.src = song_data.file_url;
+    upload_button.innerText = 'Play';
+    upload_cell.appendChild(upload_button);
+
+  }catch(error){
+    console.error('Error loading song file:', error);
+  }
+}
 
 // function to add a song document to the database
 async function AddScoreIfTop(songName, userName, score, userID) {
@@ -194,7 +243,6 @@ const leaderboardTable = document.getElementById("leaderboard-table");
     rank++;
   });
 }
-
 // Function to get the leaderboard data and render it
 async function getAndRenderLeaderboard() {
   // Get the top 10 scores in descending order
@@ -212,8 +260,12 @@ async function getAndRenderLeaderboard() {
   // Render the leaderboard data
   renderLeaderboard(scores);
 }
-AddScoreIfTop(songName, userName, score, userID); 
-getAndRenderLeaderboard();
+
+
+//test runs
+LoadSongs();
+/*AddScoreIfTop(songName, userName, score, userID); 
+getAndRenderLeaderboard();*/
   
 
 
