@@ -11,11 +11,18 @@ simpleMidi = testingPool[3]
 complexMidi = testingPool[4]
 
 testMidi = [
-    ["DrDre-StillDre.mid",[0,2]],
-    ["SilentNight.mid",[]],
-    ["Beethoven-FurElise.mid",[]],
-    []
+    ["DrDre-StillDre.mid",[0,2],"simple"],
+    ["SilentNight.mid",[],"simple"],
+    ["Beethoven-FurElise.mid",[0],"simple"],
+    ["GunsnRoses-SweetChildOMine.mid",[],"complex"],
+    ["Zelda-SongOfStorms.mid",[0],"simple"],
+    ["RedHotChiliPeppers-Californication.mid",[1],"simple"],
+    ["MichaelJackson-BillieJean.mid",[2,3],"complex"]
+
 ]
+
+# midi files without supporting inst channels just have main channel quieted for the mod midi file.
+
 
 class MidiTests(unittest.TestCase):
 

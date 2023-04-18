@@ -7,15 +7,15 @@ import binascii
 # parse through all the  messages in hex. 
 # for messages that are not in self.supportInstChannel -> change message velocity to 0   
 
-def modMidFile(mainInstChannels, file, outPath):
+def modMidFile(mainInstChannels, file, inPath, outPath):
     """ To modify the midi file we need (1) the name of the MIDI file and (2) information about the main channels we want to mute."""
     #step 1 copy midi file from unmod midi file folder to midiFiles
     
-    midiFile = self.directory + str(self.songTitle) + ".mid"
+    midiFile = inPath + file
 
     # copy midiFile to outPath
     shutil.copy(midiFile, outPath)
-    modFile = outPath + str(self.songTitle) + ".mid"
+    modFile = outPath + file
 
     noteOnRange = [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]
 
@@ -63,13 +63,17 @@ def modMidFile(mainInstChannels, file, outPath):
                     #break
     f.close()
 
-def newMidiFile(mainInstChannels, file, inPath, outPath):
+def newMidiFile(mainInstChannels, allMain, file, inPath, outPath):
     """Creates a new midi file that converts the velocitys of all the note ons for the main channel to 0.
     This essentially converts them to note-offs and they don't play aloud."""
     readFile = inPath + file
     outFile = outPath + file
     noteOnRange = [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]
 
+    if allMain:
+        changeVel = '15'
+    else:
+        changeVel = '00'
     # convert our main channel list into decimal as above
     # so 0x9<channel>
     mainChannelDec = []
@@ -107,21 +111,33 @@ def newMidiFile(mainInstChannels, file, inPath, outPath):
     f.close()
     
     for x in range((len(toBeDel)-1),-1,-1):
-        hex_list[(toBeDel[x])] = '00'
+        hex_list[(toBeDel[x])] = changeVel
 
     with open(outFile, "wb") as fout:
         for i in hex_list:
             fout.write(binascii.unhexlify(i))
     fout.close()
 
-def newMidiComplicated(mainInstChannels, instList, file, inPath, outPath):
+def newMidiComplicated(mainInstChannels, instList, allMain, file, inPath, outPath):
     """Same functionality as newMidiFile except for complicated midi files that do channel switching i.e.
     channels switching to different instruments mid song."""
     readFile = inPath + file
     outFile = outPath + file
     noteOnRange = [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]
 
-    # add message count here
+    channelSwitches = []
+    for i in mainInstChannels:
+        occurence = 0
+        for j in instList:
+            if j.channel == i:
+                occurence += 1
+        if occurence > 1:
+            channelSwitches.append(i)
+
+    if len(channelSwitches) == 0:
+        newMidiFile(mainInstChannels, allMain, file, inPath, outPath)
+        return 0
+
     mainChannelDec = []
     for x in mainInstChannels:
         hexval = "0x9"
@@ -171,12 +187,12 @@ def playMidi(file, filepath):
     
     with mido.open_output('IAC Driver Bus 1') as port:
         for msg in mid.play():
+            print(msg)
             if (msg.type == 'note_on' or msg.type == 'note_off'):
-                print(msg)
                 port.send(msg)
 
 if __name__ == "__main__":
-    playMidi("Beethoven-FurElise.mid","modmidi/")
+    playMidi("Beethoven-FurElise.mid","midifiles/")
     #pass
     #obj = modMidi("SilentNight","midifiles/")
 
