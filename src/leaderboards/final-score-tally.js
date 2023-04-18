@@ -36,9 +36,9 @@ class FinalScore {
   }
 
 //Function to call to score a note and add it to the array of scores
-  AddNoteScoreToArray(elapsed_time, freq_array, player_duration){
-    const note_data = this.song_data[current_note_num];
-    current_note_num++;
+  AddNoteScoreToArray(elapsed_time, freq_array, player_duration, note_data){
+    //const note_data = this.song_data[current_note_num];
+    //current_note_num++;
     const check_note = new NoteScore(note_data, elapsed_time, freq_array, player_duration);
     const score = check_note.ScoreEachNote();
     this.score_array.push(score);

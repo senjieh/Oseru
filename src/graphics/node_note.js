@@ -145,6 +145,7 @@ class NoteSpawner{
 		this.node = node;
 		this.lead_time = lead_time;
 		this.num_spawns = 0;
+		//this.raw_note_data = raw_note_data;
 	}
 
 	/**

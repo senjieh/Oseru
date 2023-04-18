@@ -37,6 +37,8 @@
         <script src = "menu.js"></script>
         <script src = "../leaderboards/note-score.js"></script>
         <script src = "../leaderboards/final-score-tally.js"></script>
+        <script src = "../game.js"></script>
+
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
@@ -312,7 +314,7 @@
 //----------------------------------------------------------------------------------------------------
 //           TEST CODE
 //----------------------------------------------------------------------------------------------------
-
+            //startPitchDetection()
 
 
 //----------------------------------------------------------------------------------------------------
@@ -451,7 +453,8 @@
                             note_score = new NoteScore(tmp, start, freq_list);
                             note_score_lst.push(note_score);
                             // dummy duration value until actual duration can be properly calculated
-                            final_score.AddNoteScoreToArray(start, freq_list, 100); 
+                            // TODO: this check notes in order, dose not account for skipped notes
+                            final_score.AddNoteScoreToArray(start, freq_list, 100, tmp); 
                         }
                     }
                 }
