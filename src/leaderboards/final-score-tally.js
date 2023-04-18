@@ -1,19 +1,20 @@
 //const NoteScore = require('./note-score.js');
 class FinalScore {
-  constructor(){
+  constructor(filename){
     this.score_array = [];
     this.json_name = filename; //give it the name of the json file being used for current song
     this.current_note_num = 0;
     this.song_data = [];
-    FinalScore.GetSongInfo().then((data) =>{
+    FinalScore.GetSongInfo(filename).then((data) =>{
       this.song_data = data;
     }).catch((error) => {
       console.error(error);
     });
   }
 
-  static GetSongInfo() {
-    const my_request = new Request('http://127.0.0.1:8080/midi/jsonMidi/SilentNight.json');
+  static GetSongInfo(filename) {
+    //const my_request = new Request('http://127.0.0.1:8080/midi/jsonMidi/SilentNight.json');
+    const my_request = new Request(filename);
     return fetch(my_request)
       .then((response) => {
         if (!response.ok) {
@@ -35,15 +36,15 @@ class FinalScore {
   }
 
 //Function to call to score a note and add it to the array of scores
-  static AddNoteScoreToArray(elapsed_time, freq_array){
-    const note_data = this.song_data[current_note_num];
-    current_note_num++;
+  AddNoteScoreToArray(elapsed_time, freq_array, note_data){
+    //const note_data = this.song_data[current_note_num];
+    //current_note_num++;
     const check_note = new NoteScore(note_data, elapsed_time, freq_array);
     const score = check_note.ScoreEachNote();
     this.score_array.push(score);
   }
 //Function for adding all scores pushed to the score array together
-  static CalculateFinalScore() {
+  CalculateFinalScore(extra_notes) {
     
       const array_length = this.score_array.length;
       let total_score = 0;
@@ -51,7 +52,7 @@ class FinalScore {
       for (let i = 0; i < array_length; i++) {
         total_score += score_array[i];
       }
-      total_score -= ExtraNote.GetCount() * 25;
+      total_score -= extra_notes.GetCount() * 25;
       return total_score;
     
   }
