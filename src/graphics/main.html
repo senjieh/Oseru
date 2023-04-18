@@ -35,7 +35,8 @@
         <script src = "node_note.js"></script>
         <script src = "scene.js"></script>
         <script src = "menu.js"></script>
-        <script src = "note-score.js"></script>
+        <script src = "../leaderboards/note-score.js"></script>
+        <script src = "../leaderboards/final-score-tally.js"></script>
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
@@ -273,7 +274,8 @@
                 "score_tracker_generated":0,
                 "texture_loaded":0,
                 "meshs_loaded":0,
-                "background_loaded":0
+                "background_loaded":0,
+                "acvite_note":0,
             }
 
 //----------------------------------------------------------------------------------------------------
@@ -325,7 +327,9 @@
             var note_score_lst = [];
             note_score_lst.push(extra_note);
             var end_time = 0;
-            let file = "jsonMidi/SilentNight.json"
+            var num_expected_noted = 0;
+            const file = "jsonMidi/SilentNight.json";
+            var final_score = new FinalScore(file);
             fetch(file).then((response) => {
                 // get note json
                 if (response.status == "200") {
@@ -341,6 +345,7 @@
                 score = new Score(response, 100, debug_tex, skybox);
                 score_json = response;
                 tmp = response[response.length-1];
+                num_expected_noted = response.length;
                 // last note at last note + 10s
                 end_time = tmp.time_played * 1000 + 10000;
                 //leaderboard = new NoteScore(response, )
@@ -350,6 +355,9 @@
                 console.log("something went wrong making score ",err);
                 // TODO: bounce back to stage select on error here
             });
+
+            let note_duratiopn = 0;
+            let last_check = 0;
 
 
             let root = new Scene();
@@ -402,6 +410,16 @@
                             }
                         }
                     }
+                    if (gamestate.active_note == 0) {
+                        // if note was not active last tick
+                        gamestate.active_note = 1;
+                        note_duratiopn = 0;
+                        last_check = preformance.now()
+                    } else {
+                        // if it was active increment note duration
+                        note_duration += preformance.now() - last_check;
+                        last_check = preformance.now()
+                    }
                     if (current_note == null) {
                         // no active not was found, was a "miss"
                         //console.log("miss ",current_note)
@@ -426,6 +444,8 @@
                             freq_list = null; // TODO: this needs to get input from mic
                             note_score = new NoteScore(tmp, start, freq_list);
                             note_score_lst.push(note_score);
+                            // dummy duration value until actual duration can be properly calculated
+                            final_score.AddNoteScoreToArray(start, freq_list, 100); 
                         }
                     }
                 }
@@ -552,6 +572,12 @@
                     // TODO: add press key to continue here
 
                     start = performance.now()
+                }
+
+                // check for end of game
+                if (gamestate.score_generated == 2 && (performance.now() - start) > end_time) {
+                    // call end of game
+                    const score = final_score.CalculateFinalScore(extra_note.extra_notes);
                 }
 
                 // update clock if game started
