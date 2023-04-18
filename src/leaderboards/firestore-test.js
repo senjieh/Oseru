@@ -1,9 +1,5 @@
 
-// This is for me to use
-import { db, auth } from "/Spring\ 2023/CS\ 320/Oseru/src/leaderboards/firebase-config.js";
-
-// How it was before
-// import { db, auth } from "/src/firebase-config.js";
+import { db, auth } from "/src/firebase-config.js";
 import { updateDoc,
   deleteDoc, getDoc, getDocs, 
   collection, doc, query, orderBy, 
