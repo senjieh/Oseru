@@ -19,7 +19,7 @@ export const UserContextProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState();
 
 
-  //create a new user
+    //create a new user
     const createUser = (email, password) => {
         return createUserWithEmailAndPassword(auth, email, password);
     };

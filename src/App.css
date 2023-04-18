@@ -1,38 +1,334 @@
-.App {
-  text-align: center;
+
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-ExtraBold.ttf') format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-Medium.ttf') format("truetype");
+  font-weight: 200;
+}
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-Bold.ttf') format("truetype");
+  font-weight: 300;
+}
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-Black.ttf') format("truetype");
+  font-weight: 500;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
   }
+}
+
+@keyframes revealMask {
+  from {
+    height: 100%;
+  }
+  to {
+    height: 0;
+  }
+}
+
+.oseru-logo a{
+  font-family: 'WorkSans';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 2.5rem;
+  color: #dc2414;
+  text-decoration: none;
+}
+
+body {
+  background-color: #fcf4d4;
+}
+
+.home-background::before {
+  content: "";
+  background: linear-gradient(to bottom, #fcf4d4, #fcf4d4);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+  animation: revealMask 1s ease-in-out forwards;
+}
+
+.home-background{
+  background-image: url('background.png');
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh; /* Make the height 100% of the viewport */
+  margin-top: -153px;
+  width: auto;
+  position: relative;
+  overflow: hidden; /* Hide the overflowing part of the pseudo-element */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  z-index: 2;
+  position: relative; /* Add this line */
+}
+
+.logo {
+  height: 50px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style-type: none;
+}
+
+.nav-item a{
+  text-decoration: none;
+  color: #dc2414;
+}
+
+.nav-item {
+  margin-left: 3rem;
+  font-family: 'WorkSans';
+  font-size: 1.5rem;
+  color: #dc2414;
+}
+
+.nav-item:hover a {
+  color: #ffd500;
+}
+
+.jumbotron {
+  position: absolute;
+  top: 50%;
+  left: calc(33vh * 0.3 + 33vw * 1.8) ; /* Position the jumbotron 2/3 of the way to the right */
+  transform: translate(-30%, -50%); /* Center the jumbotron vertically */
+  text-align: right;
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+.jumbotron-content {
+  text-align: left;
+}
+
+.jumbotron h1 {
+  font-family: 'WorkSans';
+  font-weight: 500;
+  font-size: 5rem;
+  color: #dc2414;
+  margin: 0;
+}
+
+.jumbotron p {
+  font-size: 24px;
+  margin: 1rem 0 0 0; /* Add some spacing between the title and the paragraph */
+  max-width: 80%;
+  color: #dc2414;
+}
+
+.button-link {
+  margin-left: 3rem;
+  font-family: 'WorkSans';
+  font-size: 1.5rem;
+  background-color: #dc2414;
+  color: white;
+  padding: 16px 20px;
+  border-radius: 4px;
+}
+
+.button-link a{
+  color: #fcf4d4;
+}
+
+.button-link:hover {
+  background-color: #fcf4d4;
+  transition: 0.3s;
+}
+
+.button-link:hover a{
+  color: #dc2414;
+  transition: 0.3s;
+}
+
+.highlight-container, .highlight {
+  position: relative;
+}
+
+.highlight-container {
+  display: inline-block;
+}
+.highlight-container:before {
+  content: " ";
+  display: block;
+  height: 90%;
+  width: 100%;
+  margin-left: -3px;
+  margin-right: -3px;
+  position: absolute;
+  background: #ffd500;
+  transform: rotate(2deg);
+  top: -1px;
+  left: -1px;
+  border-radius: 20% 25% 20% 24%;
+  padding: 25px 3px 3px 10px;
+}
+
+
+.userAuthSplit {
+  font-size: 2.5rem;
+  display: flex;
+  flex-direction: row;
+  background-color:#fcf4d4;
+  min-height:100vh;
+}
+
+/*<----Start of Signin.js---->*/
+.userAuthOpp {
+  display: flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items: center;
+  text-align: center;
+  display: flex;
+  gap:1vh;
+  height: auto;
+  padding: 10rem;
+}
+
+.userAuthOpp h2{
+  font-family: 'WorkSans';
+  font-weight: 400;
+  font-size: 4rem;
+}
+
+.userAuthMain {
+  width:50%;
+  background-color:#dc2414;
+  display: flex;
+  height: auto;
+  padding: 10rem;
+  flex-direction:column;
+  justify-content:center;
+  align-items: center;
+  text-align:center;
+  position:relative;
+  color:#ffffff;
+}
+
+.userAuthMain h2{
+  font-family: 'WorkSans';
+  font-weight: 400;
+  font-size: 4rem;
+}
+
+.inputbox {
+  border: none;
+	padding: 2rem;
+  margin: 1rem;
+  width: 30rem;
+  font-size:1.5rem;
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 1rem;
+}
+
+.light-button {
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 2rem;
+  margin-top:1rem;
+  background-color:#fcf4d4;
+	color: #dc2414;
+	border-radius: 1px;
+	border: 1px solid #dc2414;
+	font-size: 1.3rem;
+	padding: 2rem;
+  width: 15rem;
+	letter-spacing: 1px;
+}
+
+.dark-button {
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 2rem;
+  background-color:#dc2414;
+	color: #ffffff;
+  margin-top:1rem;
+	border-radius: 1px;
+	border: 1px solid #ffffff;
+	font-size: 1.3rem;
+	padding: 2rem;
+  width: 15rem;
+	letter-spacing: 1px;
+}
+
+/* Note.css */
+.note {
+  position: absolute;
+  bottom: 0;
+  width: 5%;
+  background-color: #f00;
+  animation-name: drop;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes drop {
+  0% {
+    bottom: 100%;
+  }
+  99% {
+    opacity: 1;
+  }
+  100% {
+    bottom: -100%;
+    opacity: 0;
+  }
+}
+
+/* GuitarHero.css */
+.guitar-hero {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+.notes-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ghcontainer {
+  height: 75vh;
+  overflow: hidden;
+  border-bottom: 20px solid #dc2414; /* update this line */
+}
+
+.note-info {
+  position: absolute; /* update this line */
+  bottom: -5vh; /* add this line */
+  font-size: 1rem; /* reset font size */
+  width: 100%;
+  display: flex;
+}
+
+.note-label {
+  display: inline-block;
+  font-size: 1rem;
+  width: auto;
+  flex: 1; /* add this line */
+  text-align: center; /* add this line */
 }

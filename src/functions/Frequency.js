@@ -37,6 +37,7 @@ function calcFrequency(buffer, sampleRate) {
   for (let i = Math.floor(40 / frequencyRange); i < Math.floor(4000 / frequencyRange); i++) {
     const currentNote = frequencyToNote(i * frequencyRange);
     if (lastNote !== currentNote[0]) {
+
       if (lastNote) {
         const interpolatedIndex = quadraticInterpolation(buffer, largestAmplitude);
         const detectedFrequency = interpolatedIndex * frequencyRange;
@@ -50,6 +51,7 @@ function calcFrequency(buffer, sampleRate) {
           accumulativeNoteCount, // how centered is the amplitude layer
           (i - largestAmplitude) / accumulativeNoteCount, // timing accuracy
           noteAccuracy(detectedFrequency, accurateNote[1]), // note accuracy
+          new Date()
         ]);
       }
       lastNote = currentNote[0];
@@ -82,9 +84,26 @@ function calcFrequency(buffer, sampleRate) {
   return playedNotes;
 }
 
+function hasAllNegInfinity(arr) {
+  if (!(arr instanceof Float32Array)) {
+    throw new Error("Input must be a Float32Array.");
+  }
+
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] !== -Infinity) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 function Frequency(audioData, sampleRate) {
-  console.log(audioData)
+  // Check if the input is a Float32Array with all elements equal to -Infinity
+  if (hasAllNegInfinity(audioData)) {
+    console.error("The input is an array of negative infinities.");
+    return; // Stop the execution of the function
+  }
   return calcFrequency(audioData, sampleRate);
 }
 
