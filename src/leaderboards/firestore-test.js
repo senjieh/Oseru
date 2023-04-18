@@ -1,5 +1,4 @@
-
-import { db, auth } from "/src/firebase-config.js";
+import { db, auth } from "./firebase-config.js"; //change to Jason's config
 import { updateDoc,
   deleteDoc, getDoc, getDocs, 
   collection, doc, query, orderBy, 
@@ -74,35 +73,35 @@ async function InitializeCollection(){
   }
 }
 
-//function for adding songs... was just done manually
-async function AddNewSong(songName){
-  const boardsRef = collection(db, "songboards");
-  const songRef = doc(boardsRef, songName);
-  const songDoc = await getDoc(songRef);
-  if(songDoc.exists){
-    return;
-  }else{
-    await addDoc(boardsRef, {
-        title: songName
-    });
+//function for adding songs to song database
+async function AddNewSong(song_name, artist_name, song_length){
+  const songsCollectionRef = collection(db, 'songs');
+  const querySnapshot = await getDocs(query(songsCollectionRef, where('song_name', '==', song_name)));
+  if (querySnapshot.empty) {
+    const newSong = {
+      song_name: song_name,
+      song_length: song_length,
+      artist_name: artist_name
+    };
+    
+    try {
+      const newSongDocRef = await addDoc(songsCollectionRef, newSong);
+      console.log(`New song with ID ${newSongDocRef.id} added to Firestore`);
+    } catch (error) {
+      console.error('Error adding new song:', error);
+    }
+  } else {
+    console.log(`Song with name ${songName} already exists in Firestore`);
   }
 }
 
 //function to load a song file from database on click
 async function LoadSongs(song_file_name){
   try{
-    /*const song_db = collection(db, "songfiles");
+    const song_db = collection(db, "songs");
     const song_ref = doc(song_db, song_file_name);
-    const song_data = (await song_ref.get()).data();*/
-    
-    let song_data =[
-      {
-        title: "Silent Night",
-        artist: "Franz Something",
-        length: "3:12",
-        album: "Placeholder"
-      }
-    ]
+    const song_data = (await song_ref.getDoc()).data();
+  
     // Find the table element by ID
     const table = document.getElementById('song-table');
 
@@ -112,21 +111,14 @@ async function LoadSongs(song_file_name){
     // Insert the song title
     const title_cell = row.insertCell();
     title_cell.innerText = song_data.title;
-    title_cell.style = "font-weight:bold;";
 
     // Insert the artist name
     const artist_cell = row.insertCell();
     artist_cell.innerText = song_data.artist;
-    artist_cell.style = "font-weight:bold;";
 
     // Insert the length of song
     const length_cell = row.insertCell();
     length_cell.innerText = song_data.length;
-    length_cell.style = "text-align:center;";
-
-    // Insert the length of song 
-    const album_cell = row.insertCell();
-    album_cell.innerText = song_data.album;
 
     // Insert the play and upload button
     const play_cell = row.insertCell();
@@ -136,14 +128,10 @@ async function LoadSongs(song_file_name){
     play_button.classList.add('play-button');
     play_button.dataset.src = song_data.file_url;
     play_button.innerText = 'Play';
-    play_button.style = "padding:0.5rem 1rem 0.5rem 1rem;";
-    play_button.style.fontSize = "1.5rem";
     play_cell.appendChild(play_button);
     upload_button.classList.add('upload-button');
     upload_button.dataset.src = song_data.file_url;
-    upload_button.innerText = 'Upload';
-    upload_button.style = "padding:0.5rem 1rem 0.5rem 1rem;";
-    upload_button.style.fontSize = "1.5rem";
+    upload_button.innerText = 'Play';
     upload_cell.appendChild(upload_button);
 
   }catch(error){
@@ -230,7 +218,6 @@ const leaderboardTable = document.getElementById("leaderboard-table");
 
   // Add the table header row
   const headerRow = leaderboardTable.insertRow();
-  headerRow.bgColor="#dc2414";
   const rankHeader = headerRow.insertCell(0);
   rankHeader.innerHTML = "Rank";
   const nameHeader = headerRow.insertCell(1);
@@ -271,8 +258,8 @@ async function getAndRenderLeaderboard() {
 
 
 //test runs
-LoadSongs();
-/*AddScoreIfTop(songName, userName, score, userID); 
+/*AddNewSong("I Want It That Way", "Backstreet Boys", 180);
+AddScoreIfTop(songName, userName, score, userID); 
 getAndRenderLeaderboard();*/
   
 
