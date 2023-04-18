@@ -1,38 +1,110 @@
-.App {
-  text-align: center;
+
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-ExtraBold.ttf') format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-Medium.ttf') format("truetype");
+  font-weight: 200;
+}
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-Bold.ttf') format("truetype");
+  font-weight: 300;
+}
+@font-face {
+  font-family: "WorkSans";
+  src: url('./fonts/WorkSans-Black.ttf') format("truetype");
+  font-weight: 500;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
   }
+}
+
+/*<----Start of Signin.js---->*/
+.userAuthOpp {
+  display: flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items: center;
+  text-align: center;
+  display: flex;
+  gap:1vh;
+  height: auto;
+  padding: 10rem;
+}
+
+.userAuthOpp h2{
+  font-family: 'WorkSans';
+  font-weight: 400;
+  font-size: 4rem;
+}
+
+.userAuthMain {
+  width:50%;
+  background-color:#dc2414;
+  display: flex;
+  height: auto;
+  padding: 10rem;
+  flex-direction:column;
+  justify-content:center;
+  align-items: center;
+  text-align:center;
+  position:relative;
+  color:#ffffff;
+}
+
+.userAuthMain h2{
+  font-family: 'WorkSans';
+  font-weight: 400;
+  font-size: 4rem;
+}
+
+.inputbox {
+  border: none;
+  padding: 2rem;
+  margin: 1rem;
+  width: 30rem;
+  font-size:1.5rem;
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 1rem;
+}
+
+.light-button {
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 2rem;
+  margin-top:1rem;
+  background-color:#fcf4d4;
+  color: #dc2414;
+  border-radius: 1px;
+  border: 1px solid #dc2414;
+  font-size: 1.3rem;
+  padding: 2rem;
+  width: 15rem;
+  letter-spacing: 1px;
+}
+
+.dark-button {
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 2rem;
+  background-color:#dc2414;
+  color: #ffffff;
+  margin-top:1rem;
+  border-radius: 1px;
+  border: 1px solid #ffffff;
+  font-size: 1.3rem;
+  padding: 2rem;
+  width: 15rem;
+  letter-spacing: 1px;
 }

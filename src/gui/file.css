@@ -1,0 +1,35 @@
+:root {
+    --bg: #EEEEEE;
+    --buttonbg: #000000;
+    --fontcolor: #FFFFFF;
+    --border: #000000;
+    --selected: #3cac1a;
+    --hover: #333333;
+    --font: "Heebo", sans-serif; 
+}
+
+h2 {
+    padding-top: 200px;
+    padding-bottom: 20px;
+	font-size: 50px;
+	text-align: center;
+}
+
+* {
+    font-family: var(--font);
+    background: var(--bg);
+}
+
+.box {
+    margin:auto;
+    width:50%;
+    text-align: center;
+}
+
+.file-upload {
+    position:center;
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 50px;
+    cursor: pointer;
+}

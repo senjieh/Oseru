@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserAuth } from '../context/userContext';
+import ErrorContext from '../context/errorContext';
 
 const Signup = () => {
   // create state for steps of login
@@ -13,6 +14,9 @@ const Signup = () => {
   //obtain function from user context
   const { createUser } = UserAuth();
 
+  //error context function in case of erros
+  const { updateError } = useContext(ErrorContext);
+
   //create redirect function (done this way because directly calling it wouldn't work and a quick google explained this would work and tbh it kinda seems like magic but hey it works)
   const navigate = useNavigate()
 
@@ -21,9 +25,9 @@ const Signup = () => {
     e.preventDefault();
     try {
       await createUser(email, password);
-      navigate('/dashboard')
+      navigate('/dash')
     } catch (e) {
-      console.log(e.message);
+      updateError(e);
     }
   };
 
@@ -39,55 +43,54 @@ const Signup = () => {
     e.preventDefault();
   }
 
-
   return (
-    <div>
-      <div>
-        <h1>Sign up for a free account</h1>
-        <p className='py-2'>
-          Already have an account yet?{' '}
-          <Link to='/'>
-            Sign in.
-          </Link>
-        </p>
+    <div className="userAuthSplit">
+      <div className='userAuthOpp'>
+        <h2>Sign up for a free account</h2>
+        <form onSubmit={handleSubmit}>
+          {step === 0 && (
+            <div className='signupform'>
+              <div>
+                <input
+                  className='inputbox'
+                  onChange={(e) => setEmail(e.target.value)}
+                  type='email'
+                  placeholder="Email Address"
+                />
+              </div>
+              <button className='dark-button'onClick={nextPage}>
+                Next
+              </button>
+            </div>
+          )}
+          {step === 1 && (
+            <div>
+              <div>
+                <input
+                  className='inputbox'
+                  onChange={(e) => setPassword(e.target.value)}
+                  type='password'
+                  placeholder="Password"
+                />
+              </div>
+              <div className='signupform2'>
+                <button className="dark-button" onClick={previousPage}>
+                  Back
+                </button>
+                <button className='dark-button'>
+                  Sign Up
+                </button>
+              </div>
+            </div>
+          )}
+        </form>
       </div>
-      <form onSubmit={handleSubmit}>
-        {step === 0 && (
-          <div>
-            <div>
-              <label>Email Address</label>
-              <input
-                onChange={(e) => setEmail(e.target.value)}
-                type='email'
-              />
-            </div>
-            <button onClick={nextPage}>
-              Next
-            </button>
-          </div>
-        )}
-        {step === 1 && (
-          <div>
-            <div>
-              <label >Password</label>
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-      
-                type='password'
-              />
-            </div>
-            <button onClick={previousPage}>
-              Back
-            </button>
-            <button>
-              Sign Up
-            </button>
-          </div>
-        )}
-      
-  
-    
-      </form>
+      <div className="userAuthMain">
+        <h2>Already have an account?</h2>
+          <Link to='/signin'>
+            <button className='light-button'>Sign in.</button>
+          </Link>
+      </div>
     </div>
   );
 };

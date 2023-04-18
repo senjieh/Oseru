@@ -1,19 +1,20 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserAuth } from '../context/userContext';
-
+import ErrorContext from '../context/errorContext';
 
 const Signin = () => {
-  
+
   //create states for input fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-
   const { signIn, user } = UserAuth();
 
   const navigate = useNavigate();
+
+  //error context function in case of erros
+  const { updateError } = useContext(ErrorContext);
 
   // handle the submit button for sign in
   // on sucessfull login this should call the use effect below
@@ -24,7 +25,7 @@ const Signin = () => {
       await signIn(email, password);
       navigate('/dash');
     } catch (e) {
-      console.log(e.message);
+      updateError(e);
     }
   };
 
@@ -38,31 +39,28 @@ const Signin = () => {
   }, [user])
 
   return (
-      <div className='signinbox'>
-        <div>
-          <h1 >Sign in to your account</h1>
-          <p>
-            Don't have an account yet?{' '}
-            <Link to='/signup' className='underline'>
-              Sign up.
-            </Link>
-          </p>
-        </div>
-        <form className="form" onSubmit={handleSubmit}>
+    <div className='userAuthSplit'>
+      <div className='userAuthMain'>
+        <h2>Sign in</h2>
+        <form className='signinform' onSubmit={handleSubmit} onKeyDown={(event) => {if (event.keyCode === 13) {handleSubmit();}}}>
           <div className='inputformdiv'>
-            <label className='form-text'>Email Address: </label>
-            <input className="inputbox" onChange={(e) => setEmail(e.target.value)} type='email' />
+            <input className='inputbox' onChange={(e) => setEmail(e.target.value)} type='email' placeholder="Email Address" />
           </div>
           <div className='inputformdiv'>
-            <label className='form-text'>Password: </label>
-            <input className="inputbox" onChange={(e) => setPassword(e.target.value)}  type='password' />
+            <input className='inputbox' onChange={(e) => setPassword(e.target.value)}  type='password' placeholder="Password"/>
           </div>
-          <button className='submit-button'>
-            Sign In
+          <button className='light-button'>
+            Sign In.
           </button>
         </form>
       </div>
-    
+      <div className='userAuthOpp'>
+        <h2>Don't have an account yet?</h2>
+        <Link to='/signup'>
+          <button className='light-button'>Sign up.</button>
+        </Link>
+      </div>
+    </div>
   );
 };
 

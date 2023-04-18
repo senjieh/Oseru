@@ -19,12 +19,12 @@ export const UserContextProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState();
 
 
-  //create a new user
+    //create a new user
     const createUser = (email, password) => {
         return createUserWithEmailAndPassword(auth, email, password);
     };
 
-  //sign in of an existing user
+    //sign in of an existing user
     const signIn = (email, password) =>  {
         return signInWithEmailAndPassword(auth, email, password)
     }

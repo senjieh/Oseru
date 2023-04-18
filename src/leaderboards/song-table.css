@@ -1,0 +1,33 @@
+body {
+    /* font-size: 1.5rem; */
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items: center;
+    font-family: 'WorkSans';
+    background-color:#fcf4d4;
+    font-size: 2rem;
+}
+
+.main-table {
+    font-family: 'WorkSans';
+    padding-top: 25vh;
+    width:70%;
+}
+
+th, td {
+    padding: 2rem;
+    color:black;
+    text-align: center;
+}
+
+th {
+    color:black;
+    background-color: #dc2414;
+}
+
+#song-table {
+    width:100%;
+    color:black;
+    border-collapse: collapse;
+}

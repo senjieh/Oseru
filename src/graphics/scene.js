@@ -1,5 +1,5 @@
 class Node {
-    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, parent=null ) {
+    constructor( x, y, z, yaw, pitch, roll, s_x, s_y, s_z, data, parent=null, animation=null, animation_state=null ) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -16,6 +16,11 @@ class Node {
 
         this.children = [];
         this.parent = parent;
+
+        // function to run every update. 
+        // must always take {Node, State, time} where State can be anything tracked between frames
+        this.animation = animation;
+        this.animation_state = animation_state;
     }
 
     add_yaw( amount ) { 
@@ -127,6 +132,11 @@ class Node {
     }
 
     generate_render_batch( parent_matrix, jobs, lights, time=0 ) {
+        // run animation function on node if applicable
+        if (this.animation && this.animation_steps > 0) {
+            this.animation_state = this.animation(this, this.animation_state, time);
+        }
+
         let matrix = parent_matrix.mul( this.get_matrix() );
 
         if( this.data instanceof NodeLight ) {
@@ -148,19 +158,36 @@ class Node {
                 // this warp effects next render pass, not current one
                 this.warp(this.x, loc, this.z);
                 jobs.push(new RenderMesh(matrix, this.data.mesh));
+                // debug to test when note should be played
+                // below works as rough play check
+                // TODO: add offset to notess
+                // TODO: add func to check if note played
+                if (loc > 1.88 && loc<1.9 && (!this.data.played)) {
+                    console.log("play note at ", time, this.data)
+                    //this.data.played = true;
+                }
             }
+            // if off screen
+            if (loc > 2.2) {
+                // TODO: drop entire node, not just data
+                this.data = null;
+                this.children = [];
+            }
+            
         } else if (this.data instanceof NoteSpawner) {
             // check to spawn note
             let note = this.data.check_spawn_note(time);
             if (note) {
-                let child = this.create_child_node(
-                    0, 0, -0.01,       // spawn note slightly in font of target
+                this.create_child_node(
+                    0, -10, -0.01,       // spawn note slightly above target
                     this.roll, this.pitch+0.25, this.yaw,
-                    this.scale_x, this.scale_y, this.scale_z, 
+                    this.scale_x, this.scale_y*2, 
+                    this.scale_z*note.duration/1000, // div by 1000 because duration measured in ms
                     note);
                 /*console.log(child.x, child.y, child.z)
                 console.log(this.x, this.y, this.z)
                 console.log('------')*/
+                //console.log(note)
             }
         } else if (this.data == null) {
             // do nothing
@@ -280,3 +307,10 @@ class Scene {
     }
 
 }
+
+/*module.exports = {
+    Node,
+    Scene,
+    RenderMesh,
+    RenderLight
+}*/
