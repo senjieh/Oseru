@@ -1,16 +1,16 @@
 import { db, auth } from "/src/firebase-config.js";
 import { updateDoc,
-  deleteDoc, getDoc, getDocs, setDoc, 
+  deleteDoc, getDoc, getDocs, 
   collection, doc, query, orderBy, 
-  limit, where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+  where, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 
-//some temp test variables
+/*some temp test variables
 const songName =  "SilentNight";
 var userName = "Tom";
 var userID = "Tom#5055";
-const score = Math.floor(Math.random() * 1000) + 1;
-
+const score = Math.floor(Math.random() * 1000) + 1;*/
+//=======================================================
 //function for signing up with email and password
 function MakeNewUser(){
   createUserWithEmailAndPassword(auth, email, password)
@@ -87,6 +87,20 @@ async function AddNewSong(songName){
   }
 }
 
+//function to load a song file from database on click
+async function LoadSong(song_file_name){
+  const button = document.getElementById('play-button');
+  button.addEventListener('click', async () => {
+    try{
+      const song_db = collection(db, "songfiles");
+      const song_ref = doc(song_db, song_file_name);
+      const song_data = song_ref.data();
+      return song_data;
+    }catch(error){
+      console.error('Error loading song file:', error);
+    }
+  })
+}
 
 // function to add a song document to the database
 async function AddScoreIfTop(songName, userName, score, userID) {
@@ -187,7 +201,6 @@ const leaderboardTable = document.getElementById("leaderboard-table");
     rank++;
   });
 }
-
 // Function to get the leaderboard data and render it
 async function getAndRenderLeaderboard() {
   // Get the top 10 scores in descending order
@@ -205,8 +218,11 @@ async function getAndRenderLeaderboard() {
   // Render the leaderboard data
   renderLeaderboard(scores);
 }
-AddScoreIfTop(songName, userName, score, userID); 
-getAndRenderLeaderboard();
+
+
+//test runs
+/*AddScoreIfTop(songName, userName, score, userID); 
+getAndRenderLeaderboard();*/
   
 
 
