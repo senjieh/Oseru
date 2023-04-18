@@ -43,7 +43,6 @@ const Signup = () => {
     e.preventDefault();
   }
 
-
   return (
     <div className="userAuthSplit">
       <div className='userAuthOpp'>

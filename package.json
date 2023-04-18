@@ -19,7 +19,11 @@
     "public": "build"
   },
   "scripts": {
-    "test": "jest --verbose ./test-dir --env=jsdom"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "jtest": "jest --verbose",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [

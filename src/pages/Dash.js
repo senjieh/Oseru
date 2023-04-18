@@ -1,11 +1,11 @@
 import React from 'react'
-import Game from '../Game'
+import Game from '../components/Game'
+import GameContext from '../context/gameContext'
 
 export default function Dash() {
   return (
     <div>
-        <Game></Game>
-
+      <Game></Game>
     </div>
   )
 }
