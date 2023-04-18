@@ -2,7 +2,7 @@ import mido
 import os
 import midiMapping as mm
 import instMapping as im
-import midiReader as mr
+import midiArray as mr
 import modMidi as mod
 
 class channelInst():
@@ -22,20 +22,47 @@ class handleMIDI():
     def determineMethod(self):
         mainInstChannel, supportInstChannel = self.mainChannelSimple()
         instList = self.channelInstList()
-        print(mainInstChannel)
-        print(supportInstChannel)
+        print("main: ",mainInstChannel)
+        print("support: ",supportInstChannel)
         for x in range(0,len(instList),1):
-            print(instList[x].channel, instList[x].inst, instList[x].msgCount)
+           print(instList[x].channel, instList[x].inst, instList[x].msgCount)
 
         if (len(mainInstChannel) + len(supportInstChannel)) == 0:
             print("No Channels Found")
             return -1
+        
+        elif (len(mainInstChannel) + len(supportInstChannel)) > len(instList):
+            return True, mainInstChannel, supportInstChannel, instList
+
         # this is the case for when midi has no channel switches
-        if (len(mainInstChannel) + len(supportInstChannel)) == len(instList):
-            return True, mainInstChannel, instList
+        elif (len(mainInstChannel) + len(supportInstChannel)) == len(instList):
+            
+            # now we need to add a check for if any of the channels have the same instrument.
+            moveToMain = []
+            for y in mainInstChannel:
+                for x in supportInstChannel:
+                    for i in range(0,len(instList),1):
+                        if instList[i].channel == x:
+                            xIndex = i
+                        if instList[i].channel == y:
+                            yIndex = i
+                    if instList[xIndex].inst == instList[yIndex].inst:
+                        moveToMain.append(x)
+            
+            #need to add a check to make sure that one channel will stay in supporting instrument.
+            for y in moveToMain:
+                mainInstChannel.append(y)
+                supportInstChannel.remove(y)
+            
+            return True, mainInstChannel, supportInstChannel, instList
+        
         # case for when midi has channel switches and is more complicated
         elif (len(mainInstChannel) + len(supportInstChannel)) != len(instList):
-            return False, mainInstChannel, instList
+            return False, mainInstChannel, supportInstChannel, instList
+        
+        else:
+            print("Error - no method determined.")
+            return -1
 
     def mainChannelComplex(self, instList, mainChannelList):
         tier1inst = ["Piano", "Guitar", "Strings"]
@@ -68,7 +95,8 @@ class handleMIDI():
         mainInstChannel = []
         supportInstChannel = []
         backupChannel = []
-
+        freqSum = {}
+        freqAvg = {}
         # what to do for cases when instrument range is from 0 -127 instead of 1-128
 
         tier1inst = ["Piano", "Guitar", "Strings"]
@@ -80,6 +108,11 @@ class handleMIDI():
                 else:
                     prevCount = noteCount[msg.channel]
                     noteCount[msg.channel] = prevCount + 1
+                if msg.channel not in freqSum:
+                    freqSum[msg.channel] = msg.velocity
+                else:
+                    prevAvg = freqSum[msg.channel]
+                    freqSum[msg.channel] = prevAvg + msg.velocity
         for msg in mid:
             if msg.type == 'program_change':
                 inst = im.getInstClass(msg.program)
@@ -92,7 +125,14 @@ class handleMIDI():
                 else:
                     if msg.channel not in supportInstChannel:
                         supportInstChannel.append(msg.channel)
+        
+        if len(mainInstChannel) == 0:
+            for channel in noteCount:
+                mainInstChannel.append(channel)
 
+        for key in freqSum:
+            freqAvg[key] = freqSum[key] / noteCount[key]
+        
         if len(mainInstChannel) == 0 and len(backupChannel) != 0:
             for i in backupChannel:
                 mainInstChannel.append(i)
@@ -100,7 +140,7 @@ class handleMIDI():
             for i in backupChannel:
                 if i not in supportInstChannel:
                     supportInstChannel.append(i)
-
+        
         noteCountList = list(noteCount.keys())
         toBeDel = []
         for i in mainInstChannel:
@@ -108,18 +148,30 @@ class handleMIDI():
                 toBeDel.append(i)
         for j in toBeDel:
             mainInstChannel.remove(j)   
-    
+
         toBeMoved = []
         if len(mainInstChannel) > 1:
             mostNotes = 0
-            leadChannel = 0
+            loudestNotes = 0
+            mostNChannel = 0
+            loudNChannel = 0
             for i in mainInstChannel:
                 if noteCount[i] > mostNotes:
                     mostNotes = noteCount[i]
-                    leadChannel = i
+                    mostNChannel = i
+                if freqAvg[i] > loudestNotes:
+                    loudestNotes = freqAvg[i]
+                    loudNChannel = i
+            
+            leadChannel = 0
+            if (freqAvg[loudNChannel] - freqAvg[mostNChannel]) > 10:
+                leadChannel = loudNChannel
+            else:
+                leadChannel = mostNChannel
+
             for j in mainInstChannel:
                 if j != leadChannel:
-                    toBeMoved.append(j)
+                   toBeMoved.append(j)
 
         if len(toBeMoved) > 0:
             for k in toBeMoved:
@@ -129,6 +181,20 @@ class handleMIDI():
                     supportInstChannel.append(k)
 
         return mainInstChannel, supportInstChannel
+
+    def getChannelListLoc(channelList, channel, inst):
+        """Simple method that returns the index of a channel+inst in list."""
+        for i in channelList:
+            if (channel == i.channel) and (inst == i.inst):
+                return channelList.index(i)
+        return -1
+    
+    def inChannelList(channelList, channel, inst):
+        """Simple method that checks whether channel+inst exists in channellist."""
+        for i in channelList:
+            if (channel == i.channel) and (inst == i.inst):
+                return True
+        return False
 
     def channelInstList(self):
         """ Returns a sorted list of when the channels switch instruments.
@@ -145,6 +211,9 @@ class handleMIDI():
                 channelList.append(channelInst(msg.channel, msg.program, msgCount))
             if msg.type == 'note_on' and msg.channel not in channelWMsgList:
                 channelWMsgList.append(msg.channel)
+
+        for x in range(0,len(channelList),1):
+            print(channelList[x].channel, channelList[x].inst, channelList[x].msgCount)
         # sort order should be by channel, then by msgcount.
         channelList.sort(key=lambda x: x.channel)
         curChannel = -1
@@ -160,13 +229,18 @@ class handleMIDI():
 
         for i in range((len(toBeDel)-1), -1, -1):
             del channelList[toBeDel[i]]
-
+        
         return channelList
 
-def isValid(file):
+def isValidFile(file):
     if not os.path.isfile(file):
         return False
     return True
+
+def isPlayableMidi(inPath, file):
+    """After midi file is processed, need to add a check to see if it is playable. If it is not playable,
+    undo all processing actions."""
+    pass
 
 if __name__ == "__main__":
     inPath = "midifiles/"
@@ -174,20 +248,55 @@ if __name__ == "__main__":
     modOut = "modmidi/"
 
     # how will midi file be given?
-    midiFile = "SilentNight.mid"
+    #midiFile = "RedHotChiliPeppers-Californication.mid"
+    midiFile = "MichaelJackson-BillieJean.mid"
 
-    valid = isValid(inPath+midiFile)
+    valid = isValidFile(inPath+midiFile)
+
     if valid:
         obj = handleMIDI(inPath+midiFile)
-        simple, mainChannelList, instList = obj.determineMethod()
+        simple, mainChannelList, supportChannelList, instList = obj.determineMethod()
+        #print("main: ",mainChannelList)
+        #print("support: ",supportChannelList)
+        #for x in range(0,len(instList),1):
+        #   print(instList[x].channel, instList[x].inst, instList[x].msgCount)
+        
         if simple:
             print("file is simple!")
-            mr.midiToArray(midiFile, inPath, "jsonMidi/", mainChannelList, createJson=True)
-            mod.newMidiFile(mainChannelList, midiFile, inPath, "modmidi/")
-            mod.playMidi(midiFile, "modmidi/")
+            if len(supportChannelList) == 0:
+                    mod.newMidiFile(mainChannelList, True, midiFile, inPath, "modmidi/")
+            else:
+                mod.newMidiFile(mainChannelList, False, midiFile, inPath, "modmidi/")
+            
+            #playable = isPlayableMidi("modmidi/",midiFile)
+            #if playable:
+            check = mr.midiToArray(midiFile, inPath, "jsonMidi/", mainChannelList, createJson=True)
+            if check == 0:
+                print("MIDI file successfully handled. Json and modified midi file have been created.")
+                # need to add the midi file to some sort of list that says file is accessible
+            #mod.playMidi(midiFile, "modmidi/")
+
         else:
-            print("file is complex, we do not handle complex files yet!")
-            #obj.mainChannelComplex(instList, mainChannelList)
+            print("file is complex!")
+            mod.newMidiFile([2,3], False, midiFile, inPath, "modmidi/")
+            newMainChannel, newSuppChannel = obj.mainChannelComplex(instList, mainChannelList)
+            if len(newSuppChannel) == 0:
+                    mod.newMidiComplicated(newMainChannel, instList, True, midiFile, inPath, "modmidi/")
+            else:
+                mod.newMidiComplicated(mainChannelList, instList, False, midiFile, inPath, "modmidi/")
+            check = mr.midiToArrayComplicated(midiFile, inPath, "jsonMidi/", mainChannelList, instList, createJson=False)
+            if check == 0:
+                print("MIDI file successfully handled. Json and modified midi file have been created.")
+                # need to add the midi file to some sort of list that says file is accessible
+
     else:
         print("Error: File not Found.")
         # return an error to the user that file was not uploaded properly 
+
+
+# FILES
+
+# DrDre-StillDre DONE
+# SilentNight DONE
+# RHCP Californication - needs work
+# beethoven 0, 5, C, 
