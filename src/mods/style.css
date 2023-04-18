@@ -9,6 +9,13 @@
     --font: "Heebo", sans-serif; 
 }
 
+h2 {
+    padding-top: 200px;
+    padding-bottom: 20px;
+	font-size: 50px;
+	text-align: center;
+}
+
 * {
     margin: 0;
     padding: 0;
