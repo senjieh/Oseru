@@ -98,7 +98,6 @@ async function LoadSongs(song_file_name){
       {
         title: "Silent Night",
         artist: "Franz Something",
-        album: "unknown",
         length: "3:12"
       }
     ]
@@ -116,15 +115,11 @@ async function LoadSongs(song_file_name){
     const artist_cell = row.insertCell();
     artist_cell.innerText = song_data.artist;
 
-    // Insert the album name
-    const album_cell = row.insertCell();
-    album_cell.innerText = song_data.album;
-
     // Insert the length of song
     const length_cell = row.insertCell();
     length_cell.innerText = song_data.length;
 
-    // Insert the play button
+    // Insert the play and upload button
     const play_cell = row.insertCell();
     const play_button = document.createElement('button');
     const upload_cell = row.insertCell();
