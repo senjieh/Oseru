@@ -3,10 +3,12 @@ body {
   flex-direction: column;
   justify-content:center;
   align-items: center;
+  font-family: 'WorkSans';
   background-color:#fcf4d4
 }
 
 .leaderboard {
+  font-family: 'WorkSans';
   padding-top:25vh;
 }
 
@@ -14,6 +16,7 @@ body {
   margin-left: 0.1rem;
 }
 table {
+  font-family: 'WorkSans';
   border-collapse: collapse;
   width: 60rem;
   margin-bottom: 20px;
@@ -24,6 +27,7 @@ table {
 }
 th, td {
   text-align: left;
+  font-family: 'WorkSans';
   padding: 20px;
 }
 th {
@@ -34,6 +38,7 @@ th {
   margin-right: 10px;
 }
 .score-form-container {
+  font-family: 'WorkSans';
   display: flex;
   justify-content: space-between;
   align-items: center;
