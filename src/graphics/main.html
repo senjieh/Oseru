@@ -347,7 +347,7 @@
                 tmp = response[response.length-1];
                 num_expected_noted = response.length;
                 // last note at last note + 10s
-                end_time = tmp.time_played * 1000 + 10000;
+                end_time = tmp.time_played * 1000 + 5000;
                 //leaderboard = new NoteScore(response, )
                 console.log("new score made ",score);
                 gamestate.score_generated = 1;
@@ -356,7 +356,7 @@
                 // TODO: bounce back to stage select on error here
             });
 
-            let note_duratiopn = 0;
+            let note_duration = 0;
             let last_check = 0;
 
 
@@ -403,7 +403,7 @@
                                     current_note = child;
                                     //console.log(child)  
                                 } else {
-                                    if (child.data.play_at < current_note.data.play_at && child.data.played == false) {
+                                    if (child.data.play_at < current_note.data.play_at && current_note.y < 1.9   ) {
                                         current_note = child;
                                     }
                                 }
@@ -414,24 +414,30 @@
                         // if note was not active last tick
                         gamestate.active_note = 1;
                         note_duratiopn = 0;
-                        last_check = preformance.now()
+                        last_check = performance.now()
                     } else {
                         // if it was active increment note duration
-                        note_duration += preformance.now() - last_check;
-                        last_check = preformance.now()
+                        note_duration += performance.now() - last_check;
+                        last_check = performance.now()
                     }
+
                     if (current_note == null) {
                         // no active not was found, was a "miss"
                         //console.log("miss ",current_note)
                         extra_note.Increment();
                     } else {
+                            
                         if (current_note.y < 1.88 || current_note.y > 1.9) {
                             // note not on target yet, was a "miss"
                             // NOTE: these values are an estimate, could be refined
                             //console.log("miss ",current_note)
                             //current_note.add_yaw(0.05);
                             extra_note.Increment();
-
+                            //console.log(" no active note")
+                        } else if (current_note.data.played == true) {
+                            // don't double play notes
+                            //console.log("note already played", current_note)
+                            return;
                         } else {
                             // valid note at correct time, set note as played
                             current_note.data.played = true;
@@ -449,7 +455,6 @@
                         }
                     }
                 }
-                console.log(note_score_lst);
             }
 
             
@@ -575,9 +580,12 @@
                 }
 
                 // check for end of game
-                if (gamestate.score_generated == 2 && (performance.now() - start) > end_time) {
+                if (gamestate.score_generated >= 2 && (performance.now() - start) > end_time) {
                     // call end of game
-                    const score = final_score.CalculateFinalScore(extra_note.extra_notes);
+                    gamestate.score_generated = 3;
+                    const score = final_score.CalculateFinalScore(extra_note);
+                    console.log("song over ",score);
+                    // TODO: call redirect and pass score
                 }
 
                 // update clock if game started

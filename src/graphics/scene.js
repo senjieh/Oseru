@@ -164,7 +164,7 @@ class Node {
                 // TODO: add func to check if note played
                 if (loc > 1.88 && loc<1.9 && (!this.data.played)) {
                     console.log("play note at ", time, this.data)
-                    this.data.played = true;
+                    //this.data.played = true;
                 }
             }
             // if off screen
