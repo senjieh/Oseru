@@ -24,6 +24,8 @@ ColorDict = {
 
 //}
 
+//const Mat4 = require('./matrix.js');
+
 // TODO: just do graphics for now, leave control logic for later
 class NodeNote {
 	/**
@@ -40,22 +42,25 @@ class NodeNote {
 	 * @param {Mesh} mesh of note
 	 * @param {bool} is mine
 	 */
-	constructor(note, freq, play_at, duration, mesh, pos_mat, start_height, target_height, is_mine=false) {
+	constructor(note, freq, play_at, duration, mesh, scale_mat, start_height, target_height, score_tracker_index=null, is_mine=false) {
 		this.note = note;
 		this.freq = freq;
 		this.play_at = play_at;
 		this.duration = duration;
 		this.mesh = mesh;
 		this.is_mine = is_mine;
+		this.score_tracker = score_tracker_index;
 
 		this.target_height = target_height;
 		this.start_height = start_height;
 
 		this.delay; // TODO: this
 
-		this.pos_mat = pos_mat;
+		this.scale_mat = scale_mat;
 
 		this.past_top = false;
+
+		this.played = false;
 	}
 
 	/**
@@ -94,8 +99,9 @@ class NodeNote {
             // cal position in node based on time instead of updating based on frame
             const distance = this.target_height - this.start_height;
             // TODO: get rid of hard coded delay
+            // NOTE: the -2 effects note speed (negative makes them travel up)
             // percentage distance traveled from spawn to target
-            const prec = ((time - this.play_at + 300) / 3000)*-1;
+            const prec = ((time - this.play_at) / 3000)*-2;
             const loc = distance * prec;
             return loc;
 		} else {
@@ -104,6 +110,7 @@ class NodeNote {
 			return null;
 		}
 	}
+
 
 	/**
 	 * play note
@@ -131,18 +138,21 @@ class NoteSpawner{
 	 * @param {Node} pointer to node spawner lives in
 	 * @param {NormalMesh} note shape
 	 */
-	constructor(data, note_mesh, start_height, node) {
+	constructor(data, note_mesh, start_height, node, lead_time=5) {
 		this.data = data;
 		this.note_mesh = note_mesh;
 		this.start_height = start_height;
 		this.node = node;
+		this.lead_time = lead_time;
+		this.num_spawns = 0;
+		//this.raw_note_data = raw_note_data;
 	}
 
 	/**
 	 * Makes a node containing the target notes from spawner move to
 	 * 
 	 * @param {float} padding between top of screen and top of note
-	 * @param {float} height of note
+	 * @param {float} height of note (dimension of mesh)
 	 * @param {float} fov angle, defaults to 0.125, FOV_ANGLE in main
 	 * @param {float} aspect ratio, defaults to 4/3, ASPECT_RATIO on main
 	 * 
@@ -150,12 +160,14 @@ class NoteSpawner{
 	 */
 	get_target_height(padding, height, fov_angle=0.125, aspect_ratio=4/3) {
 		// calc top edge of screen
-		const distance = this.node.z;
+		const distance = this.node.z; // TODO: may be a bug
 		const edge_distance = Math.tan(Math.PI * fov_angle) * distance;
 		// calc node position
 		let top = edge_distance * (1/aspect_ratio) - height/2 - padding;
 		// idk why I need this but I do
 		top *= 2;
+
+		this.lead_time = 0
 
 		this.target_height = top;
 
@@ -168,19 +180,37 @@ class NoteSpawner{
 	// called as part of render batch
 	// return nodeNote
 	check_spawn_note(time) {
-		if (time >= this.data[this.data.length -1]) {
-			const next = this.data.pop();
+		//console.log("time",time)
+		let tmp = this.data[this.data.length -1]
+		if (tmp) {
+			if (time >= tmp[0]) {
+				this.num_spawns += 1;
+				const next = this.data.pop();
+				//console.log("spawned note ",next,"at time: ",time)
+				let mat = this.node.get_matrix();
+				mat = mat.mul(Mat4.scale(1,(tmp[1]/1000),1));
 
-			// TODO: replace filler values
-			// time+3 means play 3 sec from now
-			//console.log('make note')
-			return new NodeNote(
-				'data', 'freq', time+10, 0,
-				this.note_mesh, this.node.get_matrix(),
-				false, this.start_height, this.target_height);
+				// TODO: replace filler values
+				// time+3 means play 3 sec from now
+				//console.log('make note')
+				return new NodeNote(
+					'data', 'freq', tmp[0]+this.lead_time, tmp[1],
+					this.note_mesh, 
+					mat,
+					false, this.start_height, this.target_height);
+			}
 		}
 		// no note to spawn
 		return null;
+	}
+
+	/**
+	 * makes a target for notes to travel towards
+	 * 
+	 * @return {Node} target mesh node
+	 */
+	make_target(tex=this.mesh.material) {
+		return this.node.create_child_node(0, this.target_height, 0, 0,0,0, 1,1,1, this.mesh);	
 	}
 
 	/**
@@ -217,85 +247,140 @@ class Score {
 	 * 
 	 * @return {Scene}
 	 */
-	constructor(gl, program, note_data, tempo, perfect, excelent, great, fine, background=null) {
-		this.gl = gl;
-		this.program = program
-		this.note_data = note_data;
-		this.tempo = tempo;
-		this.perfect = perfect;
-		this.excelent = excelent;
-		this.great = great;
-		this.fine = fine;
+	constructor(note_data, tempo, note_tex, skybox_mesh, background=null) {
+		// song data in form:
+		// [['time_played', 'note', 'note_duration (s)','velocity','channel']]
 
-		//let this.root = new Scene();
+		//this.gl = gl;
+		//this.program = program;
+		this.tempo = tempo;
+		this.note_tex = note_tex;
+		//this.targets = [];
+
+		this.midi_loaded = false;
+		this.meshs_loaded = false;
+		this.background_loaded = false;
+
+		// call this then do as much as possible before entering pausing until loaded
+		this.song_data = this.#convert_json_file(note_data);
+
+		this.root = new Scene();
 
         // initalize camera
-        let cam = this.root.create_node(
+        this.cam = this.root.create_node(
             0,0,0, 0,0,0, 1,1,1, null);
-        this.root.set_camera_node(cam);
+        this.root.set_camera_node(this.cam);
 
         // notes child of camera so they stay static on screen if camera moves
-		let note_root = cam.create_node(
+		let note_root = this.cam.create_child_node(
 			0,0,2, 0,0,0, 0,0,0, null);
 
+		// hacky skybox, could probably be done better then just an inside-out box anchored on camera
+		this.skybox = this.cam.create_child_node(
+			0,0,0, 0,0,0, 1,1,1);
+		this.skybox.data = skybox_mesh;
+		
+
+		// cal number of notes in song, as well as find highest and lowest note
+		const notes = this.song_data.midi_note;
+		let low_note = notes[0];
+		let high_note = notes[0];
+		for (let i=0; i<notes.length; i++) {
+			if (notes[i] > high_note) {
+				high_note = notes[i];
+			} else if (notes[i] < low_note) {
+				low_note = notes[i];
+			}
+		}
+		console.log(this.song_data);
+		const note_range = high_note - low_note;
+		console.log("low note: ",low_note);
+		console.log("high note: ",high_note);
+		console.log("note range:",note_range);
+
+		//TODO: fix this, should describe end of song
+		//const last_note = this.song_data[this.song_data.length -1];
+		//const song_end = last_note[0] + last_note[2];
+
+		// convert from sec to ms
+		this.song_data.time_played = this.song_data.time_played.map(x => x * 1000);
+		this.song_data.note_held = this.song_data.note_held.map(x => x * 1000);
+
+		console.log(this.song_data);
+
 		// calc frustum edge
-        let distance = 3;
-        let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
+		// NOTE: math only works if camera is facing along z axis, always do before moving camera
+        const distance = 3;
+        const edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
         // calc note width
-        let num_notes = 7;
-        let padding_pre = 0.05;
-        let div_width = (2*edge_distance)/num_notes;
-        let padding = div_width * padding_pre;
-        let width = div_width - padding;
+        const num_notes = note_range;
+        const padding_pre = 0.05;		// percentage of note width to add as space around note
+        const div_width = (2*edge_distance)/num_notes;
+        const padding = div_width * padding_pre;
+        const width = div_width - padding;
         // calc height
-        let height = width/3;
-        let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
+        const height = width/3;
+        const bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
 
-        this.spawners = [];
+        let spawners = [];
 
-        // TODO: asserts
-        //console.assert(num_notes > 0);
+        const note_mesh = NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1,
+                    note_tex);
 
         for (let i=0; i<num_notes; i++) {
-            let left = -edge_distance + (padding + width)/2 + i*(width+padding);
+            const left = -edge_distance + (padding + width)/2 + i*(width+padding);
 
-            let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1,);
-            this.spawners.push[note_spawner];
+            // note spawners children of camera to lock them in correct position
+            let note_spawner_node = this.cam.create_child_node(left,bottom,distance, 0,0,0, 1,1,1,);
             // debug to create static notes
-            let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
-            note.data = new NodeNote(1,1,1,1,
-                NormalMesh.platform(gl, current_program, 
-                    width, height, 0, 1,
-                    debug_tex),
-                false);
+            let note_spawner = new NoteSpawner(null, note_mesh, bottom, note_spawner_node);
+            note_spawner_node.data = note_spawner;
+            spawners.push(note_spawner_node);
+
+            // create targets
+            let target = note_spawner_node.create_child_node(0, note_spawner.get_target_height(padding, height),0, 
+            	0,0.25,0, 1,1,1, note_mesh);
         }
 
-        // Spawn targets
-        for (let i=0; i<this.spawners.length; i++) {
-        	this.spawners[i].make_target(padding, height);
+        // add note data
+        let song_arr = [];
+        // for each possible note
+        for (let i = 0; i<num_notes; i++) {
+        	let note_arr = [];
+        	// for each note in note list
+        	for (let j=0; j<this.song_data.midi_note.length; j++) {
+        		// if note corresponds to spawner
+        		if (this.song_data.midi_note[j] == i + low_note) {
+        			// truncate data to ms via ~~
+        			// add it to note data arr for spawners
+        			note_arr.push([~~this.song_data.time_played[j],this.song_data.note_held[j]]);
+        		}
+        	}
+        	// make sure notes are played in assenting order
+        	note_arr.sort((a,b) => {
+        		if (a > b) {
+        			return 1
+        		}
+        		return 0;
+        	});
+        	// notes checked back to front
+        	note_arr.reverse();
+        	song_arr.push(note_arr);
+        }
+        console.log("song arr: ",song_arr);
+        console.log(spawners)
+
+        if (song_arr.length != spawners.length) {
+        	console.log("note/spawner mismatch. Notes: ",song_arr.length," Spawners: ",spawners.length);
         }
 
-		/*Object.entries(this.note_data)
-			.filter()//TODO // is note event
-			.map(note => this.#make_note(note)) // create note
-			.map(note => note_root.create_child(0,0,0, 0,0,0, 0,0,0, note))
-			//TODO add notes to nodes       
-			// notes should be added in order of play so once the first note that is too early to be displayed
-			// is found, the checking can stop
+        for (let i = 0; i<spawners.length; i++) {
+        	spawners[i].data.data = song_arr[i];
+        }
 
-		// sort notes by order of appearance
-		note_root.children.sort(function(a, b) {
-			// TODO
-		});
+        this.spawners = spawners;
 
-		// TODO figure out actual position of target
-		let target_root = cam.create_node(0,0,2, 0,0,0, 0,0,0, null);
-		const range = note_data.high - note_data.low;
-		for (let i = 0; i < range; i++) {
-			let target = this.#make_target(range+i);
-			// targets are width 3 and one unit apart
-			target_root.create_node(i*4,0,0, 0,0,0, 0,0,0, target);
-		}*/
 
 		if (background) {
 			// add background to scene
@@ -303,6 +388,10 @@ class Score {
 		} else {
 			// add default background
 		}
+	}
+
+	static load_make_score(note_data_json, tempo, note_mesh, skybox_mesh, background=null) {
+
 	}
 
 	/**
@@ -358,6 +447,35 @@ class Score {
 	}
 
 	/**
+	 * given a path to a json file, load it and return data
+	 * @param {String} file path
+	 * 
+	 * @return {Dict} dictionary of note data
+	 */
+	#convert_json_file(json_text) {
+		// invert so instead list of dicts, becomes dict of lists
+		// expect to be list of json objects ex:
+		// [{"a":1, "b":2},
+		//  {"a":2, "b":3}]
+		let note_data_dict = {
+            "time_played":[],
+            "midi_note":[],
+            "frequency":[],
+            "note_held":[],
+            "velocity":[],
+            "channel":[]
+        };
+
+        // get largest element of list with .reduce
+		const midi_json = json_text.map((ent) => {
+            Object.entries(ent).forEach(([key, value]) => {
+                note_data_dict[key].push(value)
+            });
+        });
+        return note_data_dict;
+	}
+
+	/**
 	 * Set note to color specified  
 	 * 
 	 * @param {NormalMesh} mesh
@@ -396,3 +514,9 @@ class Score {
 
 	}
 }
+
+/*module.exports = {
+	Score,
+	NodeNote, 
+	NoteSpawner
+};*/

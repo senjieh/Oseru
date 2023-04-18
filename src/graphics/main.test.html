@@ -32,20 +32,16 @@
         <script src = "controls.js"></script>
         <script src = "lit_material.js"></script>
         <script src = "light.js"></script>
-        <script src = "node_note.js"></script>
         <script src = "scene.js"></script>
+        <script src = "node_note.js"></script>
         <script src = "menu.js"></script>
-        <script src = "../leaderboards/note-score.js"></script>
-        <script src = "../leaderboards/final-score-tally.js"></script>
-        <script src = "../game.js"></script>
-
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
 
-            const canvas = document.getElementById( 'the-canvas' );
+            let canvas = document.getElementById( 'the-canvas' );
             /** @type {WebGLRenderingContext} */
-            const gl = canvas.getContext( 'webgl2' );
+            let gl = canvas.getContext( 'webgl2' );
 
             let GOURAUD_VERTEX_SHADER = 
             `   #version 300 es
@@ -215,15 +211,25 @@
             });
 
             // TODO: block needs to happen before getting to page
-
+            // block until shaders are loaded
+            //const sleep = ms => new Promise(r => setTimeout(r, ms));
+            /*while(!frag_shader_loaded && !vert_shader_loaded) {
+                // wait 10mn before each check
+                //sleep(10);
+                if (frag_shader_loaded) {
+                    if (vert_shader_loaded) {
+                        break;
+                    }
+                }
+            }*/
 
 //----------------------------------------------------------------------------------------------------
 //           DEBUG VARIABLES
 //----------------------------------------------------------------------------------------------------
             // NOTE: debuging vars
             //DRAW_ASTROIDS = true;
-            const DRAW_SKYBOX = false;
-            const DRAW_SUN = true;
+            DRAW_SKYBOX = false;
+            DRAW_SUN = true;
 
 
 //----------------------------------------------------------------------------------------------------
@@ -241,6 +247,7 @@
             // setup render loop
             set_render_params( gl );
 
+            let last_update = performance.now();
 
             // lets make a solar system to start
             //let solar_system = new Scene();
@@ -263,23 +270,6 @@
             let projection = Mat4.perspective_fovx( FOV_ANGLE, ASPECT_RATIO, 0.125, 1024 );
             let current_program = lit_program;
 
-            // global pause variable
-            var PAUSE_TIME = 0;
-
-            // dict that tracks aspects of game state
-            // 0 = not done, 1 = done, 2 = done, past first setup only code
-            var gamestate = {
-                "is_paused":0,
-                "main_menu":0,
-                "json_midi_loaded":0,
-                "score_generated":0,
-                "score_tracker_generated":0,
-                "texture_loaded":0,
-                "meshs_loaded":0,
-                "background_loaded":0,
-                "acvite_note":0,
-            }
-
 //----------------------------------------------------------------------------------------------------
 //          LOAD RESOURCES
 //----------------------------------------------------------------------------------------------------
@@ -288,14 +278,8 @@
             /*
             let metal = 
                 new LitMaterial( gl, 'tex/metal.png', gl.LINEAR, 0.25, 1, 2, 5 ); */
-            const debug_tex = 
+            let debug_tex = 
                 new LitMaterial(gl, null, gl.LINEAR, 0.25, 1, 2, 5);
-
-            // skybox mesh to pass to score
-            if (DRAW_SKYBOX){
-                let skybox = NormalMesh.box(gl, current_program, 1023,1023,1023, sky_tex);
-            }
-            let skybox = null;
             
 //----------------------------------------------------------------------------------------------------
 //           SETUP LIGNTS
@@ -312,175 +296,127 @@
 
 
 //----------------------------------------------------------------------------------------------------
-//           TEST CODE
-//----------------------------------------------------------------------------------------------------
-            //startPitchDetection()
-
-
-//----------------------------------------------------------------------------------------------------
 //           GENERATE SCENE
 //----------------------------------------------------------------------------------------------------
-
-            // TODO: fetch meshs same way
-            var score = null;
-            var leaderboard = null;
-            var score_json = null;
-            var extra_note = new ExtraNote();
-            var note_score_lst = [];
-            note_score_lst.push(extra_note);
-            var end_time = 0;
-            var num_expected_noted = 0;
-            const file = "jsonMidi/SilentNight.json";
-            var final_score = new FinalScore(file);
-            fetch(file).then((response) => {
-                // get note json
-                if (response.status == "200") {
-                    console.log("fetched data",response);
-                    gamestate.json_midi_loaded = 1;
-                    return response.json();
-                }
-                else {
-                    console.log("ERROR: ",response.status);
-                }
-            }).then((response) => {
-                // then make score
-                score = new Score(response, 100, debug_tex, skybox);
-                score_json = response;
-                tmp = response[response.length-1];
-                num_expected_noted = response.length;
-                // last note at last note + 10s
-                end_time = tmp.time_played * 1000 + 5000;
-                //leaderboard = new NoteScore(response, )
-                console.log("new score made ",score);
-                gamestate.score_generated = 1;
-            }).catch((err) => {
-                console.log("something went wrong making score ",err);
-                // TODO: bounce back to stage select on error here
-            });
-
-            let note_duration = 0;
-            let last_check = 0;
-
-
             let root = new Scene();
 
             // initalize camera
             let cam = root.create_node(
                 0,0,0, 0,0,0, 1,1,1);
             root.set_camera_node(cam);
+            //cam.translate( 0, 0, -50);
+            //root.set_camera_node(cam);
+
+            /*let skybox = root.create_node(
+                0,0,0, 0,0,0, 1,1,1);
+            skybox.data = NormalMesh.box(gl, current_program, 1023,1023,1023, sky_tex);*/
 
             // initalize sun
-            //root.set_sun_color(1.0, 0.95, 0.85, 0);
-            root.set_sun_color(1.0, 1.0, 1.0, 0);
+            root.set_sun_color(1.0, 0.95, 0.85, 0);
             root.set_sun_direction(1.0,0.0,0.0);
 
-            // TODO: loading graphic while waiting on load
+            // initalize background
+            /*let background = root.create_node(0,0,65, 0,0,0, 4,4,4);
+            background.data = NormalMesh.from_heightmap(gl, current_program,
+                NormalMesh.fractal_map_test(1,4),
+                0, 1, scale);
+            background.add_pitch(0.24)
+            // fill in water
+            let background_water = background.create_child_node(0,0,0, 0,0,0, 1,1,1);
+            background_water.data = NormalMesh.platform(gl, current_program,
+                16, 16, 0, 1, water_tex);*/
+
+
+            /*let note_root = root.create_node(-0.8,-0.92,3, 0,0,0, 0.5,0.5,0.5,);
+            let note = note_root.create_child_node(0,0,0, 0,0.25,0, 1,1,1);
+            note.data = new NodeNote(1,1,1,1,
+                NormalMesh.platform(gl, current_program, 
+                    0.3, 0.1, 0, 1,
+                    debug_tex),
+                false);*/
+
+            // calc frustum edge
+            let distance = 3;
+            let edge_distance = Math.tan(Math.PI * FOV_ANGLE) * distance;
+            // calc note width
+            let num_notes = 7;
+            let padding_pre = 0.05;
+            let div_width = (2*edge_distance)/num_notes;
+            let padding = div_width * padding_pre;
+            let width = div_width - padding;
+            // calc height
+            let height = width/3;
+            let bottom = -edge_distance * (1/ASPECT_RATIO) + height/2 + padding;
+
+            let spawners = [];
+
+            // TODO: check if adding same NodeNote to each object or if is working as intended
+            let note_mesh = NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1, debug_tex);
+            let note_node = new NodeNote(1,1,1,1, note_mesh, false);
+
+            // create note spawners
+            for (let i=0; i<num_notes; i++) {
+                let left = -edge_distance + (padding + width)/2 + i*(width+padding);
+
+                let note_spawner = root.create_node(left,bottom,distance, 0,0,0, 1,1,1);
+                note_spawner.data = new NoteSpawner(null, note_mesh, bottom, note_spawner);
+                //note_spawner.node = note_spawner;
+                spawners.push(note_spawner);
+                // place static notes on spawners to make them visible
+                let note = note_spawner.create_child_node(0,0,0, 0,0.25,0, 1,1,1,note_mesh);
+                //note.data = note_node;
+            }
+
+            // make targets for notes
+            for (let i=0; i<spawners.length; i++) {
+                let tmp_node = spawners[i].create_child_node(0,0,0, 0,0.25,0, 1,1,1, NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1,
+                    debug_tex));
+                let top = spawners[i].data.get_target_height(padding, height);
+                tmp_node.warp(tmp_node.x, top, tmp_node.z);
+            }
+
+            // make test note data
+            // 2d array, each inner array containing the time of each note in ascending order
+            const num_notes_to_play = 100;
+            let note_data = [];
+            for (let i=0; i<num_notes; i++) {
+                let lst = [];
+                for (let j=0; j<num_notes_to_play; j++) {
+                    if ((j)%(i+2) == 0) {
+                        lst.push(j*1000);
+                    }
+                }
+                note_data.push(lst);
+                console.log(lst);
+            }
+
+            // add note data to each spawner
+            // NOTE: normally add data in construction, don't do this elsewhere
+            for (let i=0; i< spawners.length; i++) {
+                //note_data[i].reverse();
+                spawners[i].data.data = note_data[i].reverse();
+            }
+
+
+            /*let box = root.create_node(0,0,15, 0,0,0, 1,1,1);
+            box.data = NormalMesh.box(gl, current_program, 
+                    4, 4, 4,
+                    debug_tex);*/
+
             
             // Track time
             // tie update freq to fps so if game is chugging calcs happen less often
             // game updates should still occur based on now - prev because we aren't Bertha
-            // TODO: start at score load
-            let start = -1;
-            let last_update = -1;
-
-
-//----------------------------------------------------------------------------------------------------
-//           GET USER INPUTS
-//----------------------------------------------------------------------------------------------------
-
-
-            function get_inputs() {
-                if (gamestate.score_generated < 1) { 
-                    console.log("score not loaded yet");
-                    return;
-                } else {
-                    // test function to play all notes with spacebar only
-                    spawners = score.spawners;
-                    let current_note = null;
-                    // loop through all active notes, find next one to play
-                    for (let spawner of spawners){
-                        for (let child of spawner.children) {
-                            if (child.data instanceof NodeNote) {
-                                if (current_note == null) {
-                                    current_note = child;
-                                    //console.log(child)  
-                                } else {
-                                    if (child.data.play_at < current_note.data.play_at && current_note.y < 1.9   ) {
-                                        current_note = child;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (gamestate.active_note == 0) {
-                        // if note was not active last tick
-                        gamestate.active_note = 1;
-                        note_duratiopn = 0;
-                        last_check = performance.now()
-                    } else {
-                        // if it was active increment note duration
-                        note_duration += performance.now() - last_check;
-                        last_check = performance.now()
-                    }
-
-                    if (current_note == null) {
-                        // no active not was found, was a "miss"
-                        //console.log("miss ",current_note)
-                        extra_note.Increment();
-                    } else {
-                            
-                        if (current_note.y < 1.88 || current_note.y > 1.9) {
-                            // note not on target yet, was a "miss"
-                            // NOTE: these values are an estimate, could be refined
-                            //console.log("miss ",current_note)
-                            //current_note.add_yaw(0.05);
-                            extra_note.Increment();
-                            //console.log(" no active note")
-                        } else if (current_note.data.played == true) {
-                            // don't double play notes
-                            //console.log("note already played", current_note)
-                            return;
-                        } else {
-                            // valid note at correct time, set note as played
-                            current_note.data.played = true;
-                            // darken played note
-                            //current_note.data.mesh.material.ambient /= 2;
-                            current_note.add_yaw(0.5);
-                            console.log("hit ", current_note);
-                            tmp = score_json.pop();
-                            // start global timer declared in main loop
-                            freq_list = null; // TODO: this needs to get input from mic
-                            note_score = new NoteScore(tmp, start, freq_list);
-                            note_score_lst.push(note_score);
-                            // dummy duration value until actual duration can be properly calculated
-                            // TODO: this check notes in order, dose not account for skipped notes
-                            final_score.AddNoteScoreToArray(start, freq_list, 100, tmp); 
-                        }
-                    }
-                }
-            }
-
+            let start = last_update;
+            let prev_time = 0;
             
 //----------------------------------------------------------------------------------------------------
 //           RENDER LOOP
 //----------------------------------------------------------------------------------------------------
             function render( now ) {
-                // window not visible
-                //console.log(document.hidden)
-                // TODO: tabbing away causes no animation update until tabbed back, then everything happens all at once, should pause until user tabs back
-                if (document.hidden) {
-                    // current doesn't work
-                    PAUSE_TIME += now - last_update;
-                    return;
-                }
-                if (gamestate.is_paused) {
-                    // TODO: don't update timer when paused
-                    return;
-                }
-
-                //console.log(now - last_update)
-                last_update = now - PAUSE_TIME + 13000; // hard coded value because test song as 13s lead in
-                //last_update *= 10;
+                last_update = now;
                 //console.log(now);
 
                 // get permission to draw frame from browser
@@ -517,7 +453,6 @@
                 // draw meshes in scene
                 for (let i=0; i<mesh_list.length;i++) {
 
-
                     let mat = mesh_list[i].matrix;
                     let mesh = mesh_list[i].mesh;
 
@@ -541,7 +476,7 @@
 //           DEFINE CONTROLS TODO: move to file maybe?
 //----------------------------------------------------------------------------------------------------
             const KEYMAP = {
-                //'Space': function() { cam.move_in_direction( 0, 0, FLY_SPEED_PER_FRAME ); },
+                'Space': function() { cam.move_in_direction( 0, 0, FLY_SPEED_PER_FRAME ); },
                 'KeyC': function() { cam.move_in_direction( 0, 0, -FLY_SPEED_PER_FRAME ); },
                 'KeyA': function() { cam.move_in_direction( -FLY_SPEED_PER_FRAME, 0, 0 ); },
                 'KeyD': function() { cam.move_in_direction( FLY_SPEED_PER_FRAME, 0, 0 ); },
@@ -553,7 +488,6 @@
                 'ArrowRight': function() { cam.add_yaw( ROTATION_SPEED_PER_FRAME ); },
                 'ArrowUp': function() { cam.add_pitch( -ROTATION_SPEED_PER_FRAME ); },
                 'ArrowDown': function() { cam.add_pitch( ROTATION_SPEED_PER_FRAME ); },
-                'Space': function() {get_inputs();},
             };
 
 //----------------------------------------------------------------------------------------------------
@@ -561,41 +495,6 @@
 //----------------------------------------------------------------------------------------------------
             function update() {
                 let keys_down = keys.keys_down_list();
-
-                if (gamestate.is_paused) {
-                    return;
-                }
-
-                if (gamestate.score_generated == 1) {
-                    // score has loaded, change from loading screen to song in ready state
-                    gamestate.score_generated = 2;
-                    root = score.root;
-                    cam = score.cam;
-
-                    // TODO: make this part of score generation process
-                    root.set_sun_color(1.0, 1.0, 1.0, 0);
-                    root.set_sun_direction(1.0,0.0,0.0);
-                    console.log("root: ",root);
-
-                    // TODO: add press key to continue here
-
-                    start = performance.now()
-                }
-
-                // check for end of game
-                if (gamestate.score_generated >= 2 && (performance.now() - start) > end_time) {
-                    // call end of game
-                    gamestate.score_generated = 3;
-                    const score = final_score.CalculateFinalScore(extra_note);
-                    console.log("song over ",score);
-                    // TODO: call redirect and pass score
-                }
-
-                // update clock if game started
-                if (gamestate.score_generated > 0) {
-                    last_update = performance.now() - start
-                    //console.log(last_update);
-                }
 
                 for( const key of keys_down ) {
                    let bound_function = KEYMAP[ key ];
@@ -615,6 +514,15 @@
                     skybox.z = cam.z;
                 }
 
+                
+                // spin earth
+                //box.add_roll(ROTATION_SPEED_PER_FRAME*0.5);
+                //box.add_pitch(ROTATION_SPEED_PER_FRAME*0.4);
+                //box.add_yaw(ROTATION_SPEED_PER_FRAME*0.6)
+
+                //tmp_anch.add_roll(ROTATION_SPEED_PER_FRAME*32);
+                // spin baybe spin!
+
                 // hardcoded lights
                 // TODO: light as child node
                 light1.x=cam.x;
@@ -627,10 +535,7 @@
                 // Game State Logic
                 //--------------------------------------------------------------------------
 
-                //--------------------------------------------------------------------------
-                // Debug stuff
-                //--------------------------------------------------------------------------
-
+                
                 
                 return;
             }

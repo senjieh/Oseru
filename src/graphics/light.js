@@ -46,7 +46,6 @@ class Light {
             );
         }
     }
-
 }
 
 /**
@@ -86,5 +85,4 @@ class NodeLight {
             );
         }
     }
-
 }

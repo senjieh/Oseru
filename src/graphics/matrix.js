@@ -1,4 +1,3 @@
-
 /**
  * Matrix with row-major layout:
  *  0       1       2       3
@@ -6,6 +5,15 @@
  *  8       9       10      11
  *  12      13      14      15
  */
+
+// func to filter out floating point errors
+// TODO: adds lag, optimize of delete
+function round_float(num) {
+    num *= 10;
+    num = Math.floor(num);
+    return num / 10;
+}
+
 class Mat4 {
 
     constructor( data ) {
@@ -127,7 +135,30 @@ class Mat4 {
                 }
             }
         }
+        // slows things down far too much
+        //res.data = res.data.map(round_float);
+        return res;
+    }
 
+    /**
+     * return result of multiplication
+     * skip rounding step for extra speed
+     * @param {Mat4}
+     * @return {Mat4}
+     */
+    mul_fast( right ) {
+        let res = new Mat4( new Array(16) );
+
+        for( let i = 0; i < 4; i++ ) {
+            for( let j = 0; j < 4; j++ ) {
+                res.data[ i * 4 + j ] = 0;
+                for( let k = 0; k < 4; k++ ) {
+                    res.data[ i * 4 + j ] += 
+                        this.data[ i * 4 + k ] *
+                        right.data[ k * 4 + j ];
+                }
+            }
+        }
         return res;
     }
 
@@ -168,12 +199,15 @@ class Mat4 {
         let c1 = nonlin_c1;
         let c2 = nonlin_c2;
 
-        return new Mat4( [
+        let frus = new Mat4( [
             scale_x,    0,          t_x, 0,
             0,          scale_y,    t_y, 0,
             0,          0,          c2, -c1,
             0,          0,          1, 0, 
         ] );
+        // also too slow
+        //frus.data = frus.data.map(round_float);
+        return frus;
     }
 
     /**
@@ -369,3 +403,11 @@ class Mat4 {
         return new Mat4( c );
     }
 }
+
+function sum(a,b) {
+    return a+b;
+}
+
+// export for tests
+//module.exports = Mat4;
+

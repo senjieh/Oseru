@@ -1,24 +1,44 @@
+body {
+  display:flex;
+  flex-direction: column;
+  justify-content:center;
+  align-items: center;
+  font-family: 'WorkSans';
+  background-color:#fcf4d4
+}
 
+.leaderboard {
+  font-family: 'WorkSans';
+  padding-top:25vh;
+}
+
+#level-title {
+  margin-left: 0.1rem;
+}
 table {
+  font-family: 'WorkSans';
   border-collapse: collapse;
-  width: 100%;
+  width: 60rem;
   margin-bottom: 20px;
+  margin: 0 auto;
+  border-radius: 5px;
+  font-size:1.5rem;
+  background-color: #ede3bb;
 }
 th, td {
   text-align: left;
-  padding: 8px;
+  font-family: 'WorkSans';
+  padding: 20px;
 }
 th {
-  background-color: #db7516;
+  background-color:#dc2414;
   color: rgb(0, 0, 0);
-}
-tr:nth-child(even) {
-  background-color: #f2f2f2;
 }
 .name-label {
   margin-right: 10px;
 }
 .score-form-container {
+  font-family: 'WorkSans';
   display: flex;
   justify-content: space-between;
   align-items: center;
