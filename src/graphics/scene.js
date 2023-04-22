@@ -178,11 +178,12 @@ class Node {
             // check to spawn note
             let note = this.data.check_spawn_note(time);
             if (note) {
+                console.log(note)
                 this.create_child_node(
                     0, -10, -0.01,       // spawn note slightly above target
                     this.roll, this.pitch+0.25, this.yaw,
                     this.scale_x, this.scale_y*2, 
-                    this.scale_z*note.duration/1000, // div by 1000 because duration measured in ms
+                    this.scale_z*note.note_scale*note.duration/1000, // div by 1000 because duration measured in ms
                     note);
                 /*console.log(child.x, child.y, child.z)
                 console.log(this.x, this.y, this.z)

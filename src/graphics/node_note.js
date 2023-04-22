@@ -18,6 +18,8 @@ ColorDict = {
 	'indigo':[],
 	'purple':[],
 }
+
+NOTE_SPEED = 5;
 // colored materials to look up to wrap notes in
 // TODO: material dict
 //MaterialDic = {
@@ -42,7 +44,7 @@ class NodeNote {
 	 * @param {Mesh} mesh of note
 	 * @param {bool} is mine
 	 */
-	constructor(note, freq, play_at, duration, mesh, scale_mat, start_height, target_height, score_tracker_index=null, is_mine=false) {
+	constructor(note, freq, play_at, duration, mesh, scale_mat, start_height, target_height, note_scale, score_tracker_index=null, is_mine=false) {
 		this.note = note;
 		this.freq = freq;
 		this.play_at = play_at;
@@ -50,6 +52,7 @@ class NodeNote {
 		this.mesh = mesh;
 		this.is_mine = is_mine;
 		this.score_tracker = score_tracker_index;
+		this.note_scale = note_scale;
 
 		this.target_height = target_height;
 		this.start_height = start_height;
@@ -101,7 +104,7 @@ class NodeNote {
             // TODO: get rid of hard coded delay
             // NOTE: the -2 effects note speed (negative makes them travel up)
             // percentage distance traveled from spawn to target
-            const prec = ((time - this.play_at) / 3000)*-2;
+            const prec = ((time - this.play_at) / 3000)*-NOTE_SPEED;
             const loc = distance * prec;
             return loc;
 		} else {
@@ -197,7 +200,9 @@ class NoteSpawner{
 					'data', 'freq', tmp[0]+this.lead_time, tmp[1],
 					this.note_mesh, 
 					mat,
-					false, this.start_height, this.target_height);
+					false, this.start_height, NOTE_SPEED//this.target_height
+					);
+				// TODO: the above produces the correct output but dose not work as expected
 			}
 		}
 		// no note to spawn
