@@ -39,6 +39,14 @@
         <script src = "../leaderboards/final-score-tally.js"></script>
         <script src = "../game.js"></script>
 
+        <!-- external stuff !-->
+        <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.5.0"></script>
+        <midi-player
+          src="../midi/midifiles/SilentNight.mid"
+          sound-font visualizer="#myVisualizer">
+        </midi-player>
+        <midi-visualizer type="piano-roll" id="myVisualizer"></midi-visualizer>
+
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
