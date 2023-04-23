@@ -39,17 +39,30 @@
         <script src = "../leaderboards/final-score-tally.js"></script>
         <script src = "../game.js"></script>
 
+        <!-- npm stuff !-->
+        <!-- <script src = "../../node_modules/tone/build/Tone.js"></script>
+        <script src = "../../node_modules/@magenta/music/es6/core.js"></script>
+        <script src = "../../node_modules/html-midi-player/dist/midi-player.min.js"></script> !-->
+
+
+        
+
         <!-- external stuff !-->
         <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.5.0"></script>
         <midi-player
           src="../midi/midifiles/SilentNight.mid"
-          sound-font visualizer="#myVisualizer">
+          sound-font visualizer="#myVisualizer" id="midi_player">
         </midi-player>
         <midi-visualizer type="piano-roll" id="myVisualizer"></midi-visualizer>
+
+        <!--<midi-payer id = 'midi_player' sound-font visualizer="#myVisualizer"></midi-payer>
+        <midi-visualizer type="piano-roll" id="myVisualizer"></midi-visualizer> !-->
 
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
+
+            //import 'html-midi-player'
 
             const canvas = document.getElementById( 'the-canvas' );
             /** @type {WebGLRenderingContext} */
@@ -230,7 +243,7 @@
 //----------------------------------------------------------------------------------------------------
             // NOTE: debuging vars
             //DRAW_ASTROIDS = true;
-            const DRAW_SKYBOX = false;
+            const DRAW_SKYBOX = true;
             const DRAW_SUN = true;
 
 
@@ -286,6 +299,8 @@
                 "meshs_loaded":0,
                 "background_loaded":0,
                 "acvite_note":0,
+                "midi_loaded":0,
+                "game_start":0,
             }
 
 //----------------------------------------------------------------------------------------------------
@@ -298,12 +313,17 @@
                 new LitMaterial( gl, 'tex/metal.png', gl.LINEAR, 0.25, 1, 2, 5 ); */
             const debug_tex = 
                 new LitMaterial(gl, null, gl.LINEAR, 0.25, 1, 2, 5);
+            const skybox_tex = 
+                new LitMaterial(gl, 'tex/2k_stars_milky_way.jpg', gl.LINEAR, 2, 1, 2, 5);
+            const note_tex =
+                new LitMaterial(gl, 'tex/2k_sun.jpg', gl.LINEAR, 1, 1, 2, 5);
 
             // skybox mesh to pass to score
+            var skybox = null;
             if (DRAW_SKYBOX){
-                let skybox = NormalMesh.box(gl, current_program, 1023,1023,1023, sky_tex);
+                skybox = NormalMesh.box(gl, current_program, 1023,1023,1023, skybox_tex);
+            } else {
             }
-            let skybox = null;
             
 //----------------------------------------------------------------------------------------------------
 //           SETUP LIGNTS
@@ -328,6 +348,10 @@
 //----------------------------------------------------------------------------------------------------
 //           GENERATE SCENE
 //----------------------------------------------------------------------------------------------------
+            const midi_file = "../midi/midifiles/SilentNight.mid"
+            const player = document.getElementById('midi_player');
+            const visuilizer = document.getElementById('myVisualizer');
+            //player.src = midi_file;
 
             // TODO: fetch meshs same way
             var score = null;
@@ -352,7 +376,7 @@
                 }
             }).then((response) => {
                 // then make score
-                score = new Score(response, 100, debug_tex, skybox);
+                score = new Score(response, 100, note_tex, skybox);
                 score_json = response;
                 tmp = response[response.length-1];
                 num_expected_noted = response.length;
@@ -361,9 +385,12 @@
                 //leaderboard = new NoteScore(response, )
                 console.log("new score made ",score);
                 gamestate.score_generated = 1;
+            }).then((response) => {
+                // make button that starts on click
             }).catch((err) => {
                 console.log("something went wrong making score ",err);
                 // TODO: bounce back to stage select on error here
+                gamestate.game_start = 1;
             });
 
             let note_duration = 0;
@@ -574,7 +601,7 @@
                     return;
                 }
 
-                if (gamestate.score_generated == 1) {
+                if (gamestate.game_start == 1) {
                     // score has loaded, change from loading screen to song in ready state
                     gamestate.score_generated = 2;
                     root = score.root;
@@ -585,8 +612,10 @@
                     root.set_sun_direction(1.0,0.0,0.0);
                     console.log("root: ",root);
 
-                    // TODO: add press key to continue here
+                    skybox = cam.create_child_node(0,0,0, 0,0,0, 1,1,1, skybox );
 
+                    // TODO: add press key to continue here
+                    player.start();
                     start = performance.now()
                 }
 
@@ -617,11 +646,11 @@
                 // Passive Movement
                 //--------------------------------------------------------------------------
                 // skybox follow cam
-                if (DRAW_SKYBOX) {
+                /*if (DRAW_SKYBOX) {
                     skybox.x = cam.x;
                     skybox.y = cam.y;
                     skybox.z = cam.z;
-                }
+                }*/
 
                 // hardcoded lights
                 // TODO: light as child node
