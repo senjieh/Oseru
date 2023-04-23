@@ -19,7 +19,7 @@ ColorDict = {
 	'purple':[],
 }
 
-NOTE_SPEED = 7;
+NOTE_SPEED = 1;
 // colored materials to look up to wrap notes in
 // TODO: material dict
 //MaterialDic = {

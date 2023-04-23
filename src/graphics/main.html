@@ -348,7 +348,7 @@
 //----------------------------------------------------------------------------------------------------
 //           GENERATE SCENE
 //----------------------------------------------------------------------------------------------------
-            const midi_file = "../midi/midifiles/SilentNight.mid"
+            const midi_file = "../midi/modmidi/SilentNight.mid"
             const player = document.getElementById('midi_player');
             const visuilizer = document.getElementById('myVisualizer');
             //player.src = midi_file;
@@ -383,10 +383,26 @@
                 // last note at last note + 10s
                 end_time = tmp.time_played * 1000 + 5000;
                 //leaderboard = new NoteScore(response, )
-                console.log("new score made ",score);
-                gamestate.score_generated = 1;
+                console.log("new score made, set timeout ",score);
+                // timeout for game state, game waits load time + 5s to ensure smooth transition
+                setTimeout(() => {
+                    gamestate.score_generated = 1;
+                }, 5000);
+                //gamestate.score_generated = 1;
             }).then((response) => {
-                // make button that starts on click
+                let button = new Menu('start_button', 'start_button_content');
+
+                button.open_modal(
+                    "Are you ready?",
+                    "Press to start!",
+                    "Start",
+                    "Stop?")
+                    .then((value) => {
+                        gamestate.game_start = 1;
+                        //player.start();
+                    }).catch((value) => {
+                        console.log("error, refresh page and try again ",value);
+                    })
             }).catch((err) => {
                 console.log("something went wrong making score ",err);
                 // TODO: bounce back to stage select on error here
@@ -602,6 +618,20 @@
                 }
 
                 if (gamestate.game_start == 1) {
+                    // start countown for song
+                    gamestate.game_start = 2;
+                    // 5 sec timer to game start, easier then counting time in render loop
+                    setTimeout(() => {
+                        gamestate.game_start = 3;
+                        player.start();
+                        }, 3000);
+                    //gamestate.game_start = 3;
+
+                } else if (gamestate.game_start == 2) {
+                    // in countdown
+
+                }
+                if (gamestate.game_start == 3) {
                     // score has loaded, change from loading screen to song in ready state
                     gamestate.score_generated = 2;
                     root = score.root;
@@ -612,11 +642,14 @@
                     root.set_sun_direction(1.0,0.0,0.0);
                     console.log("root: ",root);
 
-                    skybox = cam.create_child_node(0,0,0, 0,0,0, 1,1,1, skybox );
-
-                    // TODO: add press key to continue here
-                    player.start();
+                    //skybox = cam.create_child_node(0,0,0, 0,0,0, 1,1,1, skybox );
+                    gamestate.game_start = 4;
                     start = performance.now()
+                } else if (gamestate.score_generated == 1){
+                    // game loaded, change display animation
+                    gamestate.score_generated +=1;
+                } else if (gamestate.score_generated < 1) {
+                    // display loading screen
                 }
 
                 // check for end of game
@@ -646,11 +679,11 @@
                 // Passive Movement
                 //--------------------------------------------------------------------------
                 // skybox follow cam
-                /*if (DRAW_SKYBOX) {
-                    skybox.x = cam.x;
-                    skybox.y = cam.y;
-                    skybox.z = cam.z;
-                }*/
+                if (DRAW_SKYBOX) {
+                    score.skybox.x = cam.x;
+                    score.skybox.y = cam.y;
+                    score.skybox.z = cam.z;
+                }
 
                 // hardcoded lights
                 // TODO: light as child node
