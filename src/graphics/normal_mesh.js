@@ -52,6 +52,60 @@ class NormalMesh {
             gl.FLOAT, false, VERTEX_STRIDE, 36
         )
     }
+
+    /**
+     * load mesh from .obj file
+     */
+    static from_obj(gl, program, text, material) {
+        // because indices are base 1 let's just fill in the 0th data
+        const objPositions = [[0, 0, 0]];
+        const objTexcoords = [[0, 0]];
+        const objColor = [[0,0,0,1]];
+        const objNormals = [[0, 0, 0]];
+
+        function push_verts(lst) {
+            //for (let v of lst) {
+            //    verts.push(v);
+            //}
+            verts.push(lst);
+        }
+
+
+        let verts = [];
+        let indis = [];
+        const lines = text.split('\n');
+        for (let line of lines) {
+            const parts = line.split(/\s+/).slice(1);
+
+            if (line.startsWith("f ")) {
+                for (let part of parts) {
+                    //console.log(parts);
+                    const vals = part.split('/');
+                    objPositions[vals[0]].map(push_verts);
+                    [0.0, 0.0, 0.0, 1.0].map(push_verts);
+                    objTexcoords[vals[1]].map(push_verts);
+                    objNormals[vals[2]].map(push_verts);
+                }
+            } else if (line.startsWith("vn ")) {
+                objNormals.push(parts.map(parseFloat));
+            } else if (line.startsWith("vt ")) {
+                while(parts.length > 2) {
+                    parts.pop();
+                }
+                objTexcoords.push(parts.map(parseFloat));
+            } else if (line.startsWith("v ")) {
+                objPositions.push(parts.map(parseFloat));
+            }
+        }
+        for (let i=0; i<verts.length; i++) {
+            indis.push(i);
+        }
+
+
+
+        return new NormalMesh(gl, program, verts, indis, material, false);
+
+    }
     
 
     /**

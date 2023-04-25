@@ -21,3 +21,4 @@ go to [http://localhost:8000//main.html](http://localhost:8000//main.html)
 
 ## Credits
 Portions of this code was borrowed from Dr. Grant Williams
+Textures sourced from: https://www.solarsystemscope.com/textures/

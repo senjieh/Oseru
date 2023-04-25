@@ -24,7 +24,7 @@
     
 
     <body>
-        <canvas id = "the-canvas" width = "800" height = "600"></canvas>
+        <canvas id = "the-canvas" width = "1600" height = "1200"></canvas>
         <script src = "lib.js"></script>
         <script src = "vector.js"></script>
         <script src = "matrix.js"></script>
@@ -37,7 +37,26 @@
         <script src = "menu.js"></script>
         <script src = "../leaderboards/note-score.js"></script>
         <script src = "../leaderboards/final-score-tally.js"></script>
-        <script src = "../game.js"></script>
+        <script src = "../components/Game.js" type="module"></script>
+
+        <!-- npm stuff !-->
+        <!-- <script src = "../../node_modules/tone/build/Tone.js"></script>
+        <script src = "../../node_modules/@magenta/music/es6/core.js"></script>
+        <script src = "../../node_modules/html-midi-player/dist/midi-player.min.js"></script> !-->
+
+
+        
+
+        <!-- external stuff !-->
+        <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.5.0"></script>
+        <midi-player
+          src="../midi/midifiles/SilentNight.mid"
+          sound-font visualizer="#myVisualizer" id="midi_player">
+        </midi-player>
+        <midi-visualizer type="piano-roll" id="myVisualizer"></midi-visualizer>
+
+        <!--<midi-payer id = 'midi_player' sound-font visualizer="#myVisualizer"></midi-payer>
+        <midi-visualizer type="piano-roll" id="myVisualizer"></midi-visualizer> !-->
 
         <!-- external stuff !-->
         <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.5.0"></script>
@@ -50,6 +69,8 @@
         <script>
             // server: python3 -m http.server 
             // http://localhost:8000//main.html
+
+            //import 'html-midi-player'
 
             const canvas = document.getElementById( 'the-canvas' );
             /** @type {WebGLRenderingContext} */
@@ -230,7 +251,7 @@
 //----------------------------------------------------------------------------------------------------
             // NOTE: debuging vars
             //DRAW_ASTROIDS = true;
-            const DRAW_SKYBOX = false;
+            const DRAW_SKYBOX = true;
             const DRAW_SUN = true;
 
 
@@ -286,6 +307,8 @@
                 "meshs_loaded":0,
                 "background_loaded":0,
                 "acvite_note":0,
+                "midi_loaded":0,
+                "game_start":0,
             }
 
 //----------------------------------------------------------------------------------------------------
@@ -298,12 +321,20 @@
                 new LitMaterial( gl, 'tex/metal.png', gl.LINEAR, 0.25, 1, 2, 5 ); */
             const debug_tex = 
                 new LitMaterial(gl, null, gl.LINEAR, 0.25, 1, 2, 5);
+            const skybox_tex = 
+                new LitMaterial(gl, 'tex/2k_stars_milky_way.jpg', gl.LINEAR, 2, 1, 2, 5);
+            const target_tex =
+                new LitMaterial(gl, 'tex/2k_sun.jpg', gl.LINEAR, 1, 1, 2, 5);
+            const note_tex =
+                new LitMaterial(gl, 'tex/2k_neptune.jpg', gl.LINEAR, 1, 1, 2, 5);
+
 
             // skybox mesh to pass to score
+            var skybox = null;
             if (DRAW_SKYBOX){
-                let skybox = NormalMesh.box(gl, current_program, 1023,1023,1023, sky_tex);
+                skybox = NormalMesh.box(gl, current_program, 1023,1023,1023, skybox_tex);
+            } else {
             }
-            let skybox = null;
             
 //----------------------------------------------------------------------------------------------------
 //           SETUP LIGNTS
@@ -323,11 +354,79 @@
 //           TEST CODE
 //----------------------------------------------------------------------------------------------------
             //startPitchDetection()
+            let zero_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            let one_node = new Node(0,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            let two_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            let three_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            fetch('obj/0_v1.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                text = parse_obj(response);
+                zero_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
+            });
 
+            fetch('obj/1_v1.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                text = parse_obj(response);
+                one_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
+            });
+
+            fetch('obj/2_v1.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                text = parse_obj(response);
+                two_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
+            });
+
+            fetch('obj/3_v1.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                text = parse_obj(response);
+                three_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
+            });
+
+            /*let tmp = new Game(null);
+            tmp.startPitchDetection().then((response) => {
+                console.log(response)
+            });*/
+            //startPitchDetection();
 
 //----------------------------------------------------------------------------------------------------
 //           GENERATE SCENE
 //----------------------------------------------------------------------------------------------------
+            const midi_file = "../midi/modmidi/SilentNight.mid"
+            const player = document.getElementById('midi_player');
+            const visuilizer = document.getElementById('myVisualizer');
+            //player.src = midi_file;
 
             // TODO: fetch meshs same way
             var score = null;
@@ -340,6 +439,7 @@
             var num_expected_noted = 0;
             const file = "jsonMidi/SilentNight.json";
             var final_score = new FinalScore(file);
+            // TODO: notes currently timed to top of note reaching bottom of target, not middle-to-middle as should be expected
             fetch(file).then((response) => {
                 // get note json
                 if (response.status == "200") {
@@ -352,18 +452,93 @@
                 }
             }).then((response) => {
                 // then make score
-                score = new Score(response, 100, debug_tex, skybox);
+                score = new Score(response, 100, note_tex, skybox, target_tex);
                 score_json = response;
                 tmp = response[response.length-1];
                 num_expected_noted = response.length;
                 // last note at last note + 10s
                 end_time = tmp.time_played * 1000 + 5000;
                 //leaderboard = new NoteScore(response, )
-                console.log("new score made ",score);
-                gamestate.score_generated = 1;
+                console.log("new score made, set timeout ",score);
+                // timeout for game state, game waits load time + 5s to ensure smooth transition
+                setTimeout(() => {
+                    gamestate.score_generated = 1;
+                }, 5000);
+                //gamestate.score_generated = 1;
+            }).then((response) => {
+                let button = new Menu('start_button', 'start_button_content');
+
+                button.open_modal(
+                    "Are you ready?",
+                    "Press to start!",
+                    "Start",
+                    "Stop?")
+                    .then((value) => {
+                        gamestate.game_start = 1;
+                        //player.start();
+                    }).catch((value) => {
+                        console.log("error, refresh page and try again ",value);
+                    })
             }).catch((err) => {
                 console.log("something went wrong making score ",err);
                 // TODO: bounce back to stage select on error here
+                gamestate.game_start = 1;
+            });
+
+            let test_but = new Menu('start_button', 'start_button_content');
+
+            function roll() {
+                for (let child of cam.children) {
+                    child.add_pitch(0.01);
+                }
+                setTimeout(roll, 20);
+            }
+
+            function recursive_spin() {
+                for (child of cam.children) {
+                    if (child.data instanceof NormalMesh || child.data instanceof NodeNote) {
+                        child.add_yaw(0.01);
+                        child.add_pitch(0.05);
+                        child.add_roll(0.15);
+                    }
+                    recursive_spin_h(child);
+                }
+                setTimeout(recursive_spin, 20);
+            }
+
+            function recursive_spin_h(node) {
+                for (let child of node.children) {
+                    if (child.data instanceof NormalMesh || child.data instanceof NodeNote) {
+                        child.add_yaw(0.005);
+                        child.add_pitch(0.01);
+                        child.add_roll(0.03);
+                    }
+                    recursive_spin_h(child);
+                }
+            }
+            test_but.open_modal(
+                "Do things",
+                "I dare you",
+                "Spin",
+                "Do a barrel roll")
+                .then((value) => {
+                    recursive_spin();
+                    for (let i=0; i < cam.children.length; i++) {
+                        console.log(cam.children[i].y)
+                        if (i% 2 == 0 && cam.children[i].data instanceof NoteSpawner) {
+                            cam.children[i].add_roll(0.5);
+                            cam.children[i].y = 0.911;
+                        }
+                    }
+                }).catch((value) => {
+                    console.log(value);
+                    roll();
+                    
+                    /*setTimeout(() => {
+                        for (let child of cam.children) {
+                            child.add_roll(0.1);
+                        }
+                    },20);*/
             });
 
             let note_duration = 0;
@@ -376,6 +551,9 @@
             let cam = root.create_node(
                 0,0,0, 0,0,0, 1,1,1);
             root.set_camera_node(cam);
+            let skybox_note = cam.create_child_node(0,0,0, 0,0,0, 1,1,1, skybox);
+
+            //root.root.children.push(test_node);
 
             // initalize sun
             //root.set_sun_color(1.0, 0.95, 0.85, 0);
@@ -574,7 +752,38 @@
                     return;
                 }
 
-                if (gamestate.score_generated == 1) {
+                if (gamestate.game_start == 1) {
+                    // start countown for song
+                    gamestate.game_start = 2;
+                    // 3 sec timer to game start, easier then counting time in render loop
+                    // set a bunch of timers for 3-2-1-0 countdown
+                    setTimeout(() => {
+                        gamestate.game_start = 3;
+                        player.start();
+                        }, 3000);
+                    root.root.children.push(three_node);
+                    setTimeout(() => {
+                        root.root.children.pop();
+                        root.root.children.push(two_node);
+                    },1000);
+                    setTimeout(() => {
+                        root.root.children.pop();
+                        root.root.children.push(one_node);
+                    },2000);
+                    setTimeout(() => {
+                        root.root.children.pop();
+                        root.root.children.push(zero_node); // this isn't displaying, idk why
+                    },3000);
+                    setTimeout(() => {
+                        //root.root.children.pop();
+                    },4000);
+                    //gamestate.game_start = 3;
+
+                } else if (gamestate.game_start == 2) {
+                    // in countdown
+
+                }
+                if (gamestate.game_start == 3) {
                     // score has loaded, change from loading screen to song in ready state
                     gamestate.score_generated = 2;
                     root = score.root;
@@ -585,13 +794,18 @@
                     root.set_sun_direction(1.0,0.0,0.0);
                     console.log("root: ",root);
 
-                    // TODO: add press key to continue here
-
+                    //skybox = cam.create_child_node(0,0,0, 0,0,0, 1,1,1, skybox );
+                    gamestate.game_start = 4;
                     start = performance.now()
+                } else if (gamestate.score_generated == 1){
+                    // game loaded, change display animation
+                    gamestate.score_generated +=1;
+                } else if (gamestate.score_generated < 1) {
+                    // display loading screen
                 }
 
                 // check for end of game
-                if (gamestate.score_generated >= 2 && (performance.now() - start) > end_time) {
+                if (gamestate.game_start >= 4 && (performance.now() - start) > end_time) {
                     // call end of game
                     gamestate.score_generated = 3;
                     const score = final_score.CalculateFinalScore(extra_note);
@@ -617,11 +831,11 @@
                 // Passive Movement
                 //--------------------------------------------------------------------------
                 // skybox follow cam
-                if (DRAW_SKYBOX) {
-                    skybox.x = cam.x;
-                    skybox.y = cam.y;
-                    skybox.z = cam.z;
-                }
+                /*if (DRAW_SKYBOX) {
+                    score.skybox.x = cam.x;
+                    score.skybox.y = cam.y;
+                    score.skybox.z = cam.z;
+                }*/
 
                 // hardcoded lights
                 // TODO: light as child node

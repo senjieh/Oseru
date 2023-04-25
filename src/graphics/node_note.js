@@ -19,7 +19,9 @@ ColorDict = {
 	'purple':[],
 }
 
-NOTE_SPEED = 5;
+// note speed setting
+const NOTE_SPEED = 1;
+
 // colored materials to look up to wrap notes in
 // TODO: material dict
 //MaterialDic = {
@@ -141,13 +143,14 @@ class NoteSpawner{
 	 * @param {Node} pointer to node spawner lives in
 	 * @param {NormalMesh} note shape
 	 */
-	constructor(data, note_mesh, start_height, node, lead_time=5) {
+	constructor(data, note_mesh, start_height, node, target_tex, lead_time=5) {
 		this.data = data;
 		this.note_mesh = note_mesh;
 		this.start_height = start_height;
 		this.node = node;
 		this.lead_time = lead_time;
 		this.num_spawns = 0;
+		this.target_tex = target_tex;
 		//this.raw_note_data = raw_note_data;
 	}
 
@@ -214,8 +217,10 @@ class NoteSpawner{
 	 * 
 	 * @return {Node} target mesh node
 	 */
-	make_target(tex=this.mesh.material) {
-		return this.node.create_child_node(0, this.target_height, 0, 0,0,0, 1,1,1, this.mesh);	
+	make_target() {
+		target = this.mesh;
+		target.material = this.target_tex
+		return this.node.create_child_node(0, this.target_height, 0, 0,0,0, 1,1,1, target);	
 	}
 
 	/**
@@ -252,7 +257,7 @@ class Score {
 	 * 
 	 * @return {Scene}
 	 */
-	constructor(note_data, tempo, note_tex, skybox_mesh, background=null) {
+	constructor(note_data, tempo, note_tex, skybox_mesh, target_tex, background=null) {
 		// song data in form:
 		// [['time_played', 'note', 'note_duration (s)','velocity','channel']]
 
@@ -332,6 +337,9 @@ class Score {
         const note_mesh = NormalMesh.platform(gl, current_program, 
                     width, height, 0, 1,
                     note_tex);
+        const target_mesh = NormalMesh.platform(gl, current_program, 
+                    width, height, 0, 1,
+                    target_tex);
 
         for (let i=0; i<num_notes; i++) {
             const left = -edge_distance + (padding + width)/2 + i*(width+padding);
@@ -339,13 +347,15 @@ class Score {
             // note spawners children of camera to lock them in correct position
             let note_spawner_node = this.cam.create_child_node(left,bottom,distance, 0,0,0, 1,1,1,);
             // debug to create static notes
-            let note_spawner = new NoteSpawner(null, note_mesh, bottom, note_spawner_node);
+            let note_spawner = new NoteSpawner(null, note_mesh, bottom, note_spawner_node, target_tex);
             note_spawner_node.data = note_spawner;
             spawners.push(note_spawner_node);
 
             // create targets
+            //let target_mesh = note_mesh;
+            //target_mesh.material = target_tex;
             let target = note_spawner_node.create_child_node(0, note_spawner.get_target_height(padding, height),0, 
-            	0,0.25,0, 1,1,1, note_mesh);
+            	0,0.25,0, 1,1,1, target_mesh);
         }
 
         // add note data

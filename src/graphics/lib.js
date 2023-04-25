@@ -377,3 +377,49 @@ function get_json_file(file, callback) {
     }
     rawFile.send(null);
 }
+
+
+/** 
+ * parse the text of a .obj file, stripping out comments and re-formatting it
+ * ref: https://webglfundamentals.org/webgl/lessons/webgl-load-obj.html
+ * NOTE: this will strip out all but vertex, vert normal, and tex data
+ * TODO: this should be redundant merge into NormalMesh class method
+ * 
+ * @param {String} text of file
+ * 
+ * @return {String} Parsed text
+ */
+function parse_obj(text) {
+    /*const keywords = {
+      };*/
+    const keywords = ["v", "vn", "vt", "f"];
+     
+      const keywordRE = /(\w*)(?: )*(.*)/;
+      const lines = text.split('\n');
+      let final = "";
+      for (let lineNo = 0; lineNo < lines.length; ++lineNo) {
+        const line = lines[lineNo].trim();
+        if (line === '' || line.startsWith('#')) {
+          continue;
+        }
+        const m = keywordRE.exec(line);
+        if (!m) {
+          continue;
+        }
+        const [, keyword, unparsedArgs] = m;
+        const parts = line.split(/\s+/).slice(1);
+        /*const handler = keywords[keyword];
+        if (!handler) {
+          console.log('unhandled keyword:', keyword, 'at line', lineNo + 1);
+          continue;
+        }
+        handler(parts, unparsedArgs);*/
+        if (keywords.includes(keyword)) {
+            final += line;
+            final += "\n";
+        } else {
+          console.log('unhandled keyword:', keyword, 'at line', lineNo + 1);
+        }
+      }
+      return final;
+}
