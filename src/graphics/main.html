@@ -434,6 +434,62 @@
                 gamestate.game_start = 1;
             });
 
+            let test_but = new Menu('start_button', 'start_button_content');
+
+            function roll() {
+                for (let child of cam.children) {
+                    child.add_pitch(0.01);
+                }
+                setTimeout(roll, 20);
+            }
+
+            function recursive_spin() {
+                for (child of cam.children) {
+                    if (child.data instanceof NormalMesh || child.data instanceof NodeNote) {
+                        child.add_yaw(0.05);
+                        child.add_pitch(0.1);
+                        child.add_roll(0.3);
+                    }
+                    recursive_spin_h(child);
+                }
+                setTimeout(recursive_spin, 20);
+            }
+
+            function recursive_spin_h(node) {
+                for (let child of node.children) {
+                    if (child.data instanceof NormalMesh || child.data instanceof NodeNote) {
+                        child.add_yaw(0.05);
+                        child.add_pitch(0.1);
+                        child.add_roll(0.3);
+                    }
+                    recursive_spin_h(child);
+                }
+            }
+            test_but.open_modal(
+                "Do things",
+                "I dare you",
+                "Spin",
+                "Do a barrel roll")
+                .then((value) => {
+                    recursive_spin();
+                    for (let i=0; i < cam.children.length; i++) {
+                        console.log(cam.children[i].y)
+                        if (i% 2 == 0 && cam.children[i].data instanceof NoteSpawner) {
+                            cam.children[i].add_roll(0.5);
+                            cam.children[i].y = 0.911;
+                        }
+                    }
+                }).catch((value) => {
+                    console.log(value);
+                    //roll();
+                    
+                    /*setTimeout(() => {
+                        for (let child of cam.children) {
+                            child.add_roll(0.1);
+                        }
+                    },20);*/
+            });
+
             let note_duration = 0;
             let last_check = 0;
 
