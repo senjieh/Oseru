@@ -37,7 +37,7 @@
         <script src = "menu.js"></script>
         <script src = "../leaderboards/note-score.js"></script>
         <script src = "../leaderboards/final-score-tally.js"></script>
-        <script src = "../game.js"></script>
+        <script src = "../components/Game.js"></script>
 
         <!-- npm stuff !-->
         <!-- <script src = "../../node_modules/tone/build/Tone.js"></script>
@@ -343,6 +343,22 @@
 //           TEST CODE
 //----------------------------------------------------------------------------------------------------
             //startPitchDetection()
+            test_node = new Node(0,0,10, 0,0,0, 1,1,1, null);
+            fetch('obj/test.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                t = parse_obj(response);
+                console.log(".obj text ",response);
+                test_node.data = NormalMesh.from_obj(gl, lit_program, response, note_tex);
+                console.log("test mesh ",test_node.data);
+            })
 
 
 //----------------------------------------------------------------------------------------------------
@@ -419,6 +435,9 @@
             let cam = root.create_node(
                 0,0,0, 0,0,0, 1,1,1);
             root.set_camera_node(cam);
+            let skybox_note = cam.create_child_node(0,0,0, 0,0,0, 1,1,1, skybox);
+
+            //root.root.children.push(test_node);
 
             // initalize sun
             //root.set_sun_color(1.0, 0.95, 0.85, 0);
@@ -653,7 +672,7 @@
                 }
 
                 // check for end of game
-                if (gamestate.score_generated >= 2 && (performance.now() - start) > end_time) {
+                if (gamestate.game_start >= 4 && (performance.now() - start) > end_time) {
                     // call end of game
                     gamestate.score_generated = 3;
                     const score = final_score.CalculateFinalScore(extra_note);
@@ -679,11 +698,11 @@
                 // Passive Movement
                 //--------------------------------------------------------------------------
                 // skybox follow cam
-                if (DRAW_SKYBOX) {
+                /*if (DRAW_SKYBOX) {
                     score.skybox.x = cam.x;
                     score.skybox.y = cam.y;
                     score.skybox.z = cam.z;
-                }
+                }*/
 
                 // hardcoded lights
                 // TODO: light as child node
