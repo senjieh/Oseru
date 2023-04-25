@@ -1,14 +1,12 @@
 // Note.js
 import React from 'react';
-const Note = ({ indexCount, noteIndex, duration }) => {
-
-    const animationDuration = 10/2;
+const Note = ({ indexCount, noteIndex, duration, noteSpeed }) => {
 
     const noteStyle = {
-        left: `${noteIndex * (100/(indexCount+1))}%`,
+        left: `${noteIndex * (100/(indexCount))}%`,
         width: `calc(100%/${indexCount})`,
-        height: `calc((100%/${animationDuration * duration}))`,
-        animationDuration: `${animationDuration}s`,
+        height: `calc((100%/${noteSpeed/duration}))`,
+        animationDuration: `${noteSpeed*2}s`,
     };
 
     return <div className="note" style={noteStyle}></div>;

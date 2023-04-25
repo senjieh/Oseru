@@ -4,7 +4,13 @@ function frequencyToNote(frequency) {
 
   var noteIntervalCount = 12 * Math.log2(frequency / baseFrequency[1]);
   var noteIndex = Math.round(noteIntervalCount);
-  return notes[(noteIndex % 12 + 12) % 12];
+  var note = notes[(noteIndex % 12 + 12) % 12];
+
+  // Calculate the octave number
+  var octave = Math.floor((noteIndex + 9) / 12) + 4;
+
+  // Return the note and octave as an object
+  return note + octave;
 }
 
 function quadraticInterpolation(arr, index) {
@@ -44,7 +50,7 @@ function calcFrequency(buffer, sampleRate) {
         const accurateNote = frequencyToNote(detectedFrequency);
 
         notesData.push([
-          accurateNote[0], // note
+          accurateNote, // note
           detectedFrequency, // detected frequency
           accumulativeNoteValue / accumulativeNoteCount, // average accumulative amplitude of note
           buffer[largestAmplitude], // largest amplitude of note

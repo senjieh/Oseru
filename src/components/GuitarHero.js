@@ -4,9 +4,10 @@ import Note from './Note';
 
 const GuitarHero = ({ notes, play }) => {
   const [activeNotes, setActiveNotes] = useState([]);
-
+  const noteDuration = 10
 
   const highestmidi = () => {
+    console.log(notes);
     let highest = null;
     for (let i = 0; i < notes.length; i++) {
       const item = notes[i];
@@ -42,7 +43,7 @@ const GuitarHero = ({ notes, play }) => {
             ...prevNotes,
             { ...note, noteIndex },
           ]);
-        }, note.time_played * 1000);
+        }, ((note.time_played- noteDuration) * 1000));
         spawnTimers.push(spawnTimer);
       });
 
@@ -63,7 +64,6 @@ const GuitarHero = ({ notes, play }) => {
 
   const noteArr = () => {
     let numbers = [];
-
     for (let i = lowestmidi()['midi_note']; i <= highestmidi()['midi_note']; i += 1) {
       numbers.push(i);
     }
@@ -77,9 +77,10 @@ const GuitarHero = ({ notes, play }) => {
         {activeNotes.map((note, index) => (
           <Note
             key={index}
-            indexCount={highestmidi()['midi_note'] - lowestmidi()['midi_note']}
+            indexCount={highestmidi()['midi_note'] - lowestmidi()['midi_note']+1}
             noteIndex={note.midi_note - lowestmidi()['midi_note']}
             duration={note.note_held}
+            noteSpeed={noteDuration}
           />
         ))}
       </div>

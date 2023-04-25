@@ -5,6 +5,8 @@ import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 import Dash from './pages/Dash';
 import Home from './pages/Home';
+import Play from './pages/Play';
+
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -31,7 +33,15 @@ function App() {
                     <Dash />
                   </ProtectedRoute>
                 }
-              />            
+              />
+              <Route
+                path='/play'
+                element={
+                  <ProtectedRoute>
+                    <Play />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path='/'
                 element={

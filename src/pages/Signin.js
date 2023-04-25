@@ -8,7 +8,6 @@ const Signin = () => {
   //create states for input fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const { signIn, user } = UserAuth();
 
   const navigate = useNavigate();

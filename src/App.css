@@ -274,6 +274,24 @@ body {
 }
 
 
+.light-small-button {
+  font-family: 'WorkSans';
+  font-weight: 300;
+  font-size: 0.8rem;
+  background-color:#dc2414;
+  color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #ffffff;
+  padding: 1rem;
+  width: 12rem;
+  letter-spacing: 1px;
+}
+
+.light-small-button:hover {
+  background-color:#ffffff;
+  color: #dc2414;
+}
+
 /* Note.css */
 .note {
   position: absolute;
@@ -310,12 +328,12 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  border-bottom: 5px solid #dc2414; /* update this line */
 }
 
-.ghcontainer {
+.gh-container {
   height: 75vh;
   overflow: hidden;
-  border-bottom: 20px solid #dc2414; /* update this line */
 }
 
 .note-info {
