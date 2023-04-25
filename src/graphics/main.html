@@ -346,8 +346,11 @@
 //           TEST CODE
 //----------------------------------------------------------------------------------------------------
             //startPitchDetection()
-            test_node = new Node(0,0,10, 0,0,0, 1,1,1, null);
-            fetch('obj/test.obj').then((response) => {
+            let zero_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            let one_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            let two_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            let three_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            fetch('obj/0_v1.obj').then((response) => {
                 if (response.status == "200") {
                     console.log("fetched data",response);
                     gamestate.json_midi_loaded = 1;
@@ -358,9 +361,49 @@
                 }
             }).then((response) => {
                 text = parse_obj(response);
-                console.log(".obj text ",response);
-                test_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
-                console.log("test mesh ",test_node.data);
+                zero_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
+            });
+
+            fetch('obj/1_v1.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                text = parse_obj(response);
+                one_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
+            });
+
+            fetch('obj/2_v1.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                text = parse_obj(response);
+                two_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
+            });
+
+            fetch('obj/3_v1.obj').then((response) => {
+                if (response.status == "200") {
+                    console.log("fetched data",response);
+                    gamestate.json_midi_loaded = 1;
+                    return response.text();
+                }
+                else {
+                    console.log("ERROR: ",response.status);
+                }
+            }).then((response) => {
+                text = parse_obj(response);
+                three_node.data = NormalMesh.from_obj(gl, lit_program, text, note_tex);
             });
 
             /*let tmp = new Game(null);
@@ -446,9 +489,9 @@
             function recursive_spin() {
                 for (child of cam.children) {
                     if (child.data instanceof NormalMesh || child.data instanceof NodeNote) {
-                        child.add_yaw(0.05);
-                        child.add_pitch(0.1);
-                        child.add_roll(0.3);
+                        child.add_yaw(0.01);
+                        child.add_pitch(0.05);
+                        child.add_roll(0.15);
                     }
                     recursive_spin_h(child);
                 }
@@ -458,9 +501,9 @@
             function recursive_spin_h(node) {
                 for (let child of node.children) {
                     if (child.data instanceof NormalMesh || child.data instanceof NodeNote) {
-                        child.add_yaw(0.05);
-                        child.add_pitch(0.1);
-                        child.add_roll(0.3);
+                        child.add_yaw(0.005);
+                        child.add_pitch(0.01);
+                        child.add_roll(0.03);
                     }
                     recursive_spin_h(child);
                 }
@@ -502,7 +545,7 @@
             root.set_camera_node(cam);
             let skybox_note = cam.create_child_node(0,0,0, 0,0,0, 1,1,1, skybox);
 
-            root.root.children.push(test_node);
+            //root.root.children.push(test_node);
 
             // initalize sun
             //root.set_sun_color(1.0, 0.95, 0.85, 0);
