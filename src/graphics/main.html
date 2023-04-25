@@ -347,7 +347,7 @@
 //----------------------------------------------------------------------------------------------------
             //startPitchDetection()
             let zero_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
-            let one_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
+            let one_node = new Node(0,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
             let two_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
             let three_node = new Node(-1.5,-1.5,10, 0,0,0, 0.1,0.1,0.1, null);
             fetch('obj/0_v1.obj').then((response) => {
@@ -747,11 +747,28 @@
                 if (gamestate.game_start == 1) {
                     // start countown for song
                     gamestate.game_start = 2;
-                    // 5 sec timer to game start, easier then counting time in render loop
+                    // 3 sec timer to game start, easier then counting time in render loop
+                    // set a bunch of timers for 3-2-1-0 countdown
                     setTimeout(() => {
                         gamestate.game_start = 3;
                         player.start();
                         }, 3000);
+                    root.root.children.push(three_node);
+                    setTimeout(() => {
+                        root.root.children.pop();
+                        root.root.children.push(two_node);
+                    },1000);
+                    setTimeout(() => {
+                        root.root.children.pop();
+                        root.root.children.push(one_node);
+                    },2000);
+                    setTimeout(() => {
+                        root.root.children.pop();
+                        root.root.children.push(zero_node);
+                    },3000);
+                    setTimeout(() => {
+                        //root.root.children.pop();
+                    },4000);
                     //gamestate.game_start = 3;
 
                 } else if (gamestate.game_start == 2) {
